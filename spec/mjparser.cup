@@ -1,0 +1,116 @@
+terminal PROGRAM, IDENT, LBRACE, RBRACE;
+terminal CONST, SEMI;
+terminal COMMA;
+terminal ASSIGN, NUM_CONST, CHAR_CONST, BOOL_CONST;
+terminal LBRACKET, RBRACKET;
+terminal ENUM;
+terminal CLASS, EXTENDS;
+terminal ABSTRACT;
+terminal LPAREN, RPAREN, VOID;
+
+nonterminal Program, DeclarationList MethodDeclarationList;
+nonterminal DeclarationElem;
+nonterminal ConstDeclaration, VarDeclaration, ClassDeclaration, EnumDeclaration, AbstractClassDeclaration;
+nonterminal Type, ConstList;
+nonterminal ConstElem;
+nonterminal VarList;
+nonterminal VarElem;
+nonterminal EnumList;
+nonterminal EnumElem;
+nonterminal VarDeclarationList;
+nonterminal AbstractClassMethodDeclarationList;
+nonterminal MethodHeader;
+nonterminal FormalParamsList;
+nonterminal Statement;
+
+Program ::= (Program) PROGRAM IDENT DeclarationList LBRACE MethodDeclarationList RBRACE;
+DeclarationList ::= (DeclarationList) DeclarationList DeclarationElem
+                    |
+                    (VarDeclarationListEmpty) /* epsilon */
+                    ;
+DeclarationElem ::= (DeclarationElemConst) ConstDeclaration
+                    |
+                    (DeclarationElemVar) VarDeclaration
+                    |
+                    (DeclarationElemClass) ClassDeclaration
+                    |
+                    (DeclarationElemEnum) EnumDeclaration
+                    |
+                    (DeclarationElemAbstractClass) AbstractClassDeclaration
+                    ;
+ConstDeclaration ::= (ConstDeclaration) CONST Type ConstList SEMI;
+Type ::= (Type) IDENT;
+ConstList ::= (ConstListMultiple) ConstList COMMA ConstElem
+              |
+              (ConstListSingle) ConstElem
+              ;
+ConstElem ::= (ConstElemNum) IDENT ASSIGN NUM_CONST
+              |
+              (ConstElemChar) IDENT ASSIGN CHAR_CONST
+              |
+              (ConstElemBool) IDENT ASSIGN BOOL_CONST
+              ;
+VarDeclaration ::= (VarDeclaration) Type VarList SEMI;
+VarList ::= (VarListMultiple) VarList COMMA VarElem
+            |
+            (VarListSingle) VarElem
+            ;
+VarElem ::= (VarElem) IDENT
+            |
+            (VarElemArray) IDENT LBRACKET RBRACKET
+            ;
+EnumDeclaration ::= (EnumDeclaration) ENUM IDENT LBRACE EnumList RBRACE;
+EnumList ::= (EnumListMultiple) EnumList COMMA EnumElem
+             |
+             (EnumListSingle) EnumElem
+             ;
+EnumElem ::= (EnumElem) IDENT
+             |
+             (EnumElemAssigned) IDENT ASSIGN NUM_CONST
+             ;
+ClassDeclaration ::= (ClassDeclaration) CLASS IDENT EXTENDS Type LBRACE VarDeclarationList LBRACE MethodDeclarationList RBRACE RBRACE
+                     |
+                     (ClassDeclarationNoExtends) CLASS IDENT LBRACE VarDeclarationList LBRACE MethodDeclarationList RBRACE RBRACE
+                     |
+                     (ClassDeclarationNoMethodList) CLASS IDENT EXTENDS Type LBRACE VarDeclarationList RBRACE
+                     |
+                     (ClassDeclarationNoExtendsNoMethodList) CLASS IDENT LBRACE VarDeclarationList RBRACE
+                     ;
+VarDeclarationList ::= (VarDeclarationList) VarDeclarationList VarDeclaration
+                       |
+                       (VarDeclarationListEmpty) /* epsilon */
+                       ;
+AbstractClassDeclaration ::= (AbstractClassDeclaration) ABSTRACT CLASS IDENT EXTENDS Type LBRACE AbstractClassMethodDeclarationList RBRACE
+                             |
+                             (AbstractClassDeclarationNoExtends) ABSTRACT CLASS IDENT LBRACE AbstractClassMethodDeclarationList RBRACE
+                             |
+                             (AbstractClassDeclarationNoMethodList) ABSTRACT CLASS IDENT EXTENDS Type
+                             |
+                             (AbstractClassDeclarationNoExtendsNoMethodList) ABSTRACT CLASS IDENT
+                             ;
+AbstractClassMethodDeclarationList ::= (AbstractClassMethodDeclarationListAbstract) AbstractClassMethodDeclarationList ABSTRACT MethodHeader SEMI
+                                       |
+                                       (AbstractClassMethodDeclarationListConcrete) AbstractClassMethodDeclarationList MethodHeader VarDeclarationList LBRACE StatementList RBRACE
+                                       |
+                                       (AbstractClassMethodDeclarationListEmpty) /* epsilon */
+                                       ;
+MethodDeclarationList ::= (MethodDeclarationList) MethodDeclarationList MethodHeader VarDeclarationList LBRACE StatementList RBRACE
+                          |
+                          (MethodDeclarationListEmpty) /* epsilon */
+                          ;
+MethodHeader ::= (MethodHeader) Type IDENT LPAREN FormalParamsList RPAREN
+                 |
+                 (MethodHeaderNoParams) Type IDENT LPAREN RPAREN
+                 |
+                 (MethodHeaderVoid) VOID IDENT LPAREN FormalParamsList RPAREN
+                 |
+                 (MethodHeaderVoidNoParams) VOID IDENT LPAREN RPAREN
+                 ;
+FormalParamsList ::= (FormalParamsListMultiple) FormalParamsList COMMA Type VarElem
+                     |
+                     (FormalParamsListSingle) Type VarElem
+                     ;
+StatementList ::= (StatementList) StatementList Statement
+                  |
+                  (StatementListEmpty) /* epsilon */
+                  ;
