@@ -1,7 +1,6 @@
 program Test
-    int x, y;
 {
     void main() {
-
+        x++;
     }
 }

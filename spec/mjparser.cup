@@ -43,36 +43,39 @@ terminal PROGRAM, ENUM, CLASS, ABSTRACT, CONST, VOID, EXTENDS;
 terminal BREAK, ELSE, IF, NEW, PRINT, READ, RETURN, CONTINUE, FOR, LENGTH, SWITCH, CASE;
 terminal PLUS, MINUS, MUL, DIV, MOD, AND, OR, ASSIGN, INC, DEC;
 terminal EQUAL, NOT_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL;
-terminal SEMI, COLON, COMMA, DOT, LPAREN, RPAREN, LBRACKET, RBRACKET, LBRACE, RBRACE;
+terminal SEMI, COLON, COMMA, DOT, LPAREN, RPAREN, LBRACKET, RBRACKET, LBRACE, RBRACE, QUESTION;
 terminal String IDENT;
 terminal Integer NUM_CONST;
 terminal Character CHAR_CONST;
 terminal Boolean BOOL_CONST;
 
-nonterminal Program, DeclarationList, Declaration;
+nonterminal Program, DeclarationList;
 nonterminal ConstDeclaration, VarDeclaration, ClassDeclaration, EnumDeclaration, AbstractClassDeclaration;
 nonterminal Type, ConstList, Const, VarList, Var, EnumConstList, EnumConst;
 nonterminal MethodDeclarationList, AbstractClassMethodDeclarationList, VarDeclarationList;
 nonterminal MethodDeclaration, AbstractMethodDeclaration, MethodHeader, FormalParamsList, FormalParam;
 nonterminal StatementList, Statement, DesignatorStatement, Designator, CaseList, Case;
 nonterminal IfDeclaration, ReturnDeclaration, PrintDeclaration, ForDeclaration;
-nonterminal Expression, Condition;
+nonterminal Expression, Condition, ActualParamsList, SuffixList, Suffix, ConditionFact, ConditionTerm;
+nonterminal Term, TermList, Factor, FactorList, Sign, ArithmeticExpression;
+nonterminal ProgramName, EnumName, ClassName, AbstractClassName, ArrayName, MethodName, AbstractMethodName;
 
-Program ::= (Program) PROGRAM IDENT DeclarationList LBRACE MethodDeclarationList RBRACE;
-DeclarationList ::= (DeclarationList) DeclarationList Declaration
+precedence left ELSE;
+
+Program ::= (Program) PROGRAM ProgramName DeclarationList LBRACE MethodDeclarationList RBRACE;
+ProgramName ::= (ProgramName) IDENT;
+DeclarationList ::= (DeclarationListConst) DeclarationList ConstDeclaration
+                    |
+                    (DeclarationListVar) DeclarationList VarDeclaration
+                    |
+                    (DeclarationListClass) DeclarationList ClassDeclaration
+                    |
+                    (DeclarationListEnum) DeclarationList EnumDeclaration
+                    |
+                    (DeclarationListAbstractClass) DeclarationList AbstractClassDeclaration
                     |
                     (DeclarationListEmpty) /* epsilon */
                     ;
-Declaration ::= (DeclarationElemConst) ConstDeclaration
-                |
-                (DeclarationElemVar) VarDeclaration
-                |
-                (DeclarationElemClass) ClassDeclaration
-                |
-                (DeclarationElemEnum) EnumDeclaration
-                |
-                (DeclarationElemAbstractClass) AbstractClassDeclaration
-                ;
 ConstDeclaration ::= (ConstDeclaration) CONST Type ConstList SEMI;
 Type ::= (Type) IDENT;
 ConstList ::= (ConstListMultiple) ConstList COMMA Const
@@ -90,52 +93,49 @@ VarList ::= (VarListMultiple) VarList COMMA Var
             |
             (VarListSingle) Var
             ;
-Var ::= (Var) IDENT
+Var ::= (VarSingle) IDENT
         |
-        (VarArray) IDENT LBRACKET RBRACKET
+        (VarArray) ArrayName LBRACKET RBRACKET
         ;
-EnumDeclaration ::= (EnumDeclaration) ENUM IDENT LBRACE EnumConstList RBRACE;
+ArrayName ::= (ArrayName) IDENT;
+EnumDeclaration ::= (EnumDeclaration) ENUM EnumName LBRACE EnumConstList RBRACE;
+EnumName ::= (EnumName) IDENT;
 EnumConstList ::= (EnumConstListMultiple) EnumConstList COMMA EnumConst
                   |
                   (EnumConstListSingle) EnumConst
                   ;
-EnumConst ::= (EnumConst) IDENT
+EnumConst ::= (EnumConstNoAssign) IDENT
               |
-              (EnumConstAssigned) IDENT ASSIGN NUM_CONST
+              (EnumConstAssign) IDENT ASSIGN NUM_CONST
               ;
-ClassDeclaration ::= (ClassDeclaration) CLASS IDENT EXTENDS Type LBRACE VarDeclarationList LBRACE MethodDeclarationList RBRACE RBRACE
+ClassDeclaration ::= (ClassDeclarationExtends) CLASS ClassName EXTENDS Type LBRACE VarDeclarationList LBRACE MethodDeclarationList RBRACE RBRACE
                      |
-                     (ClassDeclarationNoExtends) CLASS IDENT LBRACE VarDeclarationList LBRACE MethodDeclarationList RBRACE RBRACE
-                     |
-                     (ClassDeclarationNoMethodList) CLASS IDENT EXTENDS Type LBRACE VarDeclarationList RBRACE
-                     |
-                     (ClassDeclarationNoExtendsNoMethodList) CLASS IDENT LBRACE VarDeclarationList RBRACE
+                     (ClassDeclarationNoExtends) CLASS ClassName LBRACE VarDeclarationList LBRACE MethodDeclarationList RBRACE RBRACE
                      ;
-VarDeclarationList ::= (VarDeclarationList) VarDeclarationList VarDeclaration
+ClassName ::= (ClassName) IDENT;
+VarDeclarationList ::= (VarDeclarationListMore) VarDeclarationList VarDeclaration
                        |
                        (VarDeclarationListEmpty) /* epsilon */
                        ;
-MethodDeclarationList ::= (MethodDeclarationList) MethodDeclarationList MethodDeclaration
+MethodDeclarationList ::= (MethodDeclarationListMore) MethodDeclarationList MethodDeclaration
                           |
                           (MethodDeclarationListEmpty) /* epsilon */
                           ;
 MethodDeclaration ::= (MethodDeclaration) MethodHeader VarDeclarationList LBRACE StatementList RBRACE;
-MethodHeader ::= (MethodHeader) Type IDENT LPAREN FormalParamsList RPAREN
+MethodHeader ::= (MethodHeaderType) Type MethodName LPAREN FormalParamsList RPAREN
                  |
-                 (MethodHeaderNoParams) Type IDENT LPAREN RPAREN
+                 (MethodHeaderNoParams) Type MethodName LPAREN RPAREN
                  |
-                 (MethodHeaderVoid) VOID IDENT LPAREN FormalParamsList RPAREN
+                 (MethodHeaderVoid) VOID MethodName LPAREN FormalParamsList RPAREN
                  |
-                 (MethodHeaderVoidNoParams) VOID IDENT LPAREN RPAREN
+                 (MethodHeaderVoidNoParams) VOID MethodName LPAREN RPAREN
                  ;
-AbstractClassDeclaration ::= (AbstractClassDeclaration) ABSTRACT CLASS IDENT EXTENDS Type LBRACE AbstractClassMethodDeclarationList RBRACE
+MethodName ::= (MethodName) IDENT;
+AbstractClassDeclaration ::= (AbstractClassDeclarationExtends) ABSTRACT CLASS AbstractClassName EXTENDS Type LBRACE AbstractClassMethodDeclarationList RBRACE
                              |
-                             (AbstractClassDeclarationNoExtends) ABSTRACT CLASS IDENT LBRACE AbstractClassMethodDeclarationList RBRACE
-                             |
-                             (AbstractClassDeclarationNoMethodList) ABSTRACT CLASS IDENT EXTENDS Type
-                             |
-                             (AbstractClassDeclarationNoExtendsNoMethodList) ABSTRACT CLASS IDENT
+                             (AbstractClassDeclarationNoExtends) ABSTRACT CLASS AbstractClassName LBRACE AbstractClassMethodDeclarationList RBRACE
                              ;
+AbstractClassName ::= (AbstractClassName) IDENT;
 AbstractClassMethodDeclarationList ::= (AbstractClassMethodDeclarationListAbstract) AbstractClassMethodDeclarationList AbstractMethodDeclaration
                                        |
                                        (AbstractClassMethodDeclarationListConcrete) AbstractClassMethodDeclarationList MethodDeclaration
@@ -147,8 +147,8 @@ FormalParamsList ::= (FormalParamsListMultiple) FormalParamsList COMMA FormalPar
                      |
                      (FormalParamsListSingle) FormalParam
                      ;
-FormalParam ::= (FormalParam) Type VarElem;
-StatementList ::= (StatementList) StatementList Statement
+FormalParam ::= (FormalParam) Type Var;
+StatementList ::= (StatementListMore) StatementList Statement
                   |
                   (StatementListEmpty) /* epsilon */
                   ;
@@ -166,25 +166,25 @@ Statement ::= (StatementDesignator) DesignatorStatement SEMI
               |
               (StatementPrint) PrintDeclaration
               |
-              (StatementSwitch) SWITCH LPAREN Expression RPAREN LBRACE CaseList RPAREN
+              (StatementSwitch) SWITCH LPAREN Expression RPAREN LBRACE CaseList RBRACE
               |
               (StatementFor) ForDeclaration
               |
               (StatementBlock) LBRACE StatementList RBRACE
               ;
-IfDeclaration ::= IF LPAREN Condition RPAREN Statement ELSE Statement
+IfDeclaration ::= (IfDeclarationElse) IF LPAREN Condition RPAREN Statement ELSE Statement
                   |
-                  IF LPAREN Condition RPAREN Statement
+                  (IfDeclarationNoElse) IF LPAREN Condition RPAREN Statement
                   ;
-ReturnDeclaration ::= (ReturnDeclaration) RETURN Expression SEMI
+ReturnDeclaration ::= (ReturnDeclarationExpression) RETURN Expression SEMI
                       |
                       (ReturnDeclarationNoExpression) RETURN SEMI
                       ;
-PrintDeclaration ::= (PrintDeclaration) PRINT LPAREN Expression COMMA NUM_CONST RPAREN SEMI
+PrintDeclaration ::= (PrintDeclarationNumConst) PRINT LPAREN Expression COMMA NUM_CONST RPAREN SEMI
                      |
                      (PrintDeclarationNoNumConst) PRINT LPAREN Expression RPAREN SEMI
                      ;
-ForDeclaration ::= (ForDeclaration) FOR LPAREN DesignatorStatement SEMI Condition SEMI DesignatorStatement RPAREN Statement
+ForDeclaration ::= (ForDeclarationFull) FOR LPAREN DesignatorStatement SEMI Condition SEMI DesignatorStatement RPAREN Statement
                    |
                    (ForDeclarationNoInit) FOR LPAREN SEMI Condition SEMI DesignatorStatement RPAREN Statement
                    |
@@ -200,14 +200,98 @@ ForDeclaration ::= (ForDeclaration) FOR LPAREN DesignatorStatement SEMI Conditio
                    |
                    (ForDeclarationNoInitNoCondNoAct) FOR LPAREN SEMI SEMI RPAREN Statement
                    ;
-CaseList ::= (CaseList) CaseList Case
+CaseList ::= (CaseListMore) CaseList Case
              |
              (CaseListEmpty) /* epsilon */
              ;
 Case ::= (Case) CASE NUM_CONST COLON StatementList;
-
-
-DesignatorStatement ::=
-Designator ::=
-Expression ::=
-Condition ::=
+DesignatorStatement ::= (DesignatorStatementAssign) Designator ASSIGN Expression
+                        |
+                        (DesignatorStatementFunctionCall) Designator LPAREN ActualParamsList RPAREN
+                        |
+                        (DesignatorStatementFunctionCallNoParams) Designator LPAREN RPAREN
+                        |
+                        (DesignatorStatementIncrement) Designator INC
+                        |
+                        (DesignatorStatementDecrement) Designator DEC
+                        ;
+ActualParamsList ::= (ActualParamsListMultiple) ActualParamsList COMMA Expression
+                     |
+                     (ActualParamsListSingle) Expression
+                     ;
+Designator ::= (DesignatorSuffixList) IDENT SuffixList
+               |
+               (DesignatorNoSuffixList) IDENT
+               ;
+SuffixList ::= (SuffixListMultiple) SuffixList Suffix
+               |
+               (SuffixListSingle) Suffix
+               ;
+Suffix ::= (SuffixField) DOT IDENT
+           |
+           (SuffixLength) DOT LENGTH
+           |
+           (SuffixIndex) LBRACKET Expression RBRACKET
+           ;
+Expression ::= (ExpressionArithmetic) ArithmeticExpression
+               |
+               (ExpressionTernary) Condition QUESTION Expression COLON Expression
+               ;
+ArithmeticExpression ::= (ArithmeticExpression) Term TermList;
+TermList ::= (TermListPlus) TermList PLUS Term
+             |
+             (TermListMinus) TermList MINUS Term
+             |
+             (TermListEmpty) /* epsilon */
+             ;
+Term ::= (Term) Factor FactorList;
+FactorList ::= (FactorListTimes) FactorList MUL Factor
+               |
+               (FactorListDivide) FactorList DIV Factor
+               |
+               (FactorListModulo) FactorList MOD Factor
+               |
+               (FactorListEmpty) /* epsilon */
+               ;
+Factor ::= (FactorVariable) Sign Designator
+           |
+           (FactorFunctionCallWithArgs) Sign Designator LPAREN ActualParamsList RPAREN
+           |
+           (FactorFunctionCallNoArgs) Sign Designator LPAREN RPAREN
+           |
+           (FactorNumConst) Sign NUM_CONST
+           |
+           (FactorBoolConst) BOOL_CONST
+           |
+           (FactorCharConst) CHAR_CONST
+           |
+           (FactorNewArray) NEW Type LBRACKET Expression RBRACKET
+           |
+           (FactorNested) LPAREN Expression RPAREN
+           ;
+Sign ::= (SignMinus) MINUS
+         |
+         (SignEmpty) /* epsilon */
+         ;
+Condition ::= (ConditionMultiple) Condition OR ConditionTerm
+              |
+              (ConditionSingle) ConditionTerm
+              ;
+ConditionTerm ::= (ConditionTermMultiple) ConditionTerm AND ConditionFact
+                  |
+                  (ConditionTermSingle) ConditionFact
+                  ;
+ConditionFact ::= (ConditionFactNoRelOp) ArithmeticExpression
+                  |
+                  (ConditionFactEqual) ArithmeticExpression EQUAL ArithmeticExpression
+                  |
+                  (ConditionFactNotEqual) ArithmeticExpression NOT_EQUAL ArithmeticExpression
+                  |
+                  (ConditionFactGreater) ArithmeticExpression GREATER ArithmeticExpression
+                  |
+                  (ConditionFactGreaterEqual) ArithmeticExpression GREATER_EQUAL ArithmeticExpression
+                  |
+                  (ConditionFactLess) ArithmeticExpression LESS ArithmeticExpression
+                  |
+                  (ConditionFactLessEqual) ArithmeticExpression LESS_EQUAL ArithmeticExpression
+                  ;
