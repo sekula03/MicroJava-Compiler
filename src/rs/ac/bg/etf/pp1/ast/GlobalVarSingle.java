@@ -1,17 +1,15 @@
 // generated with ast extension for cup
 // version 0.8
-// 1/1/2026 22:44:20
+// 2/1/2026 23:8:48
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class ArrayName implements SyntaxNode {
+public class GlobalVarSingle extends GlobalVar {
 
-    private SyntaxNode parent;
-    private int line;
     private String I1;
 
-    public ArrayName (String I1) {
+    public GlobalVarSingle (String I1) {
         this.I1=I1;
     }
 
@@ -21,22 +19,6 @@ public class ArrayName implements SyntaxNode {
 
     public void setI1(String I1) {
         this.I1=I1;
-    }
-
-    public SyntaxNode getParent() {
-        return parent;
-    }
-
-    public void setParent(SyntaxNode parent) {
-        this.parent=parent;
-    }
-
-    public int getLine() {
-        return line;
-    }
-
-    public void setLine(int line) {
-        this.line=line;
     }
 
     public void accept(Visitor visitor) {
@@ -57,13 +39,13 @@ public class ArrayName implements SyntaxNode {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("ArrayName(\n");
+        buffer.append("GlobalVarSingle(\n");
 
         buffer.append(" "+tab+I1);
         buffer.append("\n");
 
         buffer.append(tab);
-        buffer.append(") [ArrayName]");
+        buffer.append(") [GlobalVarSingle]");
         return buffer.toString();
     }
 }

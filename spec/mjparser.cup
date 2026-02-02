@@ -49,7 +49,8 @@ terminal Integer NUM_CONST;
 terminal Character CHAR_CONST;
 terminal Boolean BOOL_CONST;
 
-nonterminal Program, DeclarationList;
+nonterminal Program, DeclarationList, GlobalVarDeclaration, GlobalVarList, GlobalVar;
+nonterminal GlobalMethodDeclarationList, GlobalMethodDeclaration, GlobalMethodHeader;
 nonterminal ConstDeclaration, VarDeclaration, ClassDeclaration, EnumDeclaration, AbstractClassDeclaration;
 nonterminal Type, ConstList, Const, VarList, Var, EnumConstList, EnumConst;
 nonterminal MethodDeclarationList, AbstractClassMethodDeclarationList, VarDeclarationList;
@@ -58,15 +59,15 @@ nonterminal StatementList, Statement, DesignatorStatement, Designator, CaseList,
 nonterminal IfDeclaration, ReturnDeclaration, PrintDeclaration, ForDeclaration;
 nonterminal Expression, Condition, ActualParamsList, SuffixList, Suffix, ConditionFact, ConditionTerm;
 nonterminal Term, TermList, Factor, FactorList, Sign, ArithmeticExpression;
-nonterminal ProgramName, EnumName, ClassName, AbstractClassName, ArrayName, MethodName, AbstractMethodName;
+nonterminal ProgramName, EnumName, ClassName, AbstractClassName;
 
 precedence left ELSE;
 
-Program ::= (Program) PROGRAM ProgramName DeclarationList LBRACE MethodDeclarationList RBRACE;
+Program ::= (Program) PROGRAM ProgramName DeclarationList LBRACE GlobalMethodDeclarationList RBRACE;
 ProgramName ::= (ProgramName) IDENT;
 DeclarationList ::= (DeclarationListConst) DeclarationList ConstDeclaration
                     |
-                    (DeclarationListVar) DeclarationList VarDeclaration
+                    (DeclarationListVar) DeclarationList GlobalVarDeclaration
                     |
                     (DeclarationListClass) DeclarationList ClassDeclaration
                     |
@@ -88,6 +89,15 @@ Const ::= (ConstNum) IDENT ASSIGN NUM_CONST
           |
           (ConstBool) IDENT ASSIGN BOOL_CONST
           ;
+GlobalVarDeclaration ::= (GlobalVarDeclaration) Type GlobalVarList SEMI;
+GlobalVarList ::= (GlobalVarListMultiple) GlobalVarList COMMA GlobalVar
+                  |
+                  (GlobalVarListSingle) GlobalVar
+                  ;
+GlobalVar ::= (GlobalVarSingle) IDENT
+              |
+              (GlobalVarArray) IDENT LBRACKET RBRACKET
+              ;
 VarDeclaration ::= (VarDeclaration) Type VarList SEMI;
 VarList ::= (VarListMultiple) VarList COMMA Var
             |
@@ -95,9 +105,8 @@ VarList ::= (VarListMultiple) VarList COMMA Var
             ;
 Var ::= (VarSingle) IDENT
         |
-        (VarArray) ArrayName LBRACKET RBRACKET
+        (VarArray) IDENT LBRACKET RBRACKET
         ;
-ArrayName ::= (ArrayName) IDENT;
 EnumDeclaration ::= (EnumDeclaration) ENUM EnumName LBRACE EnumConstList RBRACE;
 EnumName ::= (EnumName) IDENT;
 EnumConstList ::= (EnumConstListMultiple) EnumConstList COMMA EnumConst
@@ -121,20 +130,30 @@ VarDeclarationList ::= (VarDeclarationListMore) VarDeclarationList VarDeclaratio
                        |
                        (VarDeclarationListEmpty) /* epsilon */
                        ;
+GlobalMethodDeclarationList ::= (GlobalMethodDeclarationListMore) GlobalMethodDeclarationList GlobalMethodDeclaration
+                                |
+                                (GlobalMethodDeclarationListEmpty) /* epsilon */
+                                ;
+GlobalMethodDeclaration ::= (GlobalMethodDeclarationParams) GlobalMethodHeader LPAREN FormalParamsList RPAREN VarDeclarationList LBRACE StatementList RBRACE
+                            |
+                            (GlobalMethodDeclarationNoParams) GlobalMethodHeader LPAREN RPAREN VarDeclarationList LBRACE StatementList RBRACE
+                            ;
+GlobalMethodHeader ::= (GlobalMethodHeaderType) Type IDENT
+                       |
+                       (GlobalMethodHeaderVoid) VOID IDENT
+                       ;
 MethodDeclarationList ::= (MethodDeclarationListMore) MethodDeclarationList MethodDeclaration
                           |
                           (MethodDeclarationListEmpty) /* epsilon */
                           ;
-MethodDeclaration ::= (MethodDeclaration) MethodHeader VarDeclarationList LBRACE StatementList RBRACE;
-MethodHeader ::= (MethodHeaderTypeParams) Type MethodName LPAREN FormalParamsList RPAREN
+MethodDeclaration ::= (MethodDeclarationParams) MethodHeader LPAREN FormalParamsList RPAREN VarDeclarationList LBRACE StatementList RBRACE
+                      |
+                      (MethodDeclarationNoParams) MethodHeader LPAREN RPAREN VarDeclarationList LBRACE StatementList RBRACE
+                      ;
+MethodHeader ::= (MethodHeaderType) Type IDENT
                  |
-                 (MethodHeaderTypeNoParams) Type MethodName LPAREN RPAREN
-                 |
-                 (MethodHeaderVoidParams) VOID MethodName LPAREN FormalParamsList RPAREN
-                 |
-                 (MethodHeaderVoidNoParams) VOID MethodName LPAREN RPAREN
+                 (MethodHeaderVoid) VOID IDENT
                  ;
-MethodName ::= (MethodName) IDENT;
 AbstractClassDeclaration ::= (AbstractClassDeclarationExtendMethodList) ABSTRACT CLASS AbstractClassName EXTENDS Type LBRACE VarDeclarationList LBRACE AbstractClassMethodDeclarationList RBRACE RBRACE
                              |
                              (AbstractClassDeclarationNoExtendsMethodList) ABSTRACT CLASS AbstractClassName LBRACE VarDeclarationList LBRACE AbstractClassMethodDeclarationList RBRACE RBRACE
@@ -150,12 +169,18 @@ AbstractClassMethodDeclarationList ::= (AbstractClassMethodDeclarationListAbstra
                                        |
                                        (AbstractClassMethodDeclarationListEmpty) /* epsilon */
                                        ;
-AbstractMethodDeclaration ::= (AbstractMethodDeclaration) ABSTRACT MethodHeader SEMI;
+AbstractMethodDeclaration ::= (AbstractMethodDeclarationParams) ABSTRACT MethodHeader LPAREN FormalParamsList RPAREN SEMI
+                              |
+                              (AbstractMethodDeclarationNoParams) ABSTRACT MethodHeader LPAREN RPAREN SEMI
+                              ;
 FormalParamsList ::= (FormalParamsListMultiple) FormalParamsList COMMA FormalParam
                      |
                      (FormalParamsListSingle) FormalParam
                      ;
-FormalParam ::= (FormalParam) Type Var;
+FormalParam ::= (FormalParamSingle) Type IDENT
+                |
+                (FormalParamArray) Type IDENT LBRACKET RBRACKET
+                ;
 StatementList ::= (StatementListMore) StatementList Statement
                   |
                   (StatementListEmpty) /* epsilon */

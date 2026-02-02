@@ -1,28 +1,15 @@
 // generated with ast extension for cup
 // version 0.8
-// 1/1/2026 22:44:20
+// 2/1/2026 23:8:48
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class AbstractMethodDeclaration implements SyntaxNode {
+public abstract class AbstractMethodDeclaration implements SyntaxNode {
 
     private SyntaxNode parent;
+
     private int line;
-    private MethodHeader MethodHeader;
-
-    public AbstractMethodDeclaration (MethodHeader MethodHeader) {
-        this.MethodHeader=MethodHeader;
-        if(MethodHeader!=null) MethodHeader.setParent(this);
-    }
-
-    public MethodHeader getMethodHeader() {
-        return MethodHeader;
-    }
-
-    public void setMethodHeader(MethodHeader MethodHeader) {
-        this.MethodHeader=MethodHeader;
-    }
 
     public SyntaxNode getParent() {
         return parent;
@@ -40,37 +27,11 @@ public class AbstractMethodDeclaration implements SyntaxNode {
         this.line=line;
     }
 
-    public void accept(Visitor visitor) {
-        visitor.visit(this);
-    }
+    public abstract void accept(Visitor visitor);
+    public abstract void childrenAccept(Visitor visitor);
+    public abstract void traverseTopDown(Visitor visitor);
+    public abstract void traverseBottomUp(Visitor visitor);
 
-    public void childrenAccept(Visitor visitor) {
-        if(MethodHeader!=null) MethodHeader.accept(visitor);
-    }
-
-    public void traverseTopDown(Visitor visitor) {
-        accept(visitor);
-        if(MethodHeader!=null) MethodHeader.traverseTopDown(visitor);
-    }
-
-    public void traverseBottomUp(Visitor visitor) {
-        if(MethodHeader!=null) MethodHeader.traverseBottomUp(visitor);
-        accept(visitor);
-    }
-
-    public String toString(String tab) {
-        StringBuffer buffer=new StringBuffer();
-        buffer.append(tab);
-        buffer.append("AbstractMethodDeclaration(\n");
-
-        if(MethodHeader!=null)
-            buffer.append(MethodHeader.toString("  "+tab));
-        else
-            buffer.append(tab+"  null");
-        buffer.append("\n");
-
-        buffer.append(tab);
-        buffer.append(") [AbstractMethodDeclaration]");
-        return buffer.toString();
-    }
+    public String toString() { return toString(""); }
+    public abstract String toString(String tab);
 }

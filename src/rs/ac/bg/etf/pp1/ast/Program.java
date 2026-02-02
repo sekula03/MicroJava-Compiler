@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 1/1/2026 22:44:20
+// 2/1/2026 23:8:48
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -11,15 +11,15 @@ public class Program implements SyntaxNode {
     private int line;
     private ProgramName ProgramName;
     private DeclarationList DeclarationList;
-    private MethodDeclarationList MethodDeclarationList;
+    private GlobalMethodDeclarationList GlobalMethodDeclarationList;
 
-    public Program (ProgramName ProgramName, DeclarationList DeclarationList, MethodDeclarationList MethodDeclarationList) {
+    public Program (ProgramName ProgramName, DeclarationList DeclarationList, GlobalMethodDeclarationList GlobalMethodDeclarationList) {
         this.ProgramName=ProgramName;
         if(ProgramName!=null) ProgramName.setParent(this);
         this.DeclarationList=DeclarationList;
         if(DeclarationList!=null) DeclarationList.setParent(this);
-        this.MethodDeclarationList=MethodDeclarationList;
-        if(MethodDeclarationList!=null) MethodDeclarationList.setParent(this);
+        this.GlobalMethodDeclarationList=GlobalMethodDeclarationList;
+        if(GlobalMethodDeclarationList!=null) GlobalMethodDeclarationList.setParent(this);
     }
 
     public ProgramName getProgramName() {
@@ -38,12 +38,12 @@ public class Program implements SyntaxNode {
         this.DeclarationList=DeclarationList;
     }
 
-    public MethodDeclarationList getMethodDeclarationList() {
-        return MethodDeclarationList;
+    public GlobalMethodDeclarationList getGlobalMethodDeclarationList() {
+        return GlobalMethodDeclarationList;
     }
 
-    public void setMethodDeclarationList(MethodDeclarationList MethodDeclarationList) {
-        this.MethodDeclarationList=MethodDeclarationList;
+    public void setGlobalMethodDeclarationList(GlobalMethodDeclarationList GlobalMethodDeclarationList) {
+        this.GlobalMethodDeclarationList=GlobalMethodDeclarationList;
     }
 
     public SyntaxNode getParent() {
@@ -69,20 +69,20 @@ public class Program implements SyntaxNode {
     public void childrenAccept(Visitor visitor) {
         if(ProgramName!=null) ProgramName.accept(visitor);
         if(DeclarationList!=null) DeclarationList.accept(visitor);
-        if(MethodDeclarationList!=null) MethodDeclarationList.accept(visitor);
+        if(GlobalMethodDeclarationList!=null) GlobalMethodDeclarationList.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
         if(ProgramName!=null) ProgramName.traverseTopDown(visitor);
         if(DeclarationList!=null) DeclarationList.traverseTopDown(visitor);
-        if(MethodDeclarationList!=null) MethodDeclarationList.traverseTopDown(visitor);
+        if(GlobalMethodDeclarationList!=null) GlobalMethodDeclarationList.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
         if(ProgramName!=null) ProgramName.traverseBottomUp(visitor);
         if(DeclarationList!=null) DeclarationList.traverseBottomUp(visitor);
-        if(MethodDeclarationList!=null) MethodDeclarationList.traverseBottomUp(visitor);
+        if(GlobalMethodDeclarationList!=null) GlobalMethodDeclarationList.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -103,8 +103,8 @@ public class Program implements SyntaxNode {
             buffer.append(tab+"  null");
         buffer.append("\n");
 
-        if(MethodDeclarationList!=null)
-            buffer.append(MethodDeclarationList.toString("  "+tab));
+        if(GlobalMethodDeclarationList!=null)
+            buffer.append(GlobalMethodDeclarationList.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");

@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 1/1/2026 22:44:20
+// 2/1/2026 23:8:48
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -8,13 +8,13 @@ package rs.ac.bg.etf.pp1.ast;
 public class DeclarationListVar extends DeclarationList {
 
     private DeclarationList DeclarationList;
-    private VarDeclaration VarDeclaration;
+    private GlobalVarDeclaration GlobalVarDeclaration;
 
-    public DeclarationListVar (DeclarationList DeclarationList, VarDeclaration VarDeclaration) {
+    public DeclarationListVar (DeclarationList DeclarationList, GlobalVarDeclaration GlobalVarDeclaration) {
         this.DeclarationList=DeclarationList;
         if(DeclarationList!=null) DeclarationList.setParent(this);
-        this.VarDeclaration=VarDeclaration;
-        if(VarDeclaration!=null) VarDeclaration.setParent(this);
+        this.GlobalVarDeclaration=GlobalVarDeclaration;
+        if(GlobalVarDeclaration!=null) GlobalVarDeclaration.setParent(this);
     }
 
     public DeclarationList getDeclarationList() {
@@ -25,12 +25,12 @@ public class DeclarationListVar extends DeclarationList {
         this.DeclarationList=DeclarationList;
     }
 
-    public VarDeclaration getVarDeclaration() {
-        return VarDeclaration;
+    public GlobalVarDeclaration getGlobalVarDeclaration() {
+        return GlobalVarDeclaration;
     }
 
-    public void setVarDeclaration(VarDeclaration VarDeclaration) {
-        this.VarDeclaration=VarDeclaration;
+    public void setGlobalVarDeclaration(GlobalVarDeclaration GlobalVarDeclaration) {
+        this.GlobalVarDeclaration=GlobalVarDeclaration;
     }
 
     public void accept(Visitor visitor) {
@@ -39,18 +39,18 @@ public class DeclarationListVar extends DeclarationList {
 
     public void childrenAccept(Visitor visitor) {
         if(DeclarationList!=null) DeclarationList.accept(visitor);
-        if(VarDeclaration!=null) VarDeclaration.accept(visitor);
+        if(GlobalVarDeclaration!=null) GlobalVarDeclaration.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
         if(DeclarationList!=null) DeclarationList.traverseTopDown(visitor);
-        if(VarDeclaration!=null) VarDeclaration.traverseTopDown(visitor);
+        if(GlobalVarDeclaration!=null) GlobalVarDeclaration.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
         if(DeclarationList!=null) DeclarationList.traverseBottomUp(visitor);
-        if(VarDeclaration!=null) VarDeclaration.traverseBottomUp(visitor);
+        if(GlobalVarDeclaration!=null) GlobalVarDeclaration.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -65,8 +65,8 @@ public class DeclarationListVar extends DeclarationList {
             buffer.append(tab+"  null");
         buffer.append("\n");
 
-        if(VarDeclaration!=null)
-            buffer.append(VarDeclaration.toString("  "+tab));
+        if(GlobalVarDeclaration!=null)
+            buffer.append(GlobalVarDeclaration.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");

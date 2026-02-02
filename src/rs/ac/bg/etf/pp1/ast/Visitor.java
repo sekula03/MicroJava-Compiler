@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 1/1/2026 22:44:20
+// 2/1/2026 23:8:48
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -12,6 +12,9 @@ public interface Visitor {
     public void visit(ReturnDeclaration ReturnDeclaration);
     public void visit(TermList TermList);
     public void visit(Sign Sign);
+    public void visit(GlobalMethodDeclarationList GlobalMethodDeclarationList);
+    public void visit(MethodDeclaration MethodDeclaration);
+    public void visit(GlobalMethodDeclaration GlobalMethodDeclaration);
     public void visit(Var Var);
     public void visit(ForDeclaration ForDeclaration);
     public void visit(ActualParamsList ActualParamsList);
@@ -30,17 +33,21 @@ public interface Visitor {
     public void visit(CaseList CaseList);
     public void visit(AbstractClassDeclaration AbstractClassDeclaration);
     public void visit(MethodHeader MethodHeader);
+    public void visit(GlobalVar GlobalVar);
+    public void visit(FormalParam FormalParam);
     public void visit(VarDeclarationList VarDeclarationList);
     public void visit(ClassDeclaration ClassDeclaration);
     public void visit(PrintDeclaration PrintDeclaration);
     public void visit(DesignatorStatement DesignatorStatement);
     public void visit(Const Const);
-    public void visit(AbstractMethodName AbstractMethodName);
     public void visit(EnumConstList EnumConstList);
     public void visit(ConditionFact ConditionFact);
+    public void visit(GlobalMethodHeader GlobalMethodHeader);
     public void visit(Statement Statement);
     public void visit(Expression Expression);
     public void visit(AbstractClassMethodDeclarationList AbstractClassMethodDeclarationList);
+    public void visit(GlobalVarList GlobalVarList);
+    public void visit(AbstractMethodDeclaration AbstractMethodDeclaration);
     public void visit(SuffixList SuffixList);
     public void visit(ConditionFactLessEqual ConditionFactLessEqual);
     public void visit(ConditionFactLess ConditionFactLess);
@@ -118,10 +125,12 @@ public interface Visitor {
     public void visit(StatementDesignator StatementDesignator);
     public void visit(StatementListEmpty StatementListEmpty);
     public void visit(StatementListMore StatementListMore);
-    public void visit(FormalParam FormalParam);
+    public void visit(FormalParamArray FormalParamArray);
+    public void visit(FormalParamSingle FormalParamSingle);
     public void visit(FormalParamsListSingle FormalParamsListSingle);
     public void visit(FormalParamsListMultiple FormalParamsListMultiple);
-    public void visit(AbstractMethodDeclaration AbstractMethodDeclaration);
+    public void visit(AbstractMethodDeclarationNoParams AbstractMethodDeclarationNoParams);
+    public void visit(AbstractMethodDeclarationParams AbstractMethodDeclarationParams);
     public void visit(AbstractClassMethodDeclarationListEmpty AbstractClassMethodDeclarationListEmpty);
     public void visit(AbstractClassMethodDeclarationListConcrete AbstractClassMethodDeclarationListConcrete);
     public void visit(AbstractClassMethodDeclarationListAbstract AbstractClassMethodDeclarationListAbstract);
@@ -130,14 +139,18 @@ public interface Visitor {
     public void visit(AbstractClassDeclarationExtendsNoMethodList AbstractClassDeclarationExtendsNoMethodList);
     public void visit(AbstractClassDeclarationNoExtendsMethodList AbstractClassDeclarationNoExtendsMethodList);
     public void visit(AbstractClassDeclarationExtendMethodList AbstractClassDeclarationExtendMethodList);
-    public void visit(MethodName MethodName);
-    public void visit(MethodHeaderVoidNoParams MethodHeaderVoidNoParams);
-    public void visit(MethodHeaderVoidParams MethodHeaderVoidParams);
-    public void visit(MethodHeaderTypeNoParams MethodHeaderTypeNoParams);
-    public void visit(MethodHeaderTypeParams MethodHeaderTypeParams);
-    public void visit(MethodDeclaration MethodDeclaration);
+    public void visit(MethodHeaderVoid MethodHeaderVoid);
+    public void visit(MethodHeaderType MethodHeaderType);
+    public void visit(MethodDeclarationNoParams MethodDeclarationNoParams);
+    public void visit(MethodDeclarationParams MethodDeclarationParams);
     public void visit(MethodDeclarationListEmpty MethodDeclarationListEmpty);
     public void visit(MethodDeclarationListMore MethodDeclarationListMore);
+    public void visit(GlobalMethodHeaderVoid GlobalMethodHeaderVoid);
+    public void visit(GlobalMethodHeaderType GlobalMethodHeaderType);
+    public void visit(GlobalMethodDeclarationNoParams GlobalMethodDeclarationNoParams);
+    public void visit(GlobalMethodDeclarationParams GlobalMethodDeclarationParams);
+    public void visit(GlobalMethodDeclarationListEmpty GlobalMethodDeclarationListEmpty);
+    public void visit(GlobalMethodDeclarationListMore GlobalMethodDeclarationListMore);
     public void visit(VarDeclarationListEmpty VarDeclarationListEmpty);
     public void visit(VarDeclarationListMore VarDeclarationListMore);
     public void visit(ClassName ClassName);
@@ -151,12 +164,16 @@ public interface Visitor {
     public void visit(EnumConstListMultiple EnumConstListMultiple);
     public void visit(EnumName EnumName);
     public void visit(EnumDeclaration EnumDeclaration);
-    public void visit(ArrayName ArrayName);
     public void visit(VarArray VarArray);
     public void visit(VarSingle VarSingle);
     public void visit(VarListSingle VarListSingle);
     public void visit(VarListMultiple VarListMultiple);
     public void visit(VarDeclaration VarDeclaration);
+    public void visit(GlobalVarArray GlobalVarArray);
+    public void visit(GlobalVarSingle GlobalVarSingle);
+    public void visit(GlobalVarListSingle GlobalVarListSingle);
+    public void visit(GlobalVarListMultiple GlobalVarListMultiple);
+    public void visit(GlobalVarDeclaration GlobalVarDeclaration);
     public void visit(ConstBool ConstBool);
     public void visit(ConstChar ConstChar);
     public void visit(ConstNum ConstNum);

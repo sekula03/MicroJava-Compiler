@@ -1,28 +1,28 @@
 // generated with ast extension for cup
 // version 0.8
-// 1/1/2026 22:44:20
+// 2/1/2026 23:8:48
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class MethodHeaderVoidParams extends MethodHeader {
+public class AbstractMethodDeclarationParams extends AbstractMethodDeclaration {
 
-    private MethodName MethodName;
+    private MethodHeader MethodHeader;
     private FormalParamsList FormalParamsList;
 
-    public MethodHeaderVoidParams (MethodName MethodName, FormalParamsList FormalParamsList) {
-        this.MethodName=MethodName;
-        if(MethodName!=null) MethodName.setParent(this);
+    public AbstractMethodDeclarationParams (MethodHeader MethodHeader, FormalParamsList FormalParamsList) {
+        this.MethodHeader=MethodHeader;
+        if(MethodHeader!=null) MethodHeader.setParent(this);
         this.FormalParamsList=FormalParamsList;
         if(FormalParamsList!=null) FormalParamsList.setParent(this);
     }
 
-    public MethodName getMethodName() {
-        return MethodName;
+    public MethodHeader getMethodHeader() {
+        return MethodHeader;
     }
 
-    public void setMethodName(MethodName MethodName) {
-        this.MethodName=MethodName;
+    public void setMethodHeader(MethodHeader MethodHeader) {
+        this.MethodHeader=MethodHeader;
     }
 
     public FormalParamsList getFormalParamsList() {
@@ -38,18 +38,18 @@ public class MethodHeaderVoidParams extends MethodHeader {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(MethodName!=null) MethodName.accept(visitor);
+        if(MethodHeader!=null) MethodHeader.accept(visitor);
         if(FormalParamsList!=null) FormalParamsList.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(MethodName!=null) MethodName.traverseTopDown(visitor);
+        if(MethodHeader!=null) MethodHeader.traverseTopDown(visitor);
         if(FormalParamsList!=null) FormalParamsList.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(MethodName!=null) MethodName.traverseBottomUp(visitor);
+        if(MethodHeader!=null) MethodHeader.traverseBottomUp(visitor);
         if(FormalParamsList!=null) FormalParamsList.traverseBottomUp(visitor);
         accept(visitor);
     }
@@ -57,10 +57,10 @@ public class MethodHeaderVoidParams extends MethodHeader {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("MethodHeaderVoidParams(\n");
+        buffer.append("AbstractMethodDeclarationParams(\n");
 
-        if(MethodName!=null)
-            buffer.append(MethodName.toString("  "+tab));
+        if(MethodHeader!=null)
+            buffer.append(MethodHeader.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");
@@ -72,7 +72,7 @@ public class MethodHeaderVoidParams extends MethodHeader {
         buffer.append("\n");
 
         buffer.append(tab);
-        buffer.append(") [MethodHeaderVoidParams]");
+        buffer.append(") [AbstractMethodDeclarationParams]");
         return buffer.toString();
     }
 }

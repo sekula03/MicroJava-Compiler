@@ -43,6 +43,7 @@ public class MJTest {
 
 			// ispis sintaksnog stabla
 			log.info(prog.toString(""));
+			log.info("============================================================");
 
 			// inicijalizacija tabele simbola
 			Tab.init();

@@ -1,6 +1,10 @@
 program Test
+const bool a = true;
+int x;
+char b[];
 {
-    void main() {
-        x.a[1]++;
-    }
+    void main() char b;
+    {}
+
+    int c(int x, char p) int b; {}
 }

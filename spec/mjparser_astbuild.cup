@@ -51,6 +51,12 @@ terminal Boolean BOOL_CONST;
 
 nonterminal Program Program;
 nonterminal DeclarationList DeclarationList;
+nonterminal GlobalVarDeclaration GlobalVarDeclaration;
+nonterminal GlobalVarList GlobalVarList;
+nonterminal GlobalVar GlobalVar;
+nonterminal GlobalMethodDeclarationList GlobalMethodDeclarationList;
+nonterminal GlobalMethodDeclaration GlobalMethodDeclaration;
+nonterminal GlobalMethodHeader GlobalMethodHeader;
 nonterminal ConstDeclaration ConstDeclaration;
 nonterminal VarDeclaration VarDeclaration;
 nonterminal ClassDeclaration ClassDeclaration;
@@ -98,17 +104,14 @@ nonterminal ProgramName ProgramName;
 nonterminal EnumName EnumName;
 nonterminal ClassName ClassName;
 nonterminal AbstractClassName AbstractClassName;
-nonterminal ArrayName ArrayName;
-nonterminal MethodName MethodName;
-nonterminal AbstractMethodName AbstractMethodName;
 
 precedence left ELSE;
 
-Program ::= (Program) PROGRAM ProgramName:P1 DeclarationList:D2 LBRACE MethodDeclarationList:M3 RBRACE {: RESULT=new Program(P1, D2, M3); RESULT.setLine(P1left); :};
+Program ::= (Program) PROGRAM ProgramName:P1 DeclarationList:D2 LBRACE GlobalMethodDeclarationList:G3 RBRACE {: RESULT=new Program(P1, D2, G3); RESULT.setLine(P1left); :};
 ProgramName ::= (ProgramName) IDENT:I1 {: RESULT=new ProgramName(I1); RESULT.setLine(I1left); :};
 DeclarationList ::= (DeclarationListConst) DeclarationList:D1 ConstDeclaration:C2 {: RESULT=new DeclarationListConst(D1, C2); RESULT.setLine(D1left); :}
                     |
-                    (DeclarationListVar) DeclarationList:D1 VarDeclaration:V2 {: RESULT=new DeclarationListVar(D1, V2); RESULT.setLine(D1left); :}
+                    (DeclarationListVar) DeclarationList:D1 GlobalVarDeclaration:G2 {: RESULT=new DeclarationListVar(D1, G2); RESULT.setLine(D1left); :}
                     |
                     (DeclarationListClass) DeclarationList:D1 ClassDeclaration:C2 {: RESULT=new DeclarationListClass(D1, C2); RESULT.setLine(D1left); :}
                     |
@@ -130,6 +133,15 @@ Const ::= (ConstNum) IDENT:I1 ASSIGN NUM_CONST:N2 {: RESULT=new ConstNum(I1, N2)
           |
           (ConstBool) IDENT:I1 ASSIGN BOOL_CONST:B2 {: RESULT=new ConstBool(I1, B2); RESULT.setLine(I1left); :}
           ;
+GlobalVarDeclaration ::= (GlobalVarDeclaration) Type:T1 GlobalVarList:G2 SEMI {: RESULT=new GlobalVarDeclaration(T1, G2); RESULT.setLine(T1left); :};
+GlobalVarList ::= (GlobalVarListMultiple) GlobalVarList:G1 COMMA GlobalVar:G2 {: RESULT=new GlobalVarListMultiple(G1, G2); RESULT.setLine(G1left); :}
+                  |
+                  (GlobalVarListSingle) GlobalVar:G1 {: RESULT=new GlobalVarListSingle(G1); RESULT.setLine(G1left); :}
+                  ;
+GlobalVar ::= (GlobalVarSingle) IDENT:I1 {: RESULT=new GlobalVarSingle(I1); RESULT.setLine(I1left); :}
+              |
+              (GlobalVarArray) IDENT:I1 LBRACKET RBRACKET {: RESULT=new GlobalVarArray(I1); RESULT.setLine(I1left); :}
+              ;
 VarDeclaration ::= (VarDeclaration) Type:T1 VarList:V2 SEMI {: RESULT=new VarDeclaration(T1, V2); RESULT.setLine(T1left); :};
 VarList ::= (VarListMultiple) VarList:V1 COMMA Var:V2 {: RESULT=new VarListMultiple(V1, V2); RESULT.setLine(V1left); :}
             |
@@ -137,9 +149,8 @@ VarList ::= (VarListMultiple) VarList:V1 COMMA Var:V2 {: RESULT=new VarListMulti
             ;
 Var ::= (VarSingle) IDENT:I1 {: RESULT=new VarSingle(I1); RESULT.setLine(I1left); :}
         |
-        (VarArray) ArrayName:A1 LBRACKET RBRACKET {: RESULT=new VarArray(A1); RESULT.setLine(A1left); :}
+        (VarArray) IDENT:I1 LBRACKET RBRACKET {: RESULT=new VarArray(I1); RESULT.setLine(I1left); :}
         ;
-ArrayName ::= (ArrayName) IDENT:I1 {: RESULT=new ArrayName(I1); RESULT.setLine(I1left); :};
 EnumDeclaration ::= (EnumDeclaration) ENUM EnumName:E1 LBRACE EnumConstList:E2 RBRACE {: RESULT=new EnumDeclaration(E1, E2); RESULT.setLine(E1left); :};
 EnumName ::= (EnumName) IDENT:I1 {: RESULT=new EnumName(I1); RESULT.setLine(I1left); :};
 EnumConstList ::= (EnumConstListMultiple) EnumConstList:E1 COMMA EnumConst:E2 {: RESULT=new EnumConstListMultiple(E1, E2); RESULT.setLine(E1left); :}
@@ -163,20 +174,30 @@ VarDeclarationList ::= (VarDeclarationListMore) VarDeclarationList:V1 VarDeclara
                        |
                        (VarDeclarationListEmpty) {: RESULT=new VarDeclarationListEmpty(); :} /* epsilon */
                        ;
+GlobalMethodDeclarationList ::= (GlobalMethodDeclarationListMore) GlobalMethodDeclarationList:G1 GlobalMethodDeclaration:G2 {: RESULT=new GlobalMethodDeclarationListMore(G1, G2); RESULT.setLine(G1left); :}
+                                |
+                                (GlobalMethodDeclarationListEmpty) {: RESULT=new GlobalMethodDeclarationListEmpty(); :} /* epsilon */
+                                ;
+GlobalMethodDeclaration ::= (GlobalMethodDeclarationParams) GlobalMethodHeader:G1 LPAREN FormalParamsList:F2 RPAREN VarDeclarationList:V3 LBRACE StatementList:S4 RBRACE {: RESULT=new GlobalMethodDeclarationParams(G1, F2, V3, S4); RESULT.setLine(G1left); :}
+                            |
+                            (GlobalMethodDeclarationNoParams) GlobalMethodHeader:G1 LPAREN RPAREN VarDeclarationList:V2 LBRACE StatementList:S3 RBRACE {: RESULT=new GlobalMethodDeclarationNoParams(G1, V2, S3); RESULT.setLine(G1left); :}
+                            ;
+GlobalMethodHeader ::= (GlobalMethodHeaderType) Type:T1 IDENT:I2 {: RESULT=new GlobalMethodHeaderType(T1, I2); RESULT.setLine(T1left); :}
+                       |
+                       (GlobalMethodHeaderVoid) VOID IDENT:I1 {: RESULT=new GlobalMethodHeaderVoid(I1); RESULT.setLine(I1left); :}
+                       ;
 MethodDeclarationList ::= (MethodDeclarationListMore) MethodDeclarationList:M1 MethodDeclaration:M2 {: RESULT=new MethodDeclarationListMore(M1, M2); RESULT.setLine(M1left); :}
                           |
                           (MethodDeclarationListEmpty) {: RESULT=new MethodDeclarationListEmpty(); :} /* epsilon */
                           ;
-MethodDeclaration ::= (MethodDeclaration) MethodHeader:M1 VarDeclarationList:V2 LBRACE StatementList:S3 RBRACE {: RESULT=new MethodDeclaration(M1, V2, S3); RESULT.setLine(M1left); :};
-MethodHeader ::= (MethodHeaderTypeParams) Type:T1 MethodName:M2 LPAREN FormalParamsList:F3 RPAREN {: RESULT=new MethodHeaderTypeParams(T1, M2, F3); RESULT.setLine(T1left); :}
+MethodDeclaration ::= (MethodDeclarationParams) MethodHeader:M1 LPAREN FormalParamsList:F2 RPAREN VarDeclarationList:V3 LBRACE StatementList:S4 RBRACE {: RESULT=new MethodDeclarationParams(M1, F2, V3, S4); RESULT.setLine(M1left); :}
+                      |
+                      (MethodDeclarationNoParams) MethodHeader:M1 LPAREN RPAREN VarDeclarationList:V2 LBRACE StatementList:S3 RBRACE {: RESULT=new MethodDeclarationNoParams(M1, V2, S3); RESULT.setLine(M1left); :}
+                      ;
+MethodHeader ::= (MethodHeaderType) Type:T1 IDENT:I2 {: RESULT=new MethodHeaderType(T1, I2); RESULT.setLine(T1left); :}
                  |
-                 (MethodHeaderTypeNoParams) Type:T1 MethodName:M2 LPAREN RPAREN {: RESULT=new MethodHeaderTypeNoParams(T1, M2); RESULT.setLine(T1left); :}
-                 |
-                 (MethodHeaderVoidParams) VOID MethodName:M1 LPAREN FormalParamsList:F2 RPAREN {: RESULT=new MethodHeaderVoidParams(M1, F2); RESULT.setLine(M1left); :}
-                 |
-                 (MethodHeaderVoidNoParams) VOID MethodName:M1 LPAREN RPAREN {: RESULT=new MethodHeaderVoidNoParams(M1); RESULT.setLine(M1left); :}
+                 (MethodHeaderVoid) VOID IDENT:I1 {: RESULT=new MethodHeaderVoid(I1); RESULT.setLine(I1left); :}
                  ;
-MethodName ::= (MethodName) IDENT:I1 {: RESULT=new MethodName(I1); RESULT.setLine(I1left); :};
 AbstractClassDeclaration ::= (AbstractClassDeclarationExtendMethodList) ABSTRACT CLASS AbstractClassName:A1 EXTENDS Type:T2 LBRACE VarDeclarationList:V3 LBRACE AbstractClassMethodDeclarationList:A4 RBRACE RBRACE {: RESULT=new AbstractClassDeclarationExtendMethodList(A1, T2, V3, A4); RESULT.setLine(A1left); :}
                              |
                              (AbstractClassDeclarationNoExtendsMethodList) ABSTRACT CLASS AbstractClassName:A1 LBRACE VarDeclarationList:V2 LBRACE AbstractClassMethodDeclarationList:A3 RBRACE RBRACE {: RESULT=new AbstractClassDeclarationNoExtendsMethodList(A1, V2, A3); RESULT.setLine(A1left); :}
@@ -192,12 +213,18 @@ AbstractClassMethodDeclarationList ::= (AbstractClassMethodDeclarationListAbstra
                                        |
                                        (AbstractClassMethodDeclarationListEmpty) {: RESULT=new AbstractClassMethodDeclarationListEmpty(); :} /* epsilon */
                                        ;
-AbstractMethodDeclaration ::= (AbstractMethodDeclaration) ABSTRACT MethodHeader:M1 SEMI {: RESULT=new AbstractMethodDeclaration(M1); RESULT.setLine(M1left); :};
+AbstractMethodDeclaration ::= (AbstractMethodDeclarationParams) ABSTRACT MethodHeader:M1 LPAREN FormalParamsList:F2 RPAREN SEMI {: RESULT=new AbstractMethodDeclarationParams(M1, F2); RESULT.setLine(M1left); :}
+                              |
+                              (AbstractMethodDeclarationNoParams) ABSTRACT MethodHeader:M1 LPAREN RPAREN SEMI {: RESULT=new AbstractMethodDeclarationNoParams(M1); RESULT.setLine(M1left); :}
+                              ;
 FormalParamsList ::= (FormalParamsListMultiple) FormalParamsList:F1 COMMA FormalParam:F2 {: RESULT=new FormalParamsListMultiple(F1, F2); RESULT.setLine(F1left); :}
                      |
                      (FormalParamsListSingle) FormalParam:F1 {: RESULT=new FormalParamsListSingle(F1); RESULT.setLine(F1left); :}
                      ;
-FormalParam ::= (FormalParam) Type:T1 Var:V2 {: RESULT=new FormalParam(T1, V2); RESULT.setLine(T1left); :};
+FormalParam ::= (FormalParamSingle) Type:T1 IDENT:I2 {: RESULT=new FormalParamSingle(T1, I2); RESULT.setLine(T1left); :}
+                |
+                (FormalParamArray) Type:T1 IDENT:I2 LBRACKET RBRACKET {: RESULT=new FormalParamArray(T1, I2); RESULT.setLine(T1left); :}
+                ;
 StatementList ::= (StatementListMore) StatementList:S1 Statement:S2 {: RESULT=new StatementListMore(S1, S2); RESULT.setLine(S1left); :}
                   |
                   (StatementListEmpty) {: RESULT=new StatementListEmpty(); :} /* epsilon */

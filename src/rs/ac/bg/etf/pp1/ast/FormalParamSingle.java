@@ -1,20 +1,19 @@
 // generated with ast extension for cup
 // version 0.8
-// 1/1/2026 22:44:20
+// 2/1/2026 23:8:48
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class MethodHeaderTypeNoParams extends MethodHeader {
+public class FormalParamSingle extends FormalParam {
 
     private Type Type;
-    private MethodName MethodName;
+    private String I2;
 
-    public MethodHeaderTypeNoParams (Type Type, MethodName MethodName) {
+    public FormalParamSingle (Type Type, String I2) {
         this.Type=Type;
         if(Type!=null) Type.setParent(this);
-        this.MethodName=MethodName;
-        if(MethodName!=null) MethodName.setParent(this);
+        this.I2=I2;
     }
 
     public Type getType() {
@@ -25,12 +24,12 @@ public class MethodHeaderTypeNoParams extends MethodHeader {
         this.Type=Type;
     }
 
-    public MethodName getMethodName() {
-        return MethodName;
+    public String getI2() {
+        return I2;
     }
 
-    public void setMethodName(MethodName MethodName) {
-        this.MethodName=MethodName;
+    public void setI2(String I2) {
+        this.I2=I2;
     }
 
     public void accept(Visitor visitor) {
@@ -39,25 +38,22 @@ public class MethodHeaderTypeNoParams extends MethodHeader {
 
     public void childrenAccept(Visitor visitor) {
         if(Type!=null) Type.accept(visitor);
-        if(MethodName!=null) MethodName.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
         if(Type!=null) Type.traverseTopDown(visitor);
-        if(MethodName!=null) MethodName.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
         if(Type!=null) Type.traverseBottomUp(visitor);
-        if(MethodName!=null) MethodName.traverseBottomUp(visitor);
         accept(visitor);
     }
 
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("MethodHeaderTypeNoParams(\n");
+        buffer.append("FormalParamSingle(\n");
 
         if(Type!=null)
             buffer.append(Type.toString("  "+tab));
@@ -65,14 +61,11 @@ public class MethodHeaderTypeNoParams extends MethodHeader {
             buffer.append(tab+"  null");
         buffer.append("\n");
 
-        if(MethodName!=null)
-            buffer.append(MethodName.toString("  "+tab));
-        else
-            buffer.append(tab+"  null");
+        buffer.append(" "+tab+I2);
         buffer.append("\n");
 
         buffer.append(tab);
-        buffer.append(") [MethodHeaderTypeNoParams]");
+        buffer.append(") [FormalParamSingle]");
         return buffer.toString();
     }
 }
