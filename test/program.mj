@@ -1,6 +1,6 @@
 program Test
 {
     void main() {
-        x++;
+        x.a[1]++;
     }
 }

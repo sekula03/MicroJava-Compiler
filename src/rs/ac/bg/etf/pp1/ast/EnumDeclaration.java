@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 23/0/2026 18:51:6
+// 1/1/2026 22:44:20
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -9,21 +9,22 @@ public class EnumDeclaration implements SyntaxNode {
 
     private SyntaxNode parent;
     private int line;
-    private String I1;
+    private EnumName EnumName;
     private EnumConstList EnumConstList;
 
-    public EnumDeclaration (String I1, EnumConstList EnumConstList) {
-        this.I1=I1;
+    public EnumDeclaration (EnumName EnumName, EnumConstList EnumConstList) {
+        this.EnumName=EnumName;
+        if(EnumName!=null) EnumName.setParent(this);
         this.EnumConstList=EnumConstList;
         if(EnumConstList!=null) EnumConstList.setParent(this);
     }
 
-    public String getI1() {
-        return I1;
+    public EnumName getEnumName() {
+        return EnumName;
     }
 
-    public void setI1(String I1) {
-        this.I1=I1;
+    public void setEnumName(EnumName EnumName) {
+        this.EnumName=EnumName;
     }
 
     public EnumConstList getEnumConstList() {
@@ -55,15 +56,18 @@ public class EnumDeclaration implements SyntaxNode {
     }
 
     public void childrenAccept(Visitor visitor) {
+        if(EnumName!=null) EnumName.accept(visitor);
         if(EnumConstList!=null) EnumConstList.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
+        if(EnumName!=null) EnumName.traverseTopDown(visitor);
         if(EnumConstList!=null) EnumConstList.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
+        if(EnumName!=null) EnumName.traverseBottomUp(visitor);
         if(EnumConstList!=null) EnumConstList.traverseBottomUp(visitor);
         accept(visitor);
     }
@@ -73,7 +77,10 @@ public class EnumDeclaration implements SyntaxNode {
         buffer.append(tab);
         buffer.append("EnumDeclaration(\n");
 
-        buffer.append(" "+tab+I1);
+        if(EnumName!=null)
+            buffer.append(EnumName.toString("  "+tab));
+        else
+            buffer.append(tab+"  null");
         buffer.append("\n");
 
         if(EnumConstList!=null)

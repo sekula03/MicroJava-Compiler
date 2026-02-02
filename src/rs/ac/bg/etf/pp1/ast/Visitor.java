@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 23/0/2026 18:51:6
+// 1/1/2026 22:44:20
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -35,6 +35,7 @@ public interface Visitor {
     public void visit(PrintDeclaration PrintDeclaration);
     public void visit(DesignatorStatement DesignatorStatement);
     public void visit(Const Const);
+    public void visit(AbstractMethodName AbstractMethodName);
     public void visit(EnumConstList EnumConstList);
     public void visit(ConditionFact ConditionFact);
     public void visit(Statement Statement);
@@ -56,6 +57,7 @@ public interface Visitor {
     public void visit(SignMinus SignMinus);
     public void visit(FactorNested FactorNested);
     public void visit(FactorNewArray FactorNewArray);
+    public void visit(FactorNewVar FactorNewVar);
     public void visit(FactorCharConst FactorCharConst);
     public void visit(FactorBoolConst FactorBoolConst);
     public void visit(FactorNumConst FactorNumConst);
@@ -85,7 +87,7 @@ public interface Visitor {
     public void visit(DesignatorStatementDecrement DesignatorStatementDecrement);
     public void visit(DesignatorStatementIncrement DesignatorStatementIncrement);
     public void visit(DesignatorStatementFunctionCallNoParams DesignatorStatementFunctionCallNoParams);
-    public void visit(DesignatorStatementFunctionCall DesignatorStatementFunctionCall);
+    public void visit(DesignatorStatementFunctionCallParams DesignatorStatementFunctionCallParams);
     public void visit(DesignatorStatementAssign DesignatorStatementAssign);
     public void visit(Case Case);
     public void visit(CaseListEmpty CaseListEmpty);
@@ -123,24 +125,33 @@ public interface Visitor {
     public void visit(AbstractClassMethodDeclarationListEmpty AbstractClassMethodDeclarationListEmpty);
     public void visit(AbstractClassMethodDeclarationListConcrete AbstractClassMethodDeclarationListConcrete);
     public void visit(AbstractClassMethodDeclarationListAbstract AbstractClassMethodDeclarationListAbstract);
-    public void visit(AbstractClassDeclarationNoExtends AbstractClassDeclarationNoExtends);
-    public void visit(AbstractClassDeclarationExtends AbstractClassDeclarationExtends);
+    public void visit(AbstractClassName AbstractClassName);
+    public void visit(AbstractClassDeclarationNoExtendsNoMethodList AbstractClassDeclarationNoExtendsNoMethodList);
+    public void visit(AbstractClassDeclarationExtendsNoMethodList AbstractClassDeclarationExtendsNoMethodList);
+    public void visit(AbstractClassDeclarationNoExtendsMethodList AbstractClassDeclarationNoExtendsMethodList);
+    public void visit(AbstractClassDeclarationExtendMethodList AbstractClassDeclarationExtendMethodList);
+    public void visit(MethodName MethodName);
     public void visit(MethodHeaderVoidNoParams MethodHeaderVoidNoParams);
-    public void visit(MethodHeaderVoid MethodHeaderVoid);
-    public void visit(MethodHeaderNoParams MethodHeaderNoParams);
-    public void visit(MethodHeaderType MethodHeaderType);
+    public void visit(MethodHeaderVoidParams MethodHeaderVoidParams);
+    public void visit(MethodHeaderTypeNoParams MethodHeaderTypeNoParams);
+    public void visit(MethodHeaderTypeParams MethodHeaderTypeParams);
     public void visit(MethodDeclaration MethodDeclaration);
     public void visit(MethodDeclarationListEmpty MethodDeclarationListEmpty);
     public void visit(MethodDeclarationListMore MethodDeclarationListMore);
     public void visit(VarDeclarationListEmpty VarDeclarationListEmpty);
     public void visit(VarDeclarationListMore VarDeclarationListMore);
-    public void visit(ClassDeclarationNoExtends ClassDeclarationNoExtends);
-    public void visit(ClassDeclarationExtends ClassDeclarationExtends);
+    public void visit(ClassName ClassName);
+    public void visit(ClassDeclarationNoExtendsNoMethodList ClassDeclarationNoExtendsNoMethodList);
+    public void visit(ClassDeclarationExtendsNoMethodList ClassDeclarationExtendsNoMethodList);
+    public void visit(ClassDeclarationNoExtendsMethodList ClassDeclarationNoExtendsMethodList);
+    public void visit(ClassDeclarationExtendsMethodList ClassDeclarationExtendsMethodList);
     public void visit(EnumConstAssign EnumConstAssign);
     public void visit(EnumConstNoAssign EnumConstNoAssign);
     public void visit(EnumConstListSingle EnumConstListSingle);
     public void visit(EnumConstListMultiple EnumConstListMultiple);
+    public void visit(EnumName EnumName);
     public void visit(EnumDeclaration EnumDeclaration);
+    public void visit(ArrayName ArrayName);
     public void visit(VarArray VarArray);
     public void visit(VarSingle VarSingle);
     public void visit(VarListSingle VarListSingle);
@@ -159,6 +170,7 @@ public interface Visitor {
     public void visit(DeclarationListClass DeclarationListClass);
     public void visit(DeclarationListVar DeclarationListVar);
     public void visit(DeclarationListConst DeclarationListConst);
+    public void visit(ProgramName ProgramName);
     public void visit(Program Program);
 
 }

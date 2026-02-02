@@ -108,9 +108,13 @@ EnumConst ::= (EnumConstNoAssign) IDENT
               |
               (EnumConstAssign) IDENT ASSIGN NUM_CONST
               ;
-ClassDeclaration ::= (ClassDeclarationExtends) CLASS ClassName EXTENDS Type LBRACE VarDeclarationList LBRACE MethodDeclarationList RBRACE RBRACE
+ClassDeclaration ::= (ClassDeclarationExtendsMethodList) CLASS ClassName EXTENDS Type LBRACE VarDeclarationList LBRACE MethodDeclarationList RBRACE RBRACE
                      |
-                     (ClassDeclarationNoExtends) CLASS ClassName LBRACE VarDeclarationList LBRACE MethodDeclarationList RBRACE RBRACE
+                     (ClassDeclarationNoExtendsMethodList) CLASS ClassName LBRACE VarDeclarationList LBRACE MethodDeclarationList RBRACE RBRACE
+                     |
+                     (ClassDeclarationExtendsNoMethodList) CLASS ClassName EXTENDS Type LBRACE VarDeclarationList RBRACE
+                     |
+                     (ClassDeclarationNoExtendsNoMethodList) CLASS ClassName LBRACE VarDeclarationList RBRACE
                      ;
 ClassName ::= (ClassName) IDENT;
 VarDeclarationList ::= (VarDeclarationListMore) VarDeclarationList VarDeclaration
@@ -122,18 +126,22 @@ MethodDeclarationList ::= (MethodDeclarationListMore) MethodDeclarationList Meth
                           (MethodDeclarationListEmpty) /* epsilon */
                           ;
 MethodDeclaration ::= (MethodDeclaration) MethodHeader VarDeclarationList LBRACE StatementList RBRACE;
-MethodHeader ::= (MethodHeaderType) Type MethodName LPAREN FormalParamsList RPAREN
+MethodHeader ::= (MethodHeaderTypeParams) Type MethodName LPAREN FormalParamsList RPAREN
                  |
-                 (MethodHeaderNoParams) Type MethodName LPAREN RPAREN
+                 (MethodHeaderTypeNoParams) Type MethodName LPAREN RPAREN
                  |
-                 (MethodHeaderVoid) VOID MethodName LPAREN FormalParamsList RPAREN
+                 (MethodHeaderVoidParams) VOID MethodName LPAREN FormalParamsList RPAREN
                  |
                  (MethodHeaderVoidNoParams) VOID MethodName LPAREN RPAREN
                  ;
 MethodName ::= (MethodName) IDENT;
-AbstractClassDeclaration ::= (AbstractClassDeclarationExtends) ABSTRACT CLASS AbstractClassName EXTENDS Type LBRACE AbstractClassMethodDeclarationList RBRACE
+AbstractClassDeclaration ::= (AbstractClassDeclarationExtendMethodList) ABSTRACT CLASS AbstractClassName EXTENDS Type LBRACE VarDeclarationList LBRACE AbstractClassMethodDeclarationList RBRACE RBRACE
                              |
-                             (AbstractClassDeclarationNoExtends) ABSTRACT CLASS AbstractClassName LBRACE AbstractClassMethodDeclarationList RBRACE
+                             (AbstractClassDeclarationNoExtendsMethodList) ABSTRACT CLASS AbstractClassName LBRACE VarDeclarationList LBRACE AbstractClassMethodDeclarationList RBRACE RBRACE
+                             |
+                             (AbstractClassDeclarationExtendsNoMethodList) ABSTRACT CLASS AbstractClassName EXTENDS Type LBRACE VarDeclarationList RBRACE
+                             |
+                             (AbstractClassDeclarationNoExtendsNoMethodList) ABSTRACT CLASS AbstractClassName LBRACE VarDeclarationList RBRACE
                              ;
 AbstractClassName ::= (AbstractClassName) IDENT;
 AbstractClassMethodDeclarationList ::= (AbstractClassMethodDeclarationListAbstract) AbstractClassMethodDeclarationList AbstractMethodDeclaration
@@ -207,7 +215,7 @@ CaseList ::= (CaseListMore) CaseList Case
 Case ::= (Case) CASE NUM_CONST COLON StatementList;
 DesignatorStatement ::= (DesignatorStatementAssign) Designator ASSIGN Expression
                         |
-                        (DesignatorStatementFunctionCall) Designator LPAREN ActualParamsList RPAREN
+                        (DesignatorStatementFunctionCallParams) Designator LPAREN ActualParamsList RPAREN
                         |
                         (DesignatorStatementFunctionCallNoParams) Designator LPAREN RPAREN
                         |
@@ -265,9 +273,11 @@ Factor ::= (FactorVariable) Sign Designator
            |
            (FactorCharConst) CHAR_CONST
            |
+           (FactorNewVar) NEW Type
+           |
            (FactorNewArray) NEW Type LBRACKET Expression RBRACKET
            |
-           (FactorNested) LPAREN Expression RPAREN
+           (FactorNested) Sign LPAREN Expression RPAREN
            ;
 Sign ::= (SignMinus) MINUS
          |

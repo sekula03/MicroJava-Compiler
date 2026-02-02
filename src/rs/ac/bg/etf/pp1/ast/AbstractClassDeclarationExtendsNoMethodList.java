@@ -1,33 +1,31 @@
 // generated with ast extension for cup
 // version 0.8
-// 23/0/2026 18:51:6
+// 1/1/2026 22:44:20
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class ClassDeclarationExtends extends ClassDeclaration {
+public class AbstractClassDeclarationExtendsNoMethodList extends AbstractClassDeclaration {
 
-    private String I1;
+    private AbstractClassName AbstractClassName;
     private Type Type;
     private VarDeclarationList VarDeclarationList;
-    private MethodDeclarationList MethodDeclarationList;
 
-    public ClassDeclarationExtends (String I1, Type Type, VarDeclarationList VarDeclarationList, MethodDeclarationList MethodDeclarationList) {
-        this.I1=I1;
+    public AbstractClassDeclarationExtendsNoMethodList (AbstractClassName AbstractClassName, Type Type, VarDeclarationList VarDeclarationList) {
+        this.AbstractClassName=AbstractClassName;
+        if(AbstractClassName!=null) AbstractClassName.setParent(this);
         this.Type=Type;
         if(Type!=null) Type.setParent(this);
         this.VarDeclarationList=VarDeclarationList;
         if(VarDeclarationList!=null) VarDeclarationList.setParent(this);
-        this.MethodDeclarationList=MethodDeclarationList;
-        if(MethodDeclarationList!=null) MethodDeclarationList.setParent(this);
     }
 
-    public String getI1() {
-        return I1;
+    public AbstractClassName getAbstractClassName() {
+        return AbstractClassName;
     }
 
-    public void setI1(String I1) {
-        this.I1=I1;
+    public void setAbstractClassName(AbstractClassName AbstractClassName) {
+        this.AbstractClassName=AbstractClassName;
     }
 
     public Type getType() {
@@ -46,44 +44,39 @@ public class ClassDeclarationExtends extends ClassDeclaration {
         this.VarDeclarationList=VarDeclarationList;
     }
 
-    public MethodDeclarationList getMethodDeclarationList() {
-        return MethodDeclarationList;
-    }
-
-    public void setMethodDeclarationList(MethodDeclarationList MethodDeclarationList) {
-        this.MethodDeclarationList=MethodDeclarationList;
-    }
-
     public void accept(Visitor visitor) {
         visitor.visit(this);
     }
 
     public void childrenAccept(Visitor visitor) {
+        if(AbstractClassName!=null) AbstractClassName.accept(visitor);
         if(Type!=null) Type.accept(visitor);
         if(VarDeclarationList!=null) VarDeclarationList.accept(visitor);
-        if(MethodDeclarationList!=null) MethodDeclarationList.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
+        if(AbstractClassName!=null) AbstractClassName.traverseTopDown(visitor);
         if(Type!=null) Type.traverseTopDown(visitor);
         if(VarDeclarationList!=null) VarDeclarationList.traverseTopDown(visitor);
-        if(MethodDeclarationList!=null) MethodDeclarationList.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
+        if(AbstractClassName!=null) AbstractClassName.traverseBottomUp(visitor);
         if(Type!=null) Type.traverseBottomUp(visitor);
         if(VarDeclarationList!=null) VarDeclarationList.traverseBottomUp(visitor);
-        if(MethodDeclarationList!=null) MethodDeclarationList.traverseBottomUp(visitor);
         accept(visitor);
     }
 
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("ClassDeclarationExtends(\n");
+        buffer.append("AbstractClassDeclarationExtendsNoMethodList(\n");
 
-        buffer.append(" "+tab+I1);
+        if(AbstractClassName!=null)
+            buffer.append(AbstractClassName.toString("  "+tab));
+        else
+            buffer.append(tab+"  null");
         buffer.append("\n");
 
         if(Type!=null)
@@ -98,14 +91,8 @@ public class ClassDeclarationExtends extends ClassDeclaration {
             buffer.append(tab+"  null");
         buffer.append("\n");
 
-        if(MethodDeclarationList!=null)
-            buffer.append(MethodDeclarationList.toString("  "+tab));
-        else
-            buffer.append(tab+"  null");
-        buffer.append("\n");
-
         buffer.append(tab);
-        buffer.append(") [ClassDeclarationExtends]");
+        buffer.append(") [AbstractClassDeclarationExtendsNoMethodList]");
         return buffer.toString();
     }
 }

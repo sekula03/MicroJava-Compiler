@@ -1,24 +1,25 @@
 // generated with ast extension for cup
 // version 0.8
-// 23/0/2026 18:51:6
+// 1/1/2026 22:44:20
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class VarArray extends Var {
 
-    private String I1;
+    private ArrayName ArrayName;
 
-    public VarArray (String I1) {
-        this.I1=I1;
+    public VarArray (ArrayName ArrayName) {
+        this.ArrayName=ArrayName;
+        if(ArrayName!=null) ArrayName.setParent(this);
     }
 
-    public String getI1() {
-        return I1;
+    public ArrayName getArrayName() {
+        return ArrayName;
     }
 
-    public void setI1(String I1) {
-        this.I1=I1;
+    public void setArrayName(ArrayName ArrayName) {
+        this.ArrayName=ArrayName;
     }
 
     public void accept(Visitor visitor) {
@@ -26,13 +27,16 @@ public class VarArray extends Var {
     }
 
     public void childrenAccept(Visitor visitor) {
+        if(ArrayName!=null) ArrayName.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
+        if(ArrayName!=null) ArrayName.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
+        if(ArrayName!=null) ArrayName.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -41,7 +45,10 @@ public class VarArray extends Var {
         buffer.append(tab);
         buffer.append("VarArray(\n");
 
-        buffer.append(" "+tab+I1);
+        if(ArrayName!=null)
+            buffer.append(ArrayName.toString("  "+tab));
+        else
+            buffer.append(tab+"  null");
         buffer.append("\n");
 
         buffer.append(tab);

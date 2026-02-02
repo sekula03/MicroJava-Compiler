@@ -1,27 +1,28 @@
 // generated with ast extension for cup
 // version 0.8
-// 23/0/2026 18:51:6
+// 1/1/2026 22:44:20
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class MethodHeaderVoid extends MethodHeader {
+public class MethodHeaderVoidParams extends MethodHeader {
 
-    private String I1;
+    private MethodName MethodName;
     private FormalParamsList FormalParamsList;
 
-    public MethodHeaderVoid (String I1, FormalParamsList FormalParamsList) {
-        this.I1=I1;
+    public MethodHeaderVoidParams (MethodName MethodName, FormalParamsList FormalParamsList) {
+        this.MethodName=MethodName;
+        if(MethodName!=null) MethodName.setParent(this);
         this.FormalParamsList=FormalParamsList;
         if(FormalParamsList!=null) FormalParamsList.setParent(this);
     }
 
-    public String getI1() {
-        return I1;
+    public MethodName getMethodName() {
+        return MethodName;
     }
 
-    public void setI1(String I1) {
-        this.I1=I1;
+    public void setMethodName(MethodName MethodName) {
+        this.MethodName=MethodName;
     }
 
     public FormalParamsList getFormalParamsList() {
@@ -37,15 +38,18 @@ public class MethodHeaderVoid extends MethodHeader {
     }
 
     public void childrenAccept(Visitor visitor) {
+        if(MethodName!=null) MethodName.accept(visitor);
         if(FormalParamsList!=null) FormalParamsList.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
+        if(MethodName!=null) MethodName.traverseTopDown(visitor);
         if(FormalParamsList!=null) FormalParamsList.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
+        if(MethodName!=null) MethodName.traverseBottomUp(visitor);
         if(FormalParamsList!=null) FormalParamsList.traverseBottomUp(visitor);
         accept(visitor);
     }
@@ -53,9 +57,12 @@ public class MethodHeaderVoid extends MethodHeader {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("MethodHeaderVoid(\n");
+        buffer.append("MethodHeaderVoidParams(\n");
 
-        buffer.append(" "+tab+I1);
+        if(MethodName!=null)
+            buffer.append(MethodName.toString("  "+tab));
+        else
+            buffer.append(tab+"  null");
         buffer.append("\n");
 
         if(FormalParamsList!=null)
@@ -65,7 +72,7 @@ public class MethodHeaderVoid extends MethodHeader {
         buffer.append("\n");
 
         buffer.append(tab);
-        buffer.append(") [MethodHeaderVoid]");
+        buffer.append(") [MethodHeaderVoidParams]");
         return buffer.toString();
     }
 }
