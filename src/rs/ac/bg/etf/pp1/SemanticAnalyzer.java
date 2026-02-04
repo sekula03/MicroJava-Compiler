@@ -64,7 +64,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
             struct_type = definedType.getType();
     }
 
-    // globalne konstante
+    // global consts
 
     private void common_const(SyntaxNode sn, String name, Struct type, int value) {
         Obj con = Tab.find(name);
@@ -93,7 +93,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         common_const(constBool, constBool.getI1(), Tab.find("bool").getType(), constBool.getB2() ? 1 : 0);
     }
 
-    // globalne promenljive
+    // global vars
 
     private void common_globalVar(SyntaxNode sn, String name, Struct type) {
         Obj var = Tab.find(name);
@@ -113,7 +113,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         common_globalVar(globalVarArray, globalVarArray.getI1(), new Struct(Struct.Array, struct_type));
     }
 
-    // globalne metode
+    // global methods
 
     private void common_globalMethodHeader(SyntaxNode sn, String name, Struct type) {
         Obj meth = Tab.find(name);
@@ -151,7 +151,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         Tab.closeScope();
     }
 
-    // lokalne promenljive
+    // local vars
 
     private void common_var(SyntaxNode sn, String name, Struct type) {
         Obj var = Tab.currentScope().findSymbol(name);
@@ -171,7 +171,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         common_var(varArray, varArray.getI1(), new Struct(Struct.Array, struct_type));
     }
 
-    // formalni parametri
+    // formal params
 
     private void common_formalParam(SyntaxNode sn, String name, Struct type) {
         Obj fp = Tab.currentScope().findSymbol(name);
@@ -194,7 +194,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         common_formalParam(formalParamArray, formalParamArray.getI2(), new Struct(Struct.Array, struct_type));
     }
 
-    // enumi
+    // enums
 
     private int next_enum;
     private HashSet<Integer> enum_vals;
@@ -242,14 +242,15 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         common_enumConst(enumConstNoAssign, enumConstNoAssign.getI1(), next_enum);
     }
 
-    // klase
+    // classes
 
     private static boolean assignableTo(Struct src, Struct dst) {
         if (src == null || dst == null) return false;
         if (src.compatibleWith(dst)) return true;
-        if (src.getKind() != Struct.Class || dst.getKind() != Struct.Class) return false;
-        while (src.getElemType() != null) {
-            if (src.getElemType().equals(dst)) return true;
+        if (src.getKind() != Struct.Class || dst.getKind() != Struct.Class
+                || src.getKind() != Struct.Interface || dst.getKind() != Struct.Interface) return false;
+        while (src.getElemType() != Tab.noType) {
+            if (src.getElemType() == dst) return true;
             src = src.getElemType();
         }
         return false;
@@ -267,12 +268,12 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     @Override
     public void visit(ClassNameNoExtends classNameNoExtends) {
-        common_className(classNameNoExtends, classNameNoExtends.getI1(), null, Struct.Class);
+        common_className(classNameNoExtends, classNameNoExtends.getI1(), Tab.noType, Struct.Class);
     }
 
     @Override
     public void visit(ClassNameExtends classNameExtends) {
-        if (struct_type.getKind() != Struct.Class)
+        if (struct_type.getKind() != Struct.Class && struct_type.getKind() != Struct.Interface)
             report_error("Nepostojeca natklasa: " + struct_type, classNameExtends);
         common_className(classNameExtends, classNameExtends.getI1(), struct_type, Struct.Class);
         for (Obj o: struct_class.getElemType().getMembers()) {
@@ -283,7 +284,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     @Override
     public void visit(AbstractClassNameNoExtends abstractClassNameNoExtends) {
-        common_className(abstractClassNameNoExtends, abstractClassNameNoExtends.getI1(), null, Struct.Interface);
+        common_className(abstractClassNameNoExtends, abstractClassNameNoExtends.getI1(), Tab.noType, Struct.Interface);
     }
 
     @Override
@@ -298,11 +299,13 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     }
 
     private void common_classDeclaration() {
-        if (struct_class.getElemType() == null) return;
         for (Obj superMember: struct_class.getElemType().getMembers()) {
             if (superMember.getKind() == Obj.Meth && Tab.currentScope().findSymbol(superMember.getName()) == null) {
+                if (struct_class.getKind() == Struct.Class && superMember.getAdr() == Obj.NO_VALUE)
+                    report_error("Neredefinisana apstraktna metoda: " + superMember.getName(), null);
                 Obj new_meth = Tab.insert(Obj.Meth, superMember.getName(), superMember.getType());
                 new_meth.setLevel(superMember.getLevel());
+                new_meth.setAdr(superMember.getAdr());
                 Tab.openScope();
                 for (Obj var: superMember.getLocalSymbols()) {
                     Obj new_var = Tab.insert(Obj.Var, var.getName(), var.getName().equals("this") ? struct_class : var.getType());
@@ -342,7 +345,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         Tab.closeScope();
     }
 
-    // klasna polja
+    // class fields
 
     private void common_field(SyntaxNode sn, String name, Struct type) {
         Obj fld = Tab.currentScope().findSymbol(name);
@@ -350,12 +353,10 @@ public class SemanticAnalyzer extends VisitorAdaptor {
             report_error("Visestruka definicija polja: " + name, sn);
             return;
         }
-        if (struct_class.getElemType() != null) {
-            for (Obj sym: struct_class.getElemType().getMembers()) {
-                if (sym.getName().equals(name)) {
-                    report_error("Visestruka definicija polja: " + name, sn);
-                    return;
-                }
+        for (Obj sym: struct_class.getElemType().getMembers()) {
+            if (sym.getName().equals(name)) {
+                report_error("Visestruka definicija polja: " + name, sn);
+                return;
             }
         }
         Tab.insert(Obj.Fld, name, type);
@@ -371,7 +372,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         common_field(fieldArray, fieldArray.getI1(), new Struct(Struct.Array, struct_type));
     }
 
-    // klasne metode
+    // class methods
 
     private void common_methodHeader(SyntaxNode sn, String name, Struct type) {
         Obj meth = Tab.currentScope().findSymbol(name);
@@ -400,11 +401,10 @@ public class SemanticAnalyzer extends VisitorAdaptor {
                 return sym;
             }
         }
-        return null;
+        return Tab.noObj;
     }
 
     private void common_methodDeclaration(SyntaxNode sn) {
-        if (struct_class.getElemType() == null) return;
         Obj super_method = null;
         for (Obj meth: struct_class.getElemType().getMembers()) {
             if (meth.getKind() == Obj.Meth && meth.getName().equals(obj_method.getName())) {
@@ -417,7 +417,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
             for (int i = 1; i <= obj_method.getLevel(); i++) {
                 Obj currentP = findParamByPos(obj_method, i);
                 Obj superP = findParamByPos(super_method, i);
-                if (superP == null || currentP == null || !assignableTo(superP.getType(), currentP.getType()))
+                if (!assignableTo(superP.getType(), currentP.getType()))
                     break;
             }
             return;
@@ -442,6 +442,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     @Override
     public void visit(AbstractMethodDeclarationParams abstractMethodDeclarationParams) {
         common_methodDeclaration(abstractMethodDeclarationParams);
+        obj_method.setAdr(Obj.NO_VALUE);
         Tab.chainLocalSymbols(obj_method);
         Tab.closeScope();
     }
@@ -449,8 +450,208 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     @Override
     public void visit(AbstractMethodDeclarationNoParams abstractMethodDeclarationNoParams) {
         common_methodDeclaration(abstractMethodDeclarationNoParams);
+        obj_method.setAdr(Obj.NO_VALUE);
         Tab.chainLocalSymbols(obj_method);
         Tab.closeScope();
+    }
+
+    // factors
+
+    private Struct common_factor(SyntaxNode sn, Sign sign, Struct type) {
+        if (sign instanceof SignEmpty)
+            return type;
+        if (type == Tab.intType)
+            return Tab.intType;
+        report_error("Negiranje ne-int tipa", sn);
+        return Tab.noType;
+    }
+
+    @Override
+    public void visit(FactorVariable factorVariable) {
+        int kind = factorVariable.getDesignator().obj.getKind();
+        if (kind != Obj.Var && kind != Obj.Fld && kind != Obj.Con && kind != Obj.Elem) {
+            report_error("Nepostojeca promenljiva/konstanta " + factorVariable.getDesignator().obj.getName(), factorVariable);
+            factorVariable.struct = Tab.noType;
+        }
+        else
+            factorVariable.struct = common_factor(
+                    factorVariable,
+                    factorVariable.getSign(),
+                    factorVariable.getDesignator().obj.getType()
+            );
+    }
+
+    @Override
+    public void visit(FactorFunctionCallWithArgs factorFunctionCallWithArgs) {
+        if (factorFunctionCallWithArgs.getDesignator().obj.getKind() != Obj.Meth) {
+            report_error("Nepostojeca metoda " + factorFunctionCallWithArgs.getDesignator().obj.getName(), factorFunctionCallWithArgs);
+            factorFunctionCallWithArgs.struct = Tab.noType;
+        }
+        else
+            factorFunctionCallWithArgs.struct = common_factor(
+                    factorFunctionCallWithArgs,
+                    factorFunctionCallWithArgs.getSign(),
+                    factorFunctionCallWithArgs.getDesignator().obj.getType()
+            );
+    }
+
+    @Override
+    public void visit(FactorFunctionCallNoArgs factorFunctionCallNoArgs) {
+        if (factorFunctionCallNoArgs.getDesignator().obj.getKind() != Obj.Meth) {
+            report_error("Nepostojeca metoda " + factorFunctionCallNoArgs.getDesignator().obj.getName(), factorFunctionCallNoArgs);
+            factorFunctionCallNoArgs.struct = Tab.noType;
+        }
+        else
+            factorFunctionCallNoArgs.struct = common_factor(
+                    factorFunctionCallNoArgs,
+                    factorFunctionCallNoArgs.getSign(),
+                    factorFunctionCallNoArgs.getDesignator().obj.getType()
+            );
+    }
+
+    @Override
+    public void visit(FactorNested factorNested) {
+        factorNested.struct = common_factor(
+                factorNested,
+                factorNested.getSign(),
+                factorNested.getExpression().struct
+        );
+    }
+
+    @Override
+    public void visit(FactorNumConst factorNumConst) {
+        factorNumConst.struct = Tab.intType;
+    }
+
+    @Override
+    public void visit(FactorBoolConst factorBoolConst) {
+        factorBoolConst.struct = Tab.find("bool").getType();
+    }
+
+    @Override
+    public void visit(FactorCharConst factorCharConst) {
+        factorCharConst.struct = Tab.charType;
+    }
+
+    @Override
+    public void visit(FactorNewVar factorNewVar) {
+        if (struct_type.getKind() == Struct.Class)
+            factorNewVar.struct = struct_type;
+        else  {
+            if (struct_type != Tab.noType)
+                report_error("Koriscen ne-klasni tip pri pozivu new", factorNewVar);
+            factorNewVar.struct = Tab.noType;
+        }
+    }
+
+    @Override
+    public void visit(FactorNewArray factorNewArray) {
+        if (factorNewArray.getExpression().struct == Tab.intType)
+            factorNewArray.struct = new Struct(Struct.Array, struct_type);
+        else {
+            if (factorNewArray.getExpression().struct != Tab.noType)
+                report_error("Indeksiranje tipom razlicitim od int", factorNewArray);
+            factorNewArray.struct = Tab.noType;
+        }
+    }
+
+    // factor lists
+
+    @Override
+    public void visit(FactorListMulOp factorListMulOp) {
+        if (factorListMulOp.getFactor().struct == Tab.intType && factorListMulOp.getFactorList().struct == Tab.intType)
+            factorListMulOp.struct = Tab.intType;
+        else {
+            if (factorListMulOp.getFactorList().struct != Tab.noType)
+                report_error("Nekompatibilni tipovi za MulOp", factorListMulOp);
+            factorListMulOp.struct = Tab.noType;
+        }
+    }
+
+    @Override
+    public void visit(FactorListNoMulOp factorListNoMulOp) {
+        factorListNoMulOp.struct = factorListNoMulOp.getFactor().struct;
+    }
+
+    // terms
+
+    @Override
+    public void visit(Term term) {
+        term.struct = term.getFactorList().struct;
+    }
+
+    // term lists
+
+    @Override
+    public void visit(TermListAddOp termListAddOp) {
+        if (termListAddOp.getTerm().struct == Tab.intType && termListAddOp.getTermList().struct == Tab.intType)
+            termListAddOp.struct = Tab.intType;
+        else {
+            if (termListAddOp.getTermList().struct != Tab.noType)
+                report_error("Nekompatibilni tipovi za AddOp", termListAddOp);
+            termListAddOp.struct = Tab.noType;
+        }
+    }
+
+    @Override
+    public void visit(TermListNoAddOp termListNoAddOp) {
+        termListNoAddOp.struct = termListNoAddOp.getTerm().struct;
+    }
+
+    // expressions
+
+    @Override
+    public void visit(ArithmeticExpression arithmeticExpression) {
+        arithmeticExpression.struct = arithmeticExpression.getTermList().struct;
+    }
+
+    @Override
+    public void visit(ExpressionArithmetic expressionArithmetic) {
+        expressionArithmetic.struct = expressionArithmetic.getArithmeticExpression().struct;
+    }
+
+    @Override
+    public void visit(ExpressionTernary expressionTernary) {
+        // TODO
+    }
+
+    // designators
+
+
+
+    // designator statements
+
+    @Override
+    public void visit(DesignatorStatementAssign designatorStatementAssign) {
+        Expression e = designatorStatementAssign.getExpression();
+        Designator d = designatorStatementAssign.getDesignator();
+        if (!assignableTo(e.struct, d.obj.getType())) {
+            report_error("Nekompatibilni tipovi za dodelu vrednosti", designatorStatementAssign);
+        }
+    }
+
+    @Override
+    public void visit(DesignatorStatementFunctionCallParams designatorStatementFunctionCallParams) {
+        // proveriti da li su argumenti dobri
+    }
+
+    @Override
+    public void visit(DesignatorStatementFunctionCallNoParams designatorStatementFunctionCallNoParams) {
+        // proveriti da li su argumenti dobri
+    }
+
+    @Override
+    public void visit(DesignatorStatementIncrement designatorStatementIncrement) {
+        if (designatorStatementIncrement.getDesignator().obj.getType() != Tab.intType) {
+            report_error("Inkrementiranje ne-int tipa", designatorStatementIncrement);
+        }
+    }
+
+    @Override
+    public void visit(DesignatorStatementDecrement designatorStatementDecrement) {
+        if (designatorStatementDecrement.getDesignator().obj.getType() != Tab.intType) {
+            report_error("Dekrementiranje ne-int tipa", designatorStatementDecrement);
+        }
     }
 
 }

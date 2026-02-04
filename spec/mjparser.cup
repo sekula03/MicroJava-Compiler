@@ -55,12 +55,13 @@ nonterminal ConstDeclaration, VarDeclaration, ClassDeclaration, EnumDeclaration,
 nonterminal Type, ConstList, Const, VarList, Var, EnumConstList, EnumConst;
 nonterminal MethodDeclarationList, AbstractClassMethodDeclarationList, VarDeclarationList;
 nonterminal MethodDeclaration, AbstractMethodDeclaration, MethodHeader, FormalParamsList, FormalParam;
-nonterminal StatementList, Statement, DesignatorStatement, Designator, CaseList, Case;
+nonterminal StatementList, Statement, DesignatorStatement, CaseList, Case;
 nonterminal IfDeclaration, ReturnDeclaration, PrintDeclaration, ForDeclaration;
-nonterminal Expression, Condition, ActualParamsList, SuffixList, Suffix, ConditionFact, ConditionTerm;
-nonterminal Term, TermList, Factor, FactorList, Sign, ArithmeticExpression;
-nonterminal ProgramName, EnumName, ClassName, AbstractClassName;
+nonterminal Condition, ActualParamsList, SuffixList, Suffix, ConditionFact, ConditionTerm, Sign;
+nonterminal ProgramName, EnumName, ClassName, AbstractClassName, RelOp, AddOp, MulOp;
 nonterminal FieldDeclarationList, FieldDeclaration, FieldList, Field;
+nonterminal rs.etf.pp1.symboltable.concepts.Struct Term, TermList, Factor, FactorList, ArithmeticExpression, Expression;
+nonterminal rs.etf.pp1.symboltable.concepts.Obj Designator;
 
 precedence left ELSE;
 
@@ -99,15 +100,18 @@ GlobalVar ::= (GlobalVarSingle) IDENT
               |
               (GlobalVarArray) IDENT LBRACKET RBRACKET
               ;
-VarDeclaration ::= (VarDeclaration) Type VarList SEMI;
-VarList ::= (VarListMultiple) VarList COMMA Var
-            |
-            (VarListSingle) Var
-            ;
-Var ::= (VarSingle) IDENT
-        |
-        (VarArray) IDENT LBRACKET RBRACKET
-        ;
+GlobalMethodDeclarationList ::= (GlobalMethodDeclarationListMore) GlobalMethodDeclarationList GlobalMethodDeclaration
+                                |
+                                (GlobalMethodDeclarationListEmpty) /* epsilon */
+                                ;
+GlobalMethodDeclaration ::= (GlobalMethodDeclarationParams) GlobalMethodHeader LPAREN FormalParamsList RPAREN VarDeclarationList LBRACE StatementList RBRACE
+                            |
+                            (GlobalMethodDeclarationNoParams) GlobalMethodHeader LPAREN RPAREN VarDeclarationList LBRACE StatementList RBRACE
+                            ;
+GlobalMethodHeader ::= (GlobalMethodHeaderType) Type IDENT
+                       |
+                       (GlobalMethodHeaderVoid) VOID IDENT
+                       ;
 EnumDeclaration ::= (EnumDeclaration) ENUM EnumName LBRACE EnumConstList RBRACE;
 EnumName ::= (EnumName) IDENT;
 EnumConstList ::= (EnumConstListMultiple) EnumConstList COMMA EnumConst
@@ -122,10 +126,18 @@ ClassDeclaration ::= (ClassDeclarationMethodList) CLASS ClassName LBRACE FieldDe
                      |
                      (ClassDeclarationNoMethodList) CLASS ClassName LBRACE FieldDeclarationList RBRACE
                      ;
+AbstractClassDeclaration ::= (AbstractClassDeclarationMethodList) ABSTRACT CLASS AbstractClassName LBRACE FieldDeclarationList LBRACE AbstractClassMethodDeclarationList RBRACE RBRACE
+                             |
+                             (AbstractClassDeclarationNoMethodList) ABSTRACT CLASS AbstractClassName LBRACE FieldDeclarationList RBRACE
+                             ;
 ClassName ::= (ClassNameNoExtends) IDENT
               |
               (ClassNameExtends) IDENT EXTENDS Type
               ;
+AbstractClassName ::= (AbstractClassNameNoExtends) IDENT
+                      |
+                      (AbstractClassNameExtends) IDENT EXTENDS Type
+                      ;
 FieldDeclarationList ::= (FieldDeclarationListMore) FieldDeclarationList FieldDeclaration
                          |
                          (FieldDeclarationListEmpty) /* epsilon */
@@ -143,48 +155,37 @@ VarDeclarationList ::= (VarDeclarationListMore) VarDeclarationList VarDeclaratio
                        |
                        (VarDeclarationListEmpty) /* epsilon */
                        ;
-GlobalMethodDeclarationList ::= (GlobalMethodDeclarationListMore) GlobalMethodDeclarationList GlobalMethodDeclaration
-                                |
-                                (GlobalMethodDeclarationListEmpty) /* epsilon */
-                                ;
-GlobalMethodDeclaration ::= (GlobalMethodDeclarationParams) GlobalMethodHeader LPAREN FormalParamsList RPAREN VarDeclarationList LBRACE StatementList RBRACE
-                            |
-                            (GlobalMethodDeclarationNoParams) GlobalMethodHeader LPAREN RPAREN VarDeclarationList LBRACE StatementList RBRACE
-                            ;
-GlobalMethodHeader ::= (GlobalMethodHeaderType) Type IDENT
-                       |
-                       (GlobalMethodHeaderVoid) VOID IDENT
-                       ;
+VarDeclaration ::= (VarDeclaration) Type VarList SEMI;
+VarList ::= (VarListMultiple) VarList COMMA Var
+            |
+            (VarListSingle) Var
+            ;
+Var ::= (VarSingle) IDENT
+        |
+        (VarArray) IDENT LBRACKET RBRACKET
+        ;
 MethodDeclarationList ::= (MethodDeclarationListMore) MethodDeclarationList MethodDeclaration
                           |
                           (MethodDeclarationListEmpty) /* epsilon */
                           ;
-MethodDeclaration ::= (MethodDeclarationParams) MethodHeader LPAREN FormalParamsList RPAREN VarDeclarationList LBRACE StatementList RBRACE
-                      |
-                      (MethodDeclarationNoParams) MethodHeader LPAREN RPAREN VarDeclarationList LBRACE StatementList RBRACE
-                      ;
-MethodHeader ::= (MethodHeaderType) Type IDENT
-                 |
-                 (MethodHeaderVoid) VOID IDENT
-                 ;
-AbstractClassDeclaration ::= (AbstractClassDeclarationMethodList) ABSTRACT CLASS AbstractClassName LBRACE FieldDeclarationList LBRACE AbstractClassMethodDeclarationList RBRACE RBRACE
-                             |
-                             (AbstractClassDeclarationNoMethodList) ABSTRACT CLASS AbstractClassName LBRACE FieldDeclarationList RBRACE
-                             ;
-AbstractClassName ::= (AbstractClassNameNoExtends) IDENT
-                      |
-                      (AbstractClassNameExtends) IDENT EXTENDS Type
-                      ;
 AbstractClassMethodDeclarationList ::= (AbstractClassMethodDeclarationListAbstract) AbstractClassMethodDeclarationList AbstractMethodDeclaration
                                        |
                                        (AbstractClassMethodDeclarationListConcrete) AbstractClassMethodDeclarationList MethodDeclaration
                                        |
                                        (AbstractClassMethodDeclarationListEmpty) /* epsilon */
                                        ;
+MethodDeclaration ::= (MethodDeclarationParams) MethodHeader LPAREN FormalParamsList RPAREN VarDeclarationList LBRACE StatementList RBRACE
+                      |
+                      (MethodDeclarationNoParams) MethodHeader LPAREN RPAREN VarDeclarationList LBRACE StatementList RBRACE
+                      ;
 AbstractMethodDeclaration ::= (AbstractMethodDeclarationParams) ABSTRACT MethodHeader LPAREN FormalParamsList RPAREN SEMI
                               |
                               (AbstractMethodDeclarationNoParams) ABSTRACT MethodHeader LPAREN RPAREN SEMI
                               ;
+MethodHeader ::= (MethodHeaderType) Type IDENT
+                 |
+                 (MethodHeaderVoid) VOID IDENT
+                 ;
 FormalParamsList ::= (FormalParamsListMultiple) FormalParamsList COMMA FormalParam
                      |
                      (FormalParamsListSingle) FormalParam
@@ -264,39 +265,33 @@ ActualParamsList ::= (ActualParamsListMultiple) ActualParamsList COMMA Expressio
                      |
                      (ActualParamsListSingle) Expression
                      ;
-Designator ::= (DesignatorSuffixList) IDENT SuffixList
+Designator ::= (DesignatorVar) IDENT SuffixList
                |
-               (DesignatorNoSuffixList) IDENT
+               (DesignatorArray) IDENT LBRACKET Expression RBRACKET SuffixList
                ;
-SuffixList ::= (SuffixListMultiple) SuffixList Suffix
+SuffixList ::= (SuffixListMore) SuffixList Suffix
                |
-               (SuffixListSingle) Suffix
+               (SuffixListEmpty) /* epsilon */
                ;
 Suffix ::= (SuffixField) DOT IDENT
            |
-           (SuffixLength) DOT LENGTH
+           (SuffixElem) DOT IDENT LBRACKET Expression RBRACKET
            |
-           (SuffixIndex) LBRACKET Expression RBRACKET
+           (SuffixLength) DOT LENGTH
            ;
 Expression ::= (ExpressionArithmetic) ArithmeticExpression
                |
                (ExpressionTernary) Condition QUESTION Expression COLON Expression
                ;
-ArithmeticExpression ::= (ArithmeticExpression) Term TermList;
-TermList ::= (TermListPlus) TermList PLUS Term
+ArithmeticExpression ::= (ArithmeticExpression) TermList;
+TermList ::= (TermListAddOp) TermList AddOp Term
              |
-             (TermListMinus) TermList MINUS Term
-             |
-             (TermListEmpty) /* epsilon */
+             (TermListNoAddOp) Term
              ;
-Term ::= (Term) Factor FactorList;
-FactorList ::= (FactorListTimes) FactorList MUL Factor
+Term ::= (Term) FactorList;
+FactorList ::= (FactorListMulOp) FactorList MulOp Factor
                |
-               (FactorListDivide) FactorList DIV Factor
-               |
-               (FactorListModulo) FactorList MOD Factor
-               |
-               (FactorListEmpty) /* epsilon */
+               (FactorListNoMulOp) Factor
                ;
 Factor ::= (FactorVariable) Sign Designator
            |
@@ -330,15 +325,27 @@ ConditionTerm ::= (ConditionTermMultiple) ConditionTerm AND ConditionFact
                   ;
 ConditionFact ::= (ConditionFactNoRelOp) ArithmeticExpression
                   |
-                  (ConditionFactEqual) ArithmeticExpression EQUAL ArithmeticExpression
-                  |
-                  (ConditionFactNotEqual) ArithmeticExpression NOT_EQUAL ArithmeticExpression
-                  |
-                  (ConditionFactGreater) ArithmeticExpression GREATER ArithmeticExpression
-                  |
-                  (ConditionFactGreaterEqual) ArithmeticExpression GREATER_EQUAL ArithmeticExpression
-                  |
-                  (ConditionFactLess) ArithmeticExpression LESS ArithmeticExpression
-                  |
-                  (ConditionFactLessEqual) ArithmeticExpression LESS_EQUAL ArithmeticExpression
+                  (ConditionFactRelOp) ArithmeticExpression RelOp ArithmeticExpression
                   ;
+RelOp ::= (RelOpEqual) EQUAL
+          |
+          (RelOpNotEqual) NOT_EQUAL
+          |
+          (RelOpGreater) GREATER
+          |
+          (RelOpGreaterEqual) GREATER_EQUAL
+          |
+          (RelOpLess) LESS
+          |
+          (RelOpLessEqual) LESS_EQUAL
+          ;
+AddOp ::= (AddOpPlus) PLUS
+          |
+          (AddOpMinus) MINUS
+          ;
+MulOp ::= (MulOpTimes) MUL
+          |
+          (MulOpDiv) DIV
+          |
+          (MulOpMod) MOD
+          ;

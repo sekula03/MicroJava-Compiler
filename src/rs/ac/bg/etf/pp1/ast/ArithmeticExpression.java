@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 4/1/2026 0:35:41
+// 4/1/2026 22:6:35
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -9,22 +9,13 @@ public class ArithmeticExpression implements SyntaxNode {
 
     private SyntaxNode parent;
     private int line;
-    private Term Term;
+    public rs.etf.pp1.symboltable.concepts.Struct struct = null;
+
     private TermList TermList;
 
-    public ArithmeticExpression (Term Term, TermList TermList) {
-        this.Term=Term;
-        if(Term!=null) Term.setParent(this);
+    public ArithmeticExpression (TermList TermList) {
         this.TermList=TermList;
         if(TermList!=null) TermList.setParent(this);
-    }
-
-    public Term getTerm() {
-        return Term;
-    }
-
-    public void setTerm(Term Term) {
-        this.Term=Term;
     }
 
     public TermList getTermList() {
@@ -56,18 +47,15 @@ public class ArithmeticExpression implements SyntaxNode {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(Term!=null) Term.accept(visitor);
         if(TermList!=null) TermList.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(Term!=null) Term.traverseTopDown(visitor);
         if(TermList!=null) TermList.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(Term!=null) Term.traverseBottomUp(visitor);
         if(TermList!=null) TermList.traverseBottomUp(visitor);
         accept(visitor);
     }
@@ -76,12 +64,6 @@ public class ArithmeticExpression implements SyntaxNode {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
         buffer.append("ArithmeticExpression(\n");
-
-        if(Term!=null)
-            buffer.append(Term.toString("  "+tab));
-        else
-            buffer.append(tab+"  null");
-        buffer.append("\n");
 
         if(TermList!=null)
             buffer.append(TermList.toString("  "+tab));
