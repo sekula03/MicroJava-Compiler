@@ -1,21 +1,21 @@
 // generated with ast extension for cup
 // version 0.8
-// 2/1/2026 23:8:48
+// 4/1/2026 0:35:41
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class ClassDeclarationNoExtendsMethodList extends ClassDeclaration {
+public class ClassDeclarationMethodList extends ClassDeclaration {
 
     private ClassName ClassName;
-    private VarDeclarationList VarDeclarationList;
+    private FieldDeclarationList FieldDeclarationList;
     private MethodDeclarationList MethodDeclarationList;
 
-    public ClassDeclarationNoExtendsMethodList (ClassName ClassName, VarDeclarationList VarDeclarationList, MethodDeclarationList MethodDeclarationList) {
+    public ClassDeclarationMethodList (ClassName ClassName, FieldDeclarationList FieldDeclarationList, MethodDeclarationList MethodDeclarationList) {
         this.ClassName=ClassName;
         if(ClassName!=null) ClassName.setParent(this);
-        this.VarDeclarationList=VarDeclarationList;
-        if(VarDeclarationList!=null) VarDeclarationList.setParent(this);
+        this.FieldDeclarationList=FieldDeclarationList;
+        if(FieldDeclarationList!=null) FieldDeclarationList.setParent(this);
         this.MethodDeclarationList=MethodDeclarationList;
         if(MethodDeclarationList!=null) MethodDeclarationList.setParent(this);
     }
@@ -28,12 +28,12 @@ public class ClassDeclarationNoExtendsMethodList extends ClassDeclaration {
         this.ClassName=ClassName;
     }
 
-    public VarDeclarationList getVarDeclarationList() {
-        return VarDeclarationList;
+    public FieldDeclarationList getFieldDeclarationList() {
+        return FieldDeclarationList;
     }
 
-    public void setVarDeclarationList(VarDeclarationList VarDeclarationList) {
-        this.VarDeclarationList=VarDeclarationList;
+    public void setFieldDeclarationList(FieldDeclarationList FieldDeclarationList) {
+        this.FieldDeclarationList=FieldDeclarationList;
     }
 
     public MethodDeclarationList getMethodDeclarationList() {
@@ -50,20 +50,20 @@ public class ClassDeclarationNoExtendsMethodList extends ClassDeclaration {
 
     public void childrenAccept(Visitor visitor) {
         if(ClassName!=null) ClassName.accept(visitor);
-        if(VarDeclarationList!=null) VarDeclarationList.accept(visitor);
+        if(FieldDeclarationList!=null) FieldDeclarationList.accept(visitor);
         if(MethodDeclarationList!=null) MethodDeclarationList.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
         if(ClassName!=null) ClassName.traverseTopDown(visitor);
-        if(VarDeclarationList!=null) VarDeclarationList.traverseTopDown(visitor);
+        if(FieldDeclarationList!=null) FieldDeclarationList.traverseTopDown(visitor);
         if(MethodDeclarationList!=null) MethodDeclarationList.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
         if(ClassName!=null) ClassName.traverseBottomUp(visitor);
-        if(VarDeclarationList!=null) VarDeclarationList.traverseBottomUp(visitor);
+        if(FieldDeclarationList!=null) FieldDeclarationList.traverseBottomUp(visitor);
         if(MethodDeclarationList!=null) MethodDeclarationList.traverseBottomUp(visitor);
         accept(visitor);
     }
@@ -71,7 +71,7 @@ public class ClassDeclarationNoExtendsMethodList extends ClassDeclaration {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("ClassDeclarationNoExtendsMethodList(\n");
+        buffer.append("ClassDeclarationMethodList(\n");
 
         if(ClassName!=null)
             buffer.append(ClassName.toString("  "+tab));
@@ -79,8 +79,8 @@ public class ClassDeclarationNoExtendsMethodList extends ClassDeclaration {
             buffer.append(tab+"  null");
         buffer.append("\n");
 
-        if(VarDeclarationList!=null)
-            buffer.append(VarDeclarationList.toString("  "+tab));
+        if(FieldDeclarationList!=null)
+            buffer.append(FieldDeclarationList.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");
@@ -92,7 +92,7 @@ public class ClassDeclarationNoExtendsMethodList extends ClassDeclaration {
         buffer.append("\n");
 
         buffer.append(tab);
-        buffer.append(") [ClassDeclarationNoExtendsMethodList]");
+        buffer.append(") [ClassDeclarationMethodList]");
         return buffer.toString();
     }
 }

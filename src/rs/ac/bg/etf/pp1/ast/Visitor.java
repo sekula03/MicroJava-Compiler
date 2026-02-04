@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 2/1/2026 23:8:48
+// 4/1/2026 0:35:41
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -10,6 +10,7 @@ public interface Visitor {
     public void visit(DeclarationList DeclarationList);
     public void visit(IfDeclaration IfDeclaration);
     public void visit(ReturnDeclaration ReturnDeclaration);
+    public void visit(AbstractClassName AbstractClassName);
     public void visit(TermList TermList);
     public void visit(Sign Sign);
     public void visit(GlobalMethodDeclarationList GlobalMethodDeclarationList);
@@ -20,7 +21,9 @@ public interface Visitor {
     public void visit(ActualParamsList ActualParamsList);
     public void visit(StatementList StatementList);
     public void visit(MethodDeclarationList MethodDeclarationList);
+    public void visit(ClassName ClassName);
     public void visit(FactorList FactorList);
+    public void visit(FieldDeclarationList FieldDeclarationList);
     public void visit(ConditionTerm ConditionTerm);
     public void visit(EnumConst EnumConst);
     public void visit(FormalParamsList FormalParamsList);
@@ -48,6 +51,8 @@ public interface Visitor {
     public void visit(AbstractClassMethodDeclarationList AbstractClassMethodDeclarationList);
     public void visit(GlobalVarList GlobalVarList);
     public void visit(AbstractMethodDeclaration AbstractMethodDeclaration);
+    public void visit(Field Field);
+    public void visit(FieldList FieldList);
     public void visit(SuffixList SuffixList);
     public void visit(ConditionFactLessEqual ConditionFactLessEqual);
     public void visit(ConditionFactLess ConditionFactLess);
@@ -134,11 +139,10 @@ public interface Visitor {
     public void visit(AbstractClassMethodDeclarationListEmpty AbstractClassMethodDeclarationListEmpty);
     public void visit(AbstractClassMethodDeclarationListConcrete AbstractClassMethodDeclarationListConcrete);
     public void visit(AbstractClassMethodDeclarationListAbstract AbstractClassMethodDeclarationListAbstract);
-    public void visit(AbstractClassName AbstractClassName);
-    public void visit(AbstractClassDeclarationNoExtendsNoMethodList AbstractClassDeclarationNoExtendsNoMethodList);
-    public void visit(AbstractClassDeclarationExtendsNoMethodList AbstractClassDeclarationExtendsNoMethodList);
-    public void visit(AbstractClassDeclarationNoExtendsMethodList AbstractClassDeclarationNoExtendsMethodList);
-    public void visit(AbstractClassDeclarationExtendMethodList AbstractClassDeclarationExtendMethodList);
+    public void visit(AbstractClassNameExtends AbstractClassNameExtends);
+    public void visit(AbstractClassNameNoExtends AbstractClassNameNoExtends);
+    public void visit(AbstractClassDeclarationNoMethodList AbstractClassDeclarationNoMethodList);
+    public void visit(AbstractClassDeclarationMethodList AbstractClassDeclarationMethodList);
     public void visit(MethodHeaderVoid MethodHeaderVoid);
     public void visit(MethodHeaderType MethodHeaderType);
     public void visit(MethodDeclarationNoParams MethodDeclarationNoParams);
@@ -153,11 +157,17 @@ public interface Visitor {
     public void visit(GlobalMethodDeclarationListMore GlobalMethodDeclarationListMore);
     public void visit(VarDeclarationListEmpty VarDeclarationListEmpty);
     public void visit(VarDeclarationListMore VarDeclarationListMore);
-    public void visit(ClassName ClassName);
-    public void visit(ClassDeclarationNoExtendsNoMethodList ClassDeclarationNoExtendsNoMethodList);
-    public void visit(ClassDeclarationExtendsNoMethodList ClassDeclarationExtendsNoMethodList);
-    public void visit(ClassDeclarationNoExtendsMethodList ClassDeclarationNoExtendsMethodList);
-    public void visit(ClassDeclarationExtendsMethodList ClassDeclarationExtendsMethodList);
+    public void visit(FieldArray FieldArray);
+    public void visit(FieldSingle FieldSingle);
+    public void visit(FieldListSingle FieldListSingle);
+    public void visit(FieldListMultiple FieldListMultiple);
+    public void visit(FieldDeclaration FieldDeclaration);
+    public void visit(FieldDeclarationListEmpty FieldDeclarationListEmpty);
+    public void visit(FieldDeclarationListMore FieldDeclarationListMore);
+    public void visit(ClassNameExtends ClassNameExtends);
+    public void visit(ClassNameNoExtends ClassNameNoExtends);
+    public void visit(ClassDeclarationNoMethodList ClassDeclarationNoMethodList);
+    public void visit(ClassDeclarationMethodList ClassDeclarationMethodList);
     public void visit(EnumConstAssign EnumConstAssign);
     public void visit(EnumConstNoAssign EnumConstNoAssign);
     public void visit(EnumConstListSingle EnumConstListSingle);

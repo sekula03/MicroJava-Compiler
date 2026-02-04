@@ -6,6 +6,8 @@ import rs.etf.pp1.symboltable.Tab;
 import rs.etf.pp1.symboltable.concepts.Obj;
 import rs.etf.pp1.symboltable.concepts.Struct;
 
+import java.util.HashSet;
+
 public class SemanticAnalyzer extends VisitorAdaptor {
 
     Logger log = Logger.getLogger(getClass());
@@ -33,7 +35,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     // =================================================================================================================
 
     private Obj obj_program, obj_method;
-    private Struct struct_type;
+    private Struct struct_type, struct_class;
     private boolean main = false;
 
 
@@ -64,85 +66,73 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     // globalne konstante
 
+    private void common_const(SyntaxNode sn, String name, Struct type, int value) {
+        Obj con = Tab.find(name);
+        if (con != Tab.noObj)
+            report_error("Visestruka definicija konstante: " + name, sn);
+        else if (!type.equals(struct_type))
+            report_error("Nekompatibilna vrednost konstante: " + name, sn);
+        else {
+            con = Tab.insert(Obj.Con, name, struct_type);
+            con.setAdr(value);
+        }
+    }
+
     @Override
     public void visit(ConstNum constNum) {
-        Obj con = Tab.find(constNum.getI1());
-        if (con != Tab.noObj)
-            report_error("Visestruka definicija konstante: " + constNum.getI1(), constNum);
-        else if (!Tab.intType.assignableTo(struct_type))
-            report_error("Nekompatibilna vrednost konstante: " + constNum.getI1(), constNum);
-        else {
-            con = Tab.insert(Obj.Con, constNum.getI1(), struct_type);
-            con.setAdr(constNum.getN2());
-        }
+        common_const(constNum, constNum.getI1(), Tab.intType, constNum.getN2());
     }
 
     @Override
     public void visit(ConstChar constChar) {
-        Obj con = Tab.find(constChar.getI1());
-        if (con != Tab.noObj)
-            report_error("Visestruka definicija konstante: " + constChar.getI1(), constChar);
-        else if (!Tab.charType.assignableTo(struct_type))
-            report_error("Nekompatibilna vrednost konstante: " + constChar.getI1(), constChar);
-        else{
-            con = Tab.insert(Obj.Con, constChar.getI1(), struct_type);
-            con.setAdr(constChar.getC2());
-        }
+        common_const(constChar, constChar.getI1(), Tab.charType, constChar.getC2());
     }
 
     @Override
     public void visit(ConstBool constBool) {
-        Obj con = Tab.find(constBool.getI1());
-        if (con != Tab.noObj)
-            report_error("Visestruka definicija konstante: " + constBool.getI1(), constBool);
-        else if (!Tab.find("bool").getType().assignableTo(struct_type))
-            report_error("Nekompatibilna vrednost konstante: " + constBool.getI1(), constBool);
-        else{
-            con = Tab.insert(Obj.Con, constBool.getI1(), struct_type);
-            con.setAdr(constBool.getB2() ? 1 : 0);
-        }
+        common_const(constBool, constBool.getI1(), Tab.find("bool").getType(), constBool.getB2() ? 1 : 0);
     }
 
     // globalne promenljive
 
+    private void common_globalVar(SyntaxNode sn, String name, Struct type) {
+        Obj var = Tab.find(name);
+        if (var != Tab.noObj)
+            report_error("Visestruka definicija promenljive: " + name, sn);
+        else
+            Tab.insert(Obj.Var, name, type);
+    }
+
     @Override
     public void visit(GlobalVarSingle globalVarSingle) {
-        Obj var = Tab.find(globalVarSingle.getI1());
-        if (var != Tab.noObj)
-            report_error("Visestruka definicija promenljive: " + globalVarSingle.getI1(), globalVarSingle);
-        else
-            Tab.insert(Obj.Var, globalVarSingle.getI1(), struct_type);
+        common_globalVar(globalVarSingle, globalVarSingle.getI1(), struct_type);
     }
 
     @Override
     public void visit(GlobalVarArray globalVarArray) {
-        Obj var = Tab.find(globalVarArray.getI1());
-        if (var != Tab.noObj)
-            report_error("Visestruka definicija promenljive: " + globalVarArray.getI1(), globalVarArray);
-        else
-            Tab.insert(Obj.Var, globalVarArray.getI1(), new Struct(Struct.Array, struct_type));
+        common_globalVar(globalVarArray, globalVarArray.getI1(), new Struct(Struct.Array, struct_type));
     }
 
     // globalne metode
 
-    @Override
-    public void visit(GlobalMethodHeaderType globalMethodHeaderType) {
-        Obj meth = Tab.find(globalMethodHeaderType.getI2());
+    private void common_globalMethodHeader(SyntaxNode sn, String name, Struct type) {
+        Obj meth = Tab.find(name);
         if (meth != Tab.noObj)
-            report_error("Visestruka definicija metode: " + globalMethodHeaderType.getI2(), globalMethodHeaderType);
-        else if (globalMethodHeaderType.getI2().equals("main"))
-            report_error("Nevalidan potpis medote main", globalMethodHeaderType);
-        obj_method = Tab.insert(Obj.Meth, globalMethodHeaderType.getI2(), struct_type);
+            report_error("Visestruka definicija metode: " + name, sn);
+        obj_method = Tab.insert(Obj.Meth, name, type);
         Tab.openScope();
     }
 
     @Override
+    public void visit(GlobalMethodHeaderType globalMethodHeaderType) {
+        if (globalMethodHeaderType.getI2().equals("main"))
+            report_error("Nevalidan potpis medote main", globalMethodHeaderType);
+        common_globalMethodHeader(globalMethodHeaderType, globalMethodHeaderType.getI2(), struct_type);
+    }
+
+    @Override
     public void visit(GlobalMethodHeaderVoid globalMethodHeaderVoid) {
-        Obj meth = Tab.find(globalMethodHeaderVoid.getI1());
-        if (meth != Tab.noObj)
-            report_error("Visestruka definicija metode: " + globalMethodHeaderVoid.getI1(), globalMethodHeaderVoid);
-        obj_method = Tab.insert(Obj.Meth, globalMethodHeaderVoid.getI1(), Tab.noType);
-        Tab.openScope();
+        common_globalMethodHeader(globalMethodHeaderVoid, globalMethodHeaderVoid.getI1(), Tab.noType);
     }
 
     @Override
@@ -163,79 +153,304 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     // lokalne promenljive
 
+    private void common_var(SyntaxNode sn, String name, Struct type) {
+        Obj var = Tab.currentScope().findSymbol(name);
+        if (var != null)
+            report_error("Visestruka definicija promenljive: " + name, sn);
+        else
+            Tab.insert(Obj.Var, name, type);
+    }
+
     @Override
     public void visit(VarSingle varSingle) {
-        Obj var = Tab.currentScope().findSymbol(varSingle.getI1());
-        if (var != null)
-            report_error("Visestruka definicija promenljive: " + varSingle.getI1(), varSingle);
-        else
-            Tab.insert(Obj.Var, varSingle.getI1(), struct_type);
+        common_var(varSingle, varSingle.getI1(), struct_type);
     }
 
     @Override
     public void visit(VarArray varArray) {
-        Obj var = Tab.currentScope().findSymbol(varArray.getI1());
-        if (var != null)
-            report_error("Visestruka definicija promenljive: " + varArray.getI1(), varArray);
-        else
-            Tab.insert(Obj.Var, varArray.getI1(), new Struct(Struct.Array, struct_type));
+        common_var(varArray, varArray.getI1(), new Struct(Struct.Array, struct_type));
     }
 
     // formalni parametri
 
-    @Override
-    public void visit(FormalParamSingle formalParamSingle) {
-        Obj fp = Tab.currentScope().findSymbol(formalParamSingle.getI2());
+    private void common_formalParam(SyntaxNode sn, String name, Struct type) {
+        Obj fp = Tab.currentScope().findSymbol(name);
         if (fp != null)
-            report_error("Visestruka definicija formalnog parametra: " + formalParamSingle.getI2(), formalParamSingle);
+            report_error("Visestruka definicija formalnog parametra: " + name, sn);
         else {
-            fp = Tab.insert(Obj.Var, formalParamSingle.getI2(), struct_type);
-            fp.setFpPos(1);
+            fp = Tab.insert(Obj.Var, name, type);
+            fp.setFpPos(obj_method.getLevel());
             obj_method.setLevel(obj_method.getLevel() + 1);
         }
+    }
+
+    @Override
+    public void visit(FormalParamSingle formalParamSingle) {
+        common_formalParam(formalParamSingle, formalParamSingle.getI2(), struct_type);
     }
 
     @Override
     public void visit(FormalParamArray formalParamArray) {
-        Obj fp = Tab.currentScope().findSymbol(formalParamArray.getI2());
-        if (fp != null)
-            report_error("Visestruka definicija formalnog parametra: " + formalParamArray.getI2(), formalParamArray);
+        common_formalParam(formalParamArray, formalParamArray.getI2(), new Struct(Struct.Array, struct_type));
+    }
+
+    // enumi
+
+    private int next_enum;
+    private HashSet<Integer> enum_vals;
+
+    @Override
+    public void visit(EnumName enumName) {
+        Obj en = Tab.find(enumName.getI1());
+        if (en != Tab.noObj)
+            report_error("Visestruka definicija nabrajanja: " + enumName.getI1(), enumName);
+        struct_class = new Struct(Struct.Enum);
+        next_enum = 0;
+        enum_vals = new HashSet<>();
+        Tab.insert(Obj.Type, enumName.getI1(), struct_class);
+        Tab.openScope();
+    }
+
+    @Override
+    public void visit(EnumDeclaration enumDeclaration) {
+        Tab.chainLocalSymbols(struct_class);
+        Tab.closeScope();
+        enum_vals = null;
+    }
+
+    private void common_enumConst(SyntaxNode sn, String name, int value) {
+        Obj en = Tab.currentScope().findSymbol(name);
+        if (en != null)
+            report_error("Visestruka definicija konstante nabrajanja: " + name, sn);
+        else if (enum_vals.contains(value))
+            report_error("Ponovljena vrednost konstante nabrajanja: " + name + " = " + value, sn);
         else {
-            fp = Tab.insert(Obj.Var, formalParamArray.getI2(), new Struct(Struct.Array, struct_type));
-            fp.setFpPos(1);
-            obj_method.setLevel(obj_method.getLevel() + 1);
+            en = Tab.insert(Obj.Con, name, Tab.intType);
+            en.setAdr(value);
+            enum_vals.add(value);
+            next_enum = value + 1;
         }
     }
 
-    // lokalne metode
+    @Override
+    public void visit(EnumConstAssign enumConstAssign) {
+        common_enumConst(enumConstAssign, enumConstAssign.getI1(), enumConstAssign.getN2());
+    }
+
+    @Override
+    public void visit(EnumConstNoAssign enumConstNoAssign) {
+        common_enumConst(enumConstNoAssign, enumConstNoAssign.getI1(), next_enum);
+    }
+
+    // klase
+
+    private static boolean assignableTo(Struct src, Struct dst) {
+        if (src == null || dst == null) return false;
+        if (src.compatibleWith(dst)) return true;
+        if (src.getKind() != Struct.Class || dst.getKind() != Struct.Class) return false;
+        while (src.getElemType() != null) {
+            if (src.getElemType().equals(dst)) return true;
+            src = src.getElemType();
+        }
+        return false;
+    }
+
+    private void common_className(SyntaxNode sn, String name, Struct type, int classtype) {
+        Obj cls = Tab.find(name);
+        if (cls != Tab.noObj)
+            report_error("Visestruka definicija klase: " + name, sn);
+        struct_class = new Struct(classtype);
+        Tab.insert(Obj.Type, name, struct_class);
+        Tab.openScope();
+        struct_class.setElementType(type);
+    }
+
+    @Override
+    public void visit(ClassNameNoExtends classNameNoExtends) {
+        common_className(classNameNoExtends, classNameNoExtends.getI1(), null, Struct.Class);
+    }
+
+    @Override
+    public void visit(ClassNameExtends classNameExtends) {
+        if (struct_type.getKind() != Struct.Class)
+            report_error("Nepostojeca natklasa: " + struct_type, classNameExtends);
+        common_className(classNameExtends, classNameExtends.getI1(), struct_type, Struct.Class);
+        for (Obj o: struct_class.getElemType().getMembers()) {
+            if (o.getKind() == Obj.Fld)
+                Tab.insert(Obj.Fld, o.getName(), o.getType());
+        }
+    }
+
+    @Override
+    public void visit(AbstractClassNameNoExtends abstractClassNameNoExtends) {
+        common_className(abstractClassNameNoExtends, abstractClassNameNoExtends.getI1(), null, Struct.Interface);
+    }
+
+    @Override
+    public void visit(AbstractClassNameExtends abstractClassNameExtends) {
+        if (struct_type.getKind() != Struct.Class)
+            report_error("Nepostojeca natklasa: " + struct_type, abstractClassNameExtends);
+        common_className(abstractClassNameExtends, abstractClassNameExtends.getI1(), struct_type, Struct.Interface);
+        for (Obj o: struct_class.getElemType().getMembers()) {
+            if (o.getKind() == Obj.Fld)
+                Tab.insert(Obj.Fld, o.getName(), o.getType());
+        }
+    }
+
+    private void common_classDeclaration() {
+        if (struct_class.getElemType() == null) return;
+        for (Obj superMember: struct_class.getElemType().getMembers()) {
+            if (superMember.getKind() == Obj.Meth && Tab.currentScope().findSymbol(superMember.getName()) == null) {
+                Obj new_meth = Tab.insert(Obj.Meth, superMember.getName(), superMember.getType());
+                new_meth.setLevel(superMember.getLevel());
+                Tab.openScope();
+                for (Obj var: superMember.getLocalSymbols()) {
+                    Obj new_var = Tab.insert(Obj.Var, var.getName(), var.getName().equals("this") ? struct_class : var.getType());
+                    new_var.setFpPos(var.getFpPos());
+                }
+                Tab.chainLocalSymbols(new_meth);
+                Tab.closeScope();
+            }
+        }
+    }
+
+    @Override
+    public void visit(ClassDeclarationMethodList classDeclarationMethodList) {
+        common_classDeclaration();
+        Tab.chainLocalSymbols(struct_class);
+        Tab.closeScope();
+    }
+
+    @Override
+    public void visit(ClassDeclarationNoMethodList classDeclarationNoMethodList) {
+        common_classDeclaration();
+        Tab.chainLocalSymbols(struct_class);
+        Tab.closeScope();
+    }
+
+    @Override
+    public void visit(AbstractClassDeclarationMethodList abstractClassDeclarationMethodList) {
+        common_classDeclaration();
+        Tab.chainLocalSymbols(struct_class);
+        Tab.closeScope();
+    }
+
+    @Override
+    public void visit(AbstractClassDeclarationNoMethodList abstractClassDeclarationNoMethodList) {
+        common_classDeclaration();
+        Tab.chainLocalSymbols(struct_class);
+        Tab.closeScope();
+    }
+
+    // klasna polja
+
+    private void common_field(SyntaxNode sn, String name, Struct type) {
+        Obj fld = Tab.currentScope().findSymbol(name);
+        if (fld != null) {
+            report_error("Visestruka definicija polja: " + name, sn);
+            return;
+        }
+        if (struct_class.getElemType() != null) {
+            for (Obj sym: struct_class.getElemType().getMembers()) {
+                if (sym.getName().equals(name)) {
+                    report_error("Visestruka definicija polja: " + name, sn);
+                    return;
+                }
+            }
+        }
+        Tab.insert(Obj.Fld, name, type);
+    }
+
+    @Override
+    public void visit(FieldSingle fieldSingle) {
+        common_field(fieldSingle, fieldSingle.getI1(), struct_type);
+    }
+
+    @Override
+    public void visit(FieldArray fieldArray) {
+        common_field(fieldArray, fieldArray.getI1(), new Struct(Struct.Array, struct_type));
+    }
+
+    // klasne metode
+
+    private void common_methodHeader(SyntaxNode sn, String name, Struct type) {
+        Obj meth = Tab.currentScope().findSymbol(name);
+        if (meth != null)
+            report_error("Visestruka definicija metode: " + name, sn);
+        obj_method = Tab.insert(Obj.Meth,name, type);
+        Tab.openScope();
+        Obj fp = Tab.insert(Obj.Var, "this", struct_class);
+        obj_method.setLevel(1);
+        fp.setFpPos(0);
+    }
 
     @Override
     public void visit(MethodHeaderType methodHeaderType) {
-        Obj meth = Tab.currentScope().findSymbol(methodHeaderType.getI2());
-        if (meth != null)
-            report_error("Visestruka definicija metode: " + methodHeaderType.getI2(), methodHeaderType);
-        obj_method = Tab.insert(Obj.Meth, methodHeaderType.getI2(), struct_type);
-        Tab.openScope();
+        common_methodHeader(methodHeaderType, methodHeaderType.getI2(), struct_type);
     }
 
     @Override
     public void visit(MethodHeaderVoid methodHeaderVoid) {
-        Obj meth = Tab.currentScope().findSymbol(methodHeaderVoid.getI1());
-        if (meth != null)
-            report_error("Visestruka definicija metode: " + methodHeaderVoid.getI1(), methodHeaderVoid);
-        obj_method = Tab.insert(Obj.Meth, methodHeaderVoid.getI1(), Tab.noType);
-        Tab.openScope();
+        common_methodHeader(methodHeaderVoid, methodHeaderVoid.getI1(), Tab.noType);
+    }
+
+    private Obj findParamByPos(Obj method, int pos) {
+        for (Obj sym : method.getLocalSymbols()) {
+            if (sym.getFpPos() == pos) {
+                return sym;
+            }
+        }
+        return null;
+    }
+
+    private void common_methodDeclaration(SyntaxNode sn) {
+        if (struct_class.getElemType() == null) return;
+        Obj super_method = null;
+        for (Obj meth: struct_class.getElemType().getMembers()) {
+            if (meth.getKind() == Obj.Meth && meth.getName().equals(obj_method.getName())) {
+                super_method = meth;
+                break;
+            }
+        }
+        if (super_method == null) return;
+        if (assignableTo(obj_method.getType(), super_method.getType()) && super_method.getLevel() == obj_method.getLevel()) {
+            for (int i = 1; i <= obj_method.getLevel(); i++) {
+                Obj currentP = findParamByPos(obj_method, i);
+                Obj superP = findParamByPos(super_method, i);
+                if (superP == null || currentP == null || !assignableTo(superP.getType(), currentP.getType()))
+                    break;
+            }
+            return;
+        }
+        report_error("Pogresna redefinicija metode: " + obj_method.getName(), sn);
     }
 
     @Override
     public void visit(MethodDeclarationParams methodDeclarationParams) {
+        common_methodDeclaration(methodDeclarationParams);
         Tab.chainLocalSymbols(obj_method);
         Tab.closeScope();
     }
 
     @Override
     public void visit(MethodDeclarationNoParams methodDeclarationNoParams) {
+        common_methodDeclaration(methodDeclarationNoParams);
         Tab.chainLocalSymbols(obj_method);
         Tab.closeScope();
     }
+
+    @Override
+    public void visit(AbstractMethodDeclarationParams abstractMethodDeclarationParams) {
+        common_methodDeclaration(abstractMethodDeclarationParams);
+        Tab.chainLocalSymbols(obj_method);
+        Tab.closeScope();
+    }
+
+    @Override
+    public void visit(AbstractMethodDeclarationNoParams abstractMethodDeclarationNoParams) {
+        common_methodDeclaration(abstractMethodDeclarationNoParams);
+        Tab.chainLocalSymbols(obj_method);
+        Tab.closeScope();
+    }
+
 }

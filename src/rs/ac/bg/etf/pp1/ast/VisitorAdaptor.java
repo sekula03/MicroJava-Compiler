@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 2/1/2026 23:8:48
+// 4/1/2026 0:35:41
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -10,6 +10,7 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(DeclarationList DeclarationList) { }
     public void visit(IfDeclaration IfDeclaration) { }
     public void visit(ReturnDeclaration ReturnDeclaration) { }
+    public void visit(AbstractClassName AbstractClassName) { }
     public void visit(TermList TermList) { }
     public void visit(Sign Sign) { }
     public void visit(GlobalMethodDeclarationList GlobalMethodDeclarationList) { }
@@ -20,7 +21,9 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(ActualParamsList ActualParamsList) { }
     public void visit(StatementList StatementList) { }
     public void visit(MethodDeclarationList MethodDeclarationList) { }
+    public void visit(ClassName ClassName) { }
     public void visit(FactorList FactorList) { }
+    public void visit(FieldDeclarationList FieldDeclarationList) { }
     public void visit(ConditionTerm ConditionTerm) { }
     public void visit(EnumConst EnumConst) { }
     public void visit(FormalParamsList FormalParamsList) { }
@@ -48,6 +51,8 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(AbstractClassMethodDeclarationList AbstractClassMethodDeclarationList) { }
     public void visit(GlobalVarList GlobalVarList) { }
     public void visit(AbstractMethodDeclaration AbstractMethodDeclaration) { }
+    public void visit(Field Field) { }
+    public void visit(FieldList FieldList) { }
     public void visit(SuffixList SuffixList) { }
     public void visit(ConditionFactLessEqual ConditionFactLessEqual) { visit(); }
     public void visit(ConditionFactLess ConditionFactLess) { visit(); }
@@ -134,11 +139,10 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(AbstractClassMethodDeclarationListEmpty AbstractClassMethodDeclarationListEmpty) { visit(); }
     public void visit(AbstractClassMethodDeclarationListConcrete AbstractClassMethodDeclarationListConcrete) { visit(); }
     public void visit(AbstractClassMethodDeclarationListAbstract AbstractClassMethodDeclarationListAbstract) { visit(); }
-    public void visit(AbstractClassName AbstractClassName) { visit(); }
-    public void visit(AbstractClassDeclarationNoExtendsNoMethodList AbstractClassDeclarationNoExtendsNoMethodList) { visit(); }
-    public void visit(AbstractClassDeclarationExtendsNoMethodList AbstractClassDeclarationExtendsNoMethodList) { visit(); }
-    public void visit(AbstractClassDeclarationNoExtendsMethodList AbstractClassDeclarationNoExtendsMethodList) { visit(); }
-    public void visit(AbstractClassDeclarationExtendMethodList AbstractClassDeclarationExtendMethodList) { visit(); }
+    public void visit(AbstractClassNameExtends AbstractClassNameExtends) { visit(); }
+    public void visit(AbstractClassNameNoExtends AbstractClassNameNoExtends) { visit(); }
+    public void visit(AbstractClassDeclarationNoMethodList AbstractClassDeclarationNoMethodList) { visit(); }
+    public void visit(AbstractClassDeclarationMethodList AbstractClassDeclarationMethodList) { visit(); }
     public void visit(MethodHeaderVoid MethodHeaderVoid) { visit(); }
     public void visit(MethodHeaderType MethodHeaderType) { visit(); }
     public void visit(MethodDeclarationNoParams MethodDeclarationNoParams) { visit(); }
@@ -153,11 +157,17 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(GlobalMethodDeclarationListMore GlobalMethodDeclarationListMore) { visit(); }
     public void visit(VarDeclarationListEmpty VarDeclarationListEmpty) { visit(); }
     public void visit(VarDeclarationListMore VarDeclarationListMore) { visit(); }
-    public void visit(ClassName ClassName) { visit(); }
-    public void visit(ClassDeclarationNoExtendsNoMethodList ClassDeclarationNoExtendsNoMethodList) { visit(); }
-    public void visit(ClassDeclarationExtendsNoMethodList ClassDeclarationExtendsNoMethodList) { visit(); }
-    public void visit(ClassDeclarationNoExtendsMethodList ClassDeclarationNoExtendsMethodList) { visit(); }
-    public void visit(ClassDeclarationExtendsMethodList ClassDeclarationExtendsMethodList) { visit(); }
+    public void visit(FieldArray FieldArray) { visit(); }
+    public void visit(FieldSingle FieldSingle) { visit(); }
+    public void visit(FieldListSingle FieldListSingle) { visit(); }
+    public void visit(FieldListMultiple FieldListMultiple) { visit(); }
+    public void visit(FieldDeclaration FieldDeclaration) { visit(); }
+    public void visit(FieldDeclarationListEmpty FieldDeclarationListEmpty) { visit(); }
+    public void visit(FieldDeclarationListMore FieldDeclarationListMore) { visit(); }
+    public void visit(ClassNameExtends ClassNameExtends) { visit(); }
+    public void visit(ClassNameNoExtends ClassNameNoExtends) { visit(); }
+    public void visit(ClassDeclarationNoMethodList ClassDeclarationNoMethodList) { visit(); }
+    public void visit(ClassDeclarationMethodList ClassDeclarationMethodList) { visit(); }
     public void visit(EnumConstAssign EnumConstAssign) { visit(); }
     public void visit(EnumConstNoAssign EnumConstNoAssign) { visit(); }
     public void visit(EnumConstListSingle EnumConstListSingle) { visit(); }

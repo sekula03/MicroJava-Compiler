@@ -60,6 +60,7 @@ nonterminal IfDeclaration, ReturnDeclaration, PrintDeclaration, ForDeclaration;
 nonterminal Expression, Condition, ActualParamsList, SuffixList, Suffix, ConditionFact, ConditionTerm;
 nonterminal Term, TermList, Factor, FactorList, Sign, ArithmeticExpression;
 nonterminal ProgramName, EnumName, ClassName, AbstractClassName;
+nonterminal FieldDeclarationList, FieldDeclaration, FieldList, Field;
 
 precedence left ELSE;
 
@@ -117,15 +118,27 @@ EnumConst ::= (EnumConstNoAssign) IDENT
               |
               (EnumConstAssign) IDENT ASSIGN NUM_CONST
               ;
-ClassDeclaration ::= (ClassDeclarationExtendsMethodList) CLASS ClassName EXTENDS Type LBRACE VarDeclarationList LBRACE MethodDeclarationList RBRACE RBRACE
+ClassDeclaration ::= (ClassDeclarationMethodList) CLASS ClassName LBRACE FieldDeclarationList LBRACE MethodDeclarationList RBRACE RBRACE
                      |
-                     (ClassDeclarationNoExtendsMethodList) CLASS ClassName LBRACE VarDeclarationList LBRACE MethodDeclarationList RBRACE RBRACE
-                     |
-                     (ClassDeclarationExtendsNoMethodList) CLASS ClassName EXTENDS Type LBRACE VarDeclarationList RBRACE
-                     |
-                     (ClassDeclarationNoExtendsNoMethodList) CLASS ClassName LBRACE VarDeclarationList RBRACE
+                     (ClassDeclarationNoMethodList) CLASS ClassName LBRACE FieldDeclarationList RBRACE
                      ;
-ClassName ::= (ClassName) IDENT;
+ClassName ::= (ClassNameNoExtends) IDENT
+              |
+              (ClassNameExtends) IDENT EXTENDS Type
+              ;
+FieldDeclarationList ::= (FieldDeclarationListMore) FieldDeclarationList FieldDeclaration
+                         |
+                         (FieldDeclarationListEmpty) /* epsilon */
+                         ;
+FieldDeclaration ::= (FieldDeclaration) Type FieldList SEMI;
+FieldList ::= (FieldListMultiple) FieldList COMMA Field
+            |
+            (FieldListSingle) Field
+            ;
+Field ::= (FieldSingle) IDENT
+        |
+        (FieldArray) IDENT LBRACKET RBRACKET
+        ;
 VarDeclarationList ::= (VarDeclarationListMore) VarDeclarationList VarDeclaration
                        |
                        (VarDeclarationListEmpty) /* epsilon */
@@ -154,15 +167,14 @@ MethodHeader ::= (MethodHeaderType) Type IDENT
                  |
                  (MethodHeaderVoid) VOID IDENT
                  ;
-AbstractClassDeclaration ::= (AbstractClassDeclarationExtendMethodList) ABSTRACT CLASS AbstractClassName EXTENDS Type LBRACE VarDeclarationList LBRACE AbstractClassMethodDeclarationList RBRACE RBRACE
+AbstractClassDeclaration ::= (AbstractClassDeclarationMethodList) ABSTRACT CLASS AbstractClassName LBRACE FieldDeclarationList LBRACE AbstractClassMethodDeclarationList RBRACE RBRACE
                              |
-                             (AbstractClassDeclarationNoExtendsMethodList) ABSTRACT CLASS AbstractClassName LBRACE VarDeclarationList LBRACE AbstractClassMethodDeclarationList RBRACE RBRACE
-                             |
-                             (AbstractClassDeclarationExtendsNoMethodList) ABSTRACT CLASS AbstractClassName EXTENDS Type LBRACE VarDeclarationList RBRACE
-                             |
-                             (AbstractClassDeclarationNoExtendsNoMethodList) ABSTRACT CLASS AbstractClassName LBRACE VarDeclarationList RBRACE
+                             (AbstractClassDeclarationNoMethodList) ABSTRACT CLASS AbstractClassName LBRACE FieldDeclarationList RBRACE
                              ;
-AbstractClassName ::= (AbstractClassName) IDENT;
+AbstractClassName ::= (AbstractClassNameNoExtends) IDENT
+                      |
+                      (AbstractClassNameExtends) IDENT EXTENDS Type
+                      ;
 AbstractClassMethodDeclarationList ::= (AbstractClassMethodDeclarationListAbstract) AbstractClassMethodDeclarationList AbstractMethodDeclaration
                                        |
                                        (AbstractClassMethodDeclarationListConcrete) AbstractClassMethodDeclarationList MethodDeclaration

@@ -1,10 +1,9 @@
 program Test
-const bool a = true;
-int x;
-char b[];
+class Alfa {{ int f() {} void x(int a) {} }}
+class Beta extends Alfa {
+    { int f() {} }
+}
 {
     void main() char b;
     {}
-
-    int c(int x, char p) int b; {}
 }
