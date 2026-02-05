@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 4/1/2026 22:6:35
+// 5/1/2026 20:34:6
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -28,7 +28,6 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(EnumConst EnumConst) { }
     public void visit(FormalParamsList FormalParamsList) { }
     public void visit(Factor Factor) { }
-    public void visit(Suffix Suffix) { }
     public void visit(VarList VarList) { }
     public void visit(ConstList ConstList) { }
     public void visit(Designator Designator) { }
@@ -56,7 +55,6 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(AbstractMethodDeclaration AbstractMethodDeclaration) { }
     public void visit(Field Field) { }
     public void visit(FieldList FieldList) { }
-    public void visit(SuffixList SuffixList) { }
     public void visit(MulOpMod MulOpMod) { visit(); }
     public void visit(MulOpDiv MulOpDiv) { visit(); }
     public void visit(MulOpTimes MulOpTimes) { visit(); }
@@ -93,13 +91,11 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(ArithmeticExpression ArithmeticExpression) { visit(); }
     public void visit(ExpressionTernary ExpressionTernary) { visit(); }
     public void visit(ExpressionArithmetic ExpressionArithmetic) { visit(); }
-    public void visit(SuffixLength SuffixLength) { visit(); }
-    public void visit(SuffixElem SuffixElem) { visit(); }
-    public void visit(SuffixField SuffixField) { visit(); }
-    public void visit(SuffixListEmpty SuffixListEmpty) { visit(); }
-    public void visit(SuffixListMore SuffixListMore) { visit(); }
-    public void visit(DesignatorArray DesignatorArray) { visit(); }
-    public void visit(DesignatorVar DesignatorVar) { visit(); }
+    public void visit(DesignatorEndArray DesignatorEndArray) { visit(); }
+    public void visit(DesignatorEndVar DesignatorEndVar) { visit(); }
+    public void visit(DesignatorLength DesignatorLength) { visit(); }
+    public void visit(DesignatorFieldArray DesignatorFieldArray) { visit(); }
+    public void visit(DesignatorFieldVar DesignatorFieldVar) { visit(); }
     public void visit(ActualParamsListSingle ActualParamsListSingle) { visit(); }
     public void visit(ActualParamsListMultiple ActualParamsListMultiple) { visit(); }
     public void visit(DesignatorStatementDecrement DesignatorStatementDecrement) { visit(); }

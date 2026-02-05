@@ -1,19 +1,19 @@
 // generated with ast extension for cup
 // version 0.8
-// 4/1/2026 22:6:35
+// 5/1/2026 20:34:6
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class DesignatorVar extends Designator {
+public class DesignatorEndArray extends Designator {
 
     private String I1;
-    private SuffixList SuffixList;
+    private Expression Expression;
 
-    public DesignatorVar (String I1, SuffixList SuffixList) {
+    public DesignatorEndArray (String I1, Expression Expression) {
         this.I1=I1;
-        this.SuffixList=SuffixList;
-        if(SuffixList!=null) SuffixList.setParent(this);
+        this.Expression=Expression;
+        if(Expression!=null) Expression.setParent(this);
     }
 
     public String getI1() {
@@ -24,12 +24,12 @@ public class DesignatorVar extends Designator {
         this.I1=I1;
     }
 
-    public SuffixList getSuffixList() {
-        return SuffixList;
+    public Expression getExpression() {
+        return Expression;
     }
 
-    public void setSuffixList(SuffixList SuffixList) {
-        this.SuffixList=SuffixList;
+    public void setExpression(Expression Expression) {
+        this.Expression=Expression;
     }
 
     public void accept(Visitor visitor) {
@@ -37,35 +37,35 @@ public class DesignatorVar extends Designator {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(SuffixList!=null) SuffixList.accept(visitor);
+        if(Expression!=null) Expression.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(SuffixList!=null) SuffixList.traverseTopDown(visitor);
+        if(Expression!=null) Expression.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(SuffixList!=null) SuffixList.traverseBottomUp(visitor);
+        if(Expression!=null) Expression.traverseBottomUp(visitor);
         accept(visitor);
     }
 
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("DesignatorVar(\n");
+        buffer.append("DesignatorEndArray(\n");
 
         buffer.append(" "+tab+I1);
         buffer.append("\n");
 
-        if(SuffixList!=null)
-            buffer.append(SuffixList.toString("  "+tab));
+        if(Expression!=null)
+            buffer.append(Expression.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");
 
         buffer.append(tab);
-        buffer.append(") [DesignatorVar]");
+        buffer.append(") [DesignatorEndArray]");
         return buffer.toString();
     }
 }

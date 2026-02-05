@@ -57,7 +57,7 @@ nonterminal MethodDeclarationList, AbstractClassMethodDeclarationList, VarDeclar
 nonterminal MethodDeclaration, AbstractMethodDeclaration, MethodHeader, FormalParamsList, FormalParam;
 nonterminal StatementList, Statement, DesignatorStatement, CaseList, Case;
 nonterminal IfDeclaration, ReturnDeclaration, PrintDeclaration, ForDeclaration;
-nonterminal Condition, ActualParamsList, SuffixList, Suffix, ConditionFact, ConditionTerm, Sign;
+nonterminal Condition, ActualParamsList, ConditionFact, ConditionTerm, Sign;
 nonterminal ProgramName, EnumName, ClassName, AbstractClassName, RelOp, AddOp, MulOp;
 nonterminal FieldDeclarationList, FieldDeclaration, FieldList, Field;
 nonterminal rs.etf.pp1.symboltable.concepts.Struct Term, TermList, Factor, FactorList, ArithmeticExpression, Expression;
@@ -265,20 +265,16 @@ ActualParamsList ::= (ActualParamsListMultiple) ActualParamsList COMMA Expressio
                      |
                      (ActualParamsListSingle) Expression
                      ;
-Designator ::= (DesignatorVar) IDENT SuffixList
+Designator ::= (DesignatorFieldVar) Designator DOT IDENT
                |
-               (DesignatorArray) IDENT LBRACKET Expression RBRACKET SuffixList
-               ;
-SuffixList ::= (SuffixListMore) SuffixList Suffix
+               (DesignatorFieldArray) Designator DOT IDENT LBRACKET Expression RBRACKET
                |
-               (SuffixListEmpty) /* epsilon */
+               (DesignatorLength) Designator DOT LENGTH
+               |
+               (DesignatorEndVar) IDENT
+               |
+               (DesignatorEndArray) IDENT LBRACKET Expression RBRACKET
                ;
-Suffix ::= (SuffixField) DOT IDENT
-           |
-           (SuffixElem) DOT IDENT LBRACKET Expression RBRACKET
-           |
-           (SuffixLength) DOT LENGTH
-           ;
 Expression ::= (ExpressionArithmetic) ArithmeticExpression
                |
                (ExpressionTernary) Condition QUESTION Expression COLON Expression

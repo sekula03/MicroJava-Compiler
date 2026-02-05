@@ -88,8 +88,6 @@ nonterminal PrintDeclaration PrintDeclaration;
 nonterminal ForDeclaration ForDeclaration;
 nonterminal Condition Condition;
 nonterminal ActualParamsList ActualParamsList;
-nonterminal SuffixList SuffixList;
-nonterminal Suffix Suffix;
 nonterminal ConditionFact ConditionFact;
 nonterminal ConditionTerm ConditionTerm;
 nonterminal Sign Sign;
@@ -309,20 +307,16 @@ ActualParamsList ::= (ActualParamsListMultiple) ActualParamsList:A1 COMMA Expres
                      |
                      (ActualParamsListSingle) Expression:E1 {: RESULT=new ActualParamsListSingle(E1); RESULT.setLine(E1left); :}
                      ;
-Designator ::= (DesignatorVar) IDENT:I1 SuffixList:S2 {: RESULT=new DesignatorVar(I1, S2); RESULT.setLine(I1left); :}
+Designator ::= (DesignatorFieldVar) Designator:D1 DOT IDENT:I2 {: RESULT=new DesignatorFieldVar(D1, I2); RESULT.setLine(D1left); :}
                |
-               (DesignatorArray) IDENT:I1 LBRACKET Expression:E2 RBRACKET SuffixList:S3 {: RESULT=new DesignatorArray(I1, E2, S3); RESULT.setLine(I1left); :}
-               ;
-SuffixList ::= (SuffixListMore) SuffixList:S1 Suffix:S2 {: RESULT=new SuffixListMore(S1, S2); RESULT.setLine(S1left); :}
+               (DesignatorFieldArray) Designator:D1 DOT IDENT:I2 LBRACKET Expression:E3 RBRACKET {: RESULT=new DesignatorFieldArray(D1, I2, E3); RESULT.setLine(D1left); :}
                |
-               (SuffixListEmpty) {: RESULT=new SuffixListEmpty(); :} /* epsilon */
+               (DesignatorLength) Designator:D1 DOT LENGTH {: RESULT=new DesignatorLength(D1); RESULT.setLine(D1left); :}
+               |
+               (DesignatorEndVar) IDENT:I1 {: RESULT=new DesignatorEndVar(I1); RESULT.setLine(I1left); :}
+               |
+               (DesignatorEndArray) IDENT:I1 LBRACKET Expression:E2 RBRACKET {: RESULT=new DesignatorEndArray(I1, E2); RESULT.setLine(I1left); :}
                ;
-Suffix ::= (SuffixField) DOT IDENT:I1 {: RESULT=new SuffixField(I1); RESULT.setLine(I1left); :}
-           |
-           (SuffixElem) DOT IDENT:I1 LBRACKET Expression:E2 RBRACKET {: RESULT=new SuffixElem(I1, E2); RESULT.setLine(I1left); :}
-           |
-           (SuffixLength) DOT LENGTH {: RESULT=new SuffixLength(); :}
-           ;
 Expression ::= (ExpressionArithmetic) ArithmeticExpression:A1 {: RESULT=new ExpressionArithmetic(A1); RESULT.setLine(A1left); :}
                |
                (ExpressionTernary) Condition:C1 QUESTION Expression:E2 COLON Expression:E3 {: RESULT=new ExpressionTernary(C1, E2, E3); RESULT.setLine(C1left); :}

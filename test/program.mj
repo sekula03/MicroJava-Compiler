@@ -1,6 +1,9 @@
 program Test
+abstract class A { { char z() { return 'c'; } } }
+class B extends A { A niz[]; {} }
 {
-    void main() int a;{
-        (a > b ? true : false) ? 1 : 2
+    void main() int a[]; B b; {
+        b.z();
+        a[0] = ord(b.niz[1].z());
     }
 }

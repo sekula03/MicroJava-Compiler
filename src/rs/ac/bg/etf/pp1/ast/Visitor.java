@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 4/1/2026 22:6:35
+// 5/1/2026 20:34:6
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -28,7 +28,6 @@ public interface Visitor {
     public void visit(EnumConst EnumConst);
     public void visit(FormalParamsList FormalParamsList);
     public void visit(Factor Factor);
-    public void visit(Suffix Suffix);
     public void visit(VarList VarList);
     public void visit(ConstList ConstList);
     public void visit(Designator Designator);
@@ -56,7 +55,6 @@ public interface Visitor {
     public void visit(AbstractMethodDeclaration AbstractMethodDeclaration);
     public void visit(Field Field);
     public void visit(FieldList FieldList);
-    public void visit(SuffixList SuffixList);
     public void visit(MulOpMod MulOpMod);
     public void visit(MulOpDiv MulOpDiv);
     public void visit(MulOpTimes MulOpTimes);
@@ -93,13 +91,11 @@ public interface Visitor {
     public void visit(ArithmeticExpression ArithmeticExpression);
     public void visit(ExpressionTernary ExpressionTernary);
     public void visit(ExpressionArithmetic ExpressionArithmetic);
-    public void visit(SuffixLength SuffixLength);
-    public void visit(SuffixElem SuffixElem);
-    public void visit(SuffixField SuffixField);
-    public void visit(SuffixListEmpty SuffixListEmpty);
-    public void visit(SuffixListMore SuffixListMore);
-    public void visit(DesignatorArray DesignatorArray);
-    public void visit(DesignatorVar DesignatorVar);
+    public void visit(DesignatorEndArray DesignatorEndArray);
+    public void visit(DesignatorEndVar DesignatorEndVar);
+    public void visit(DesignatorLength DesignatorLength);
+    public void visit(DesignatorFieldArray DesignatorFieldArray);
+    public void visit(DesignatorFieldVar DesignatorFieldVar);
     public void visit(ActualParamsListSingle ActualParamsListSingle);
     public void visit(ActualParamsListMultiple ActualParamsListMultiple);
     public void visit(DesignatorStatementDecrement DesignatorStatementDecrement);

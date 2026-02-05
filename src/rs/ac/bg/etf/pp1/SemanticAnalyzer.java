@@ -1,5 +1,6 @@
 package rs.ac.bg.etf.pp1;
 
+import jdk.nashorn.internal.runtime.regexp.joni.Syntax;
 import org.apache.log4j.Logger;
 import rs.ac.bg.etf.pp1.ast.*;
 import rs.etf.pp1.symboltable.Tab;
@@ -36,7 +37,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     private Obj obj_program, obj_method;
     private Struct struct_type, struct_class;
-    private boolean main = false;
+    private boolean main = false, return_statement;
 
 
     @Override
@@ -120,6 +121,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         if (meth != Tab.noObj)
             report_error("Visestruka definicija metode: " + name, sn);
         obj_method = Tab.insert(Obj.Meth, name, type);
+        return_statement = false;
         Tab.openScope();
     }
 
@@ -137,6 +139,8 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     @Override
     public void visit(GlobalMethodDeclarationParams globalMethodDeclarationParams) {
+        if (!return_statement && obj_method.getType() != Tab.noType)
+            report_error("Nedostaje return iskaz", globalMethodDeclarationParams);
         if (obj_method.getName().equals("main"))
             report_error("Nevalidan potpis medote main", globalMethodDeclarationParams);
         Tab.chainLocalSymbols(obj_method);
@@ -145,6 +149,8 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     @Override
     public void visit(GlobalMethodDeclarationNoParams globalMethodDeclarationNoParams) {
+        if (!return_statement && obj_method.getType() != Tab.noType)
+            report_error("Nedostaje return iskaz", globalMethodDeclarationNoParams);
         if (obj_method.getName().equals("main"))
             main = true;
         Tab.chainLocalSymbols(obj_method);
@@ -244,11 +250,11 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     // classes
 
-    private static boolean assignableTo(Struct src, Struct dst) {
-        if (src == null || dst == null) return false;
+    private boolean assignableTo(Struct src, Struct dst) {
+        if (src == null || dst == null || src == Tab.noType || dst == Tab.noType) return false;
         if (src.compatibleWith(dst)) return true;
-        if (src.getKind() != Struct.Class || dst.getKind() != Struct.Class
-                || src.getKind() != Struct.Interface || dst.getKind() != Struct.Interface) return false;
+        if ((src.getKind() != Struct.Class && src.getKind() != Struct.Interface)
+                || (dst.getKind() != Struct.Class && dst.getKind() != Struct.Interface)) return false;
         while (src.getElemType() != Tab.noType) {
             if (src.getElemType() == dst) return true;
             src = src.getElemType();
@@ -289,7 +295,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     @Override
     public void visit(AbstractClassNameExtends abstractClassNameExtends) {
-        if (struct_type.getKind() != Struct.Class)
+        if (struct_type.getKind() != Struct.Class && struct_type.getKind() != Struct.Interface)
             report_error("Nepostojeca natklasa: " + struct_type, abstractClassNameExtends);
         common_className(abstractClassNameExtends, abstractClassNameExtends.getI1(), struct_type, Struct.Interface);
         for (Obj o: struct_class.getElemType().getMembers()) {
@@ -378,7 +384,8 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         Obj meth = Tab.currentScope().findSymbol(name);
         if (meth != null)
             report_error("Visestruka definicija metode: " + name, sn);
-        obj_method = Tab.insert(Obj.Meth,name, type);
+        obj_method = Tab.insert(Obj.Meth, name, type);
+        return_statement = false;
         Tab.openScope();
         Obj fp = Tab.insert(Obj.Var, "this", struct_class);
         obj_method.setLevel(1);
@@ -427,14 +434,20 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     @Override
     public void visit(MethodDeclarationParams methodDeclarationParams) {
-        common_methodDeclaration(methodDeclarationParams);
+        if (!return_statement && obj_method.getType() != Tab.noType)
+            report_error("Nedostaje return iskaz", methodDeclarationParams);
+        else
+            common_methodDeclaration(methodDeclarationParams);
         Tab.chainLocalSymbols(obj_method);
         Tab.closeScope();
     }
 
     @Override
     public void visit(MethodDeclarationNoParams methodDeclarationNoParams) {
-        common_methodDeclaration(methodDeclarationNoParams);
+        if (!return_statement && obj_method.getType() != Tab.noType)
+            report_error("Nedostaje return iskaz", methodDeclarationNoParams);
+        else
+            common_methodDeclaration(methodDeclarationNoParams);
         Tab.chainLocalSymbols(obj_method);
         Tab.closeScope();
     }
@@ -538,8 +551,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         if (struct_type.getKind() == Struct.Class)
             factorNewVar.struct = struct_type;
         else  {
-            if (struct_type != Tab.noType)
-                report_error("Koriscen ne-klasni tip pri pozivu new", factorNewVar);
+            report_error("Koriscen ne-klasni tip pri pozivu new", factorNewVar);
             factorNewVar.struct = Tab.noType;
         }
     }
@@ -549,8 +561,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         if (factorNewArray.getExpression().struct == Tab.intType)
             factorNewArray.struct = new Struct(Struct.Array, struct_type);
         else {
-            if (factorNewArray.getExpression().struct != Tab.noType)
-                report_error("Indeksiranje tipom razlicitim od int", factorNewArray);
+            report_error("Indeksiranje ne-int tipom", factorNewArray);
             factorNewArray.struct = Tab.noType;
         }
     }
@@ -562,8 +573,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         if (factorListMulOp.getFactor().struct == Tab.intType && factorListMulOp.getFactorList().struct == Tab.intType)
             factorListMulOp.struct = Tab.intType;
         else {
-            if (factorListMulOp.getFactorList().struct != Tab.noType)
-                report_error("Nekompatibilni tipovi za MulOp", factorListMulOp);
+            report_error("Nekompatibilni tipovi za MulOp", factorListMulOp);
             factorListMulOp.struct = Tab.noType;
         }
     }
@@ -587,8 +597,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         if (termListAddOp.getTerm().struct == Tab.intType && termListAddOp.getTermList().struct == Tab.intType)
             termListAddOp.struct = Tab.intType;
         else {
-            if (termListAddOp.getTermList().struct != Tab.noType)
-                report_error("Nekompatibilni tipovi za AddOp", termListAddOp);
+            report_error("Nekompatibilni tipovi za AddOp", termListAddOp);
             termListAddOp.struct = Tab.noType;
         }
     }
@@ -612,46 +621,211 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     @Override
     public void visit(ExpressionTernary expressionTernary) {
-        // TODO
+        Struct t1 = expressionTernary.getExpression().struct;
+        Struct t2 = expressionTernary.getExpression1().struct;
+        if (t1.equals(t2))
+            expressionTernary.struct = t1;
+        else {
+            report_error("Nepoklapanje tipova grana ternarnog operatora", expressionTernary);
+            expressionTernary.struct = Tab.noType;
+        }
     }
 
     // designators
 
+    private Obj common_designatorField(String name, Obj d) {
+        if (d.getKind() == Obj.Meth)
+            return null;
+        for (Obj obj: d.getType().getMembers()) {
+            if (obj.getName().equals(name))
+                return obj;
+        }
+        return null;
+    }
 
+    @Override
+    public void visit(DesignatorFieldVar designatorFieldVar) {
+        Obj field = common_designatorField(designatorFieldVar.getI2(), designatorFieldVar.getDesignator().obj);
+        if (field != null)
+            designatorFieldVar.obj = field;
+        else {
+            report_error("Nepostojece polje: " + designatorFieldVar.getI2(), designatorFieldVar);
+            designatorFieldVar.obj = Tab.noObj;
+        }
+    }
+
+    @Override
+    public void visit(DesignatorFieldArray designatorFieldArray) {
+        Obj field = common_designatorField(designatorFieldArray.getI2(), designatorFieldArray.getDesignator().obj);
+        if (field != null && field.getKind() == Obj.Fld && field.getType().getKind() == Struct.Array) {
+            if (designatorFieldArray.getExpression().struct != Tab.intType) {
+                report_error("Indeksiranje ne-int tipom", designatorFieldArray);
+                designatorFieldArray.obj = Tab.noObj;
+            }
+            else
+                designatorFieldArray.obj = new Obj(Obj.Elem, field.getName() + "[]", field.getType().getElemType());
+        }
+        else {
+            report_error("Nepostojece polje nizovskog tipa: " + designatorFieldArray.getI2(), designatorFieldArray);
+            designatorFieldArray.obj = Tab.noObj;
+        }
+    }
+
+    @Override
+    public void visit(DesignatorLength designatorLength) {
+        Obj obj = designatorLength.getDesignator().obj;
+        if (obj.getKind() == Obj.Meth || obj.getType().getKind() != Struct.Array) {
+            report_error("Pristup length polju ne-nizovske promenljive", designatorLength);
+            designatorLength.obj = Tab.noObj;
+        }
+        else
+            designatorLength.obj = new Obj(Obj.Con, obj.getName() + ".length", Tab.intType);
+    }
+
+    @Override
+    public void visit(DesignatorEndVar designatorEndVar) {
+        Obj obj = Tab.find(designatorEndVar.getI1());
+        if (obj == Tab.noObj || (obj.getKind() != Obj.Var &&
+                obj.getKind() != Obj.Con && obj.getKind() != Obj.Meth && obj.getType().getKind() != Struct.Enum)) {
+            report_error("Neadekvatan identifikator " + designatorEndVar.getI1(), designatorEndVar);
+            designatorEndVar.obj = Tab.noObj;
+        }
+        else
+            designatorEndVar.obj = obj;
+    }
+
+    @Override
+    public void visit(DesignatorEndArray designatorEndArray) {
+        Obj obj = Tab.find(designatorEndArray.getI1());
+        if (obj == Tab.noObj || obj.getKind() != Obj.Var || obj.getType().getKind() != Struct.Array) {
+            report_error("Nepostojeci niz " + designatorEndArray.getI1(), designatorEndArray);
+            designatorEndArray.obj = Tab.noObj;
+        }
+        else if (designatorEndArray.getExpression().struct != Tab.intType) {
+            report_error("Indeksiranje ne-int tipom", designatorEndArray);
+            designatorEndArray.obj = Tab.noObj;
+        }
+        else
+            designatorEndArray.obj = new Obj(Obj.Elem, obj.getName() + "[]", obj.getType().getElemType());
+    }
 
     // designator statements
 
     @Override
     public void visit(DesignatorStatementAssign designatorStatementAssign) {
-        Expression e = designatorStatementAssign.getExpression();
-        Designator d = designatorStatementAssign.getDesignator();
-        if (!assignableTo(e.struct, d.obj.getType())) {
+        Struct e = designatorStatementAssign.getExpression().struct;
+        Obj d = designatorStatementAssign.getDesignator().obj;
+        if (d.getKind() != Obj.Var && d.getKind() != Obj.Elem && d.getKind() != Obj.Fld)
+            report_error("Nevalidan identifikator sa leve strane", designatorStatementAssign);
+        else if (!assignableTo(e, d.getType()))
             report_error("Nekompatibilni tipovi za dodelu vrednosti", designatorStatementAssign);
-        }
+    }
+
+    private void common_designatorStatementFunctionCall(SyntaxNode sn, Obj d) {
+        if (d.getKind() != Obj.Meth)
+            report_error("Nepostojeca metoda " + d.getName(), sn);
     }
 
     @Override
     public void visit(DesignatorStatementFunctionCallParams designatorStatementFunctionCallParams) {
-        // proveriti da li su argumenti dobri
+        common_designatorStatementFunctionCall(
+                designatorStatementFunctionCallParams,
+                designatorStatementFunctionCallParams.getDesignator().obj
+        );
     }
 
     @Override
     public void visit(DesignatorStatementFunctionCallNoParams designatorStatementFunctionCallNoParams) {
-        // proveriti da li su argumenti dobri
+        common_designatorStatementFunctionCall(
+                designatorStatementFunctionCallNoParams,
+                designatorStatementFunctionCallNoParams.getDesignator().obj
+        );
+    }
+
+    private void common_designatorStatementIncDec(SyntaxNode sn, Obj d, String op) {
+        if (d.getKind() != Obj.Var && d.getKind() != Obj.Elem && d.getKind() != Obj.Fld)
+            report_error("Nevalidan identifikator sa leve strane", sn);
+        else if (d.getType() != Tab.intType) {
+            report_error(op + " ne-int tipa", sn);
+        }
     }
 
     @Override
     public void visit(DesignatorStatementIncrement designatorStatementIncrement) {
-        if (designatorStatementIncrement.getDesignator().obj.getType() != Tab.intType) {
-            report_error("Inkrementiranje ne-int tipa", designatorStatementIncrement);
-        }
+        common_designatorStatementIncDec(
+                designatorStatementIncrement,
+                designatorStatementIncrement.getDesignator().obj,
+                "Intekemtiranje"
+        );
     }
 
     @Override
     public void visit(DesignatorStatementDecrement designatorStatementDecrement) {
-        if (designatorStatementDecrement.getDesignator().obj.getType() != Tab.intType) {
-            report_error("Dekrementiranje ne-int tipa", designatorStatementDecrement);
+        common_designatorStatementIncDec(
+                designatorStatementDecrement,
+                designatorStatementDecrement.getDesignator().obj,
+                "Dekrementiranje"
+        );
+    }
+
+    // statements
+
+    @Override
+    public void visit(StatementRead statementRead) {
+        Obj d = statementRead.getDesignator().obj;
+        if (d.getKind() != Obj.Var && d.getKind() != Obj.Elem && d.getKind() != Obj.Fld)
+            report_error("Nevalidan identifikator za read", statementRead);
+        else if (d.getType() != Tab.intType && d.getType() != Tab.charType && d.getType() != Tab.find("bool").getType()) {
+            report_error("Argument read-a mora biti int, char ili bool", statementRead);
         }
+    }
+
+    // prints
+
+    private void common_printDeclaration(SyntaxNode sn, Struct s) {
+        if (s != Tab.intType && s != Tab.charType && s != Tab.find("bool").getType())
+            report_error("Argument print-a mora biti int, char ili bool", sn);
+    }
+
+    @Override
+    public void visit(PrintDeclarationNumConst printDeclarationNumConst) {
+        common_printDeclaration(
+                printDeclarationNumConst,
+                printDeclarationNumConst.getExpression().struct
+        );
+    }
+
+    @Override
+    public void visit(PrintDeclarationNoNumConst printDeclarationNoNumConst) {
+        common_printDeclaration(
+                printDeclarationNoNumConst,
+                printDeclarationNoNumConst.getExpression().struct
+        );
+    }
+
+    // returns
+
+    private void common_returnDeclaration(SyntaxNode sn, Struct expression) {
+        if ((expression == Tab.noType && obj_method.getType() == Tab.noType) || assignableTo(expression, obj_method.getType()))
+            return_statement = true;
+        else
+            report_error("Nekompatibilan tip return iskaza", sn);
+    }
+
+    @Override
+    public void visit(ReturnDeclarationExpression returnDeclarationExpression) {
+        common_returnDeclaration(
+                returnDeclarationExpression,
+                returnDeclarationExpression.getExpression().struct
+        );
+    }
+
+    @Override
+    public void visit(ReturnDeclarationNoExpression returnDeclarationNoExpression) {
+        common_returnDeclaration(
+                returnDeclarationNoExpression,
+                Tab.noType
+        );
     }
 
 }
