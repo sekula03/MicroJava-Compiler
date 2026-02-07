@@ -1,25 +1,25 @@
 // generated with ast extension for cup
 // version 0.8
-// 5/1/2026 20:34:6
+// 6/1/2026 23:19:47
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class ConditionTermSingle extends ConditionTerm {
 
-    private ConditionFact ConditionFact;
+    private ConditionFactor ConditionFactor;
 
-    public ConditionTermSingle (ConditionFact ConditionFact) {
-        this.ConditionFact=ConditionFact;
-        if(ConditionFact!=null) ConditionFact.setParent(this);
+    public ConditionTermSingle (ConditionFactor ConditionFactor) {
+        this.ConditionFactor=ConditionFactor;
+        if(ConditionFactor!=null) ConditionFactor.setParent(this);
     }
 
-    public ConditionFact getConditionFact() {
-        return ConditionFact;
+    public ConditionFactor getConditionFactor() {
+        return ConditionFactor;
     }
 
-    public void setConditionFact(ConditionFact ConditionFact) {
-        this.ConditionFact=ConditionFact;
+    public void setConditionFactor(ConditionFactor ConditionFactor) {
+        this.ConditionFactor=ConditionFactor;
     }
 
     public void accept(Visitor visitor) {
@@ -27,16 +27,16 @@ public class ConditionTermSingle extends ConditionTerm {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(ConditionFact!=null) ConditionFact.accept(visitor);
+        if(ConditionFactor!=null) ConditionFactor.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(ConditionFact!=null) ConditionFact.traverseTopDown(visitor);
+        if(ConditionFactor!=null) ConditionFactor.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(ConditionFact!=null) ConditionFact.traverseBottomUp(visitor);
+        if(ConditionFactor!=null) ConditionFactor.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -45,8 +45,8 @@ public class ConditionTermSingle extends ConditionTerm {
         buffer.append(tab);
         buffer.append("ConditionTermSingle(\n");
 
-        if(ConditionFact!=null)
-            buffer.append(ConditionFact.toString("  "+tab));
+        if(ConditionFactor!=null)
+            buffer.append(ConditionFactor.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");

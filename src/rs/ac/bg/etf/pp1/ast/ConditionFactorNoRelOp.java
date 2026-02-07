@@ -1,15 +1,15 @@
 // generated with ast extension for cup
 // version 0.8
-// 5/1/2026 20:34:6
+// 6/1/2026 23:19:47
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class ConditionFactNoRelOp extends ConditionFact {
+public class ConditionFactorNoRelOp extends ConditionFactor {
 
     private ArithmeticExpression ArithmeticExpression;
 
-    public ConditionFactNoRelOp (ArithmeticExpression ArithmeticExpression) {
+    public ConditionFactorNoRelOp (ArithmeticExpression ArithmeticExpression) {
         this.ArithmeticExpression=ArithmeticExpression;
         if(ArithmeticExpression!=null) ArithmeticExpression.setParent(this);
     }
@@ -43,7 +43,7 @@ public class ConditionFactNoRelOp extends ConditionFact {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("ConditionFactNoRelOp(\n");
+        buffer.append("ConditionFactorNoRelOp(\n");
 
         if(ArithmeticExpression!=null)
             buffer.append(ArithmeticExpression.toString("  "+tab));
@@ -52,7 +52,7 @@ public class ConditionFactNoRelOp extends ConditionFact {
         buffer.append("\n");
 
         buffer.append(tab);
-        buffer.append(") [ConditionFactNoRelOp]");
+        buffer.append(") [ConditionFactorNoRelOp]");
         return buffer.toString();
     }
 }

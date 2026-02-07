@@ -1,9 +1,12 @@
 program Test
-abstract class A { { char z() { return 'c'; } } }
-class B extends A { A niz[]; {} }
+enum A { NULA }
+//abstract class B { int b; { abstract B metoda(int x); } }
+//class C extends B { { C metoda(int y) { return new C; } } }
 {
-    void main() int a[]; B b; {
-        b.z();
-        a[0] = ord(b.niz[1].z());
+    int f(int a, A en, char c) { return 0; }
+
+    void main() {
+        f(f(0,A.NULA,eol), A.NULA, chr(A.NULA));
     }
+
 }

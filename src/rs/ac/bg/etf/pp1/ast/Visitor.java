@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 5/1/2026 20:34:6
+// 6/1/2026 23:19:47
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -46,12 +46,12 @@ public interface Visitor {
     public void visit(DesignatorStatement DesignatorStatement);
     public void visit(Const Const);
     public void visit(EnumConstList EnumConstList);
-    public void visit(ConditionFact ConditionFact);
     public void visit(GlobalMethodHeader GlobalMethodHeader);
     public void visit(Statement Statement);
     public void visit(Expression Expression);
     public void visit(AbstractClassMethodDeclarationList AbstractClassMethodDeclarationList);
     public void visit(GlobalVarList GlobalVarList);
+    public void visit(ConditionFactor ConditionFactor);
     public void visit(AbstractMethodDeclaration AbstractMethodDeclaration);
     public void visit(Field Field);
     public void visit(FieldList FieldList);
@@ -66,8 +66,8 @@ public interface Visitor {
     public void visit(RelOpGreater RelOpGreater);
     public void visit(RelOpNotEqual RelOpNotEqual);
     public void visit(RelOpEqual RelOpEqual);
-    public void visit(ConditionFactRelOp ConditionFactRelOp);
-    public void visit(ConditionFactNoRelOp ConditionFactNoRelOp);
+    public void visit(ConditionFactorRelOp ConditionFactorRelOp);
+    public void visit(ConditionFactorNoRelOp ConditionFactorNoRelOp);
     public void visit(ConditionTermSingle ConditionTermSingle);
     public void visit(ConditionTermMultiple ConditionTermMultiple);
     public void visit(ConditionSingle ConditionSingle);
@@ -104,8 +104,10 @@ public interface Visitor {
     public void visit(DesignatorStatementFunctionCallParams DesignatorStatementFunctionCallParams);
     public void visit(DesignatorStatementAssign DesignatorStatementAssign);
     public void visit(Case Case);
+    public void visit(CaseStart CaseStart);
     public void visit(CaseListEmpty CaseListEmpty);
     public void visit(CaseListMore CaseListMore);
+    public void visit(SwitchStart SwitchStart);
     public void visit(ForDeclarationNoInitNoCondNoAct ForDeclarationNoInitNoCondNoAct);
     public void visit(ForDeclarationNoCondNoAct ForDeclarationNoCondNoAct);
     public void visit(ForDeclarationNoInitNoAct ForDeclarationNoInitNoAct);
@@ -114,6 +116,7 @@ public interface Visitor {
     public void visit(ForDeclarationNoCond ForDeclarationNoCond);
     public void visit(ForDeclarationNoInit ForDeclarationNoInit);
     public void visit(ForDeclarationFull ForDeclarationFull);
+    public void visit(ForStart ForStart);
     public void visit(PrintDeclarationNoNumConst PrintDeclarationNoNumConst);
     public void visit(PrintDeclarationNumConst PrintDeclarationNumConst);
     public void visit(ReturnDeclarationNoExpression ReturnDeclarationNoExpression);

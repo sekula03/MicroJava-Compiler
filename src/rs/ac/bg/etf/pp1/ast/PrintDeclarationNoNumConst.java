@@ -1,25 +1,13 @@
 // generated with ast extension for cup
 // version 0.8
-// 5/1/2026 20:34:6
+// 6/1/2026 23:19:47
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class PrintDeclarationNoNumConst extends PrintDeclaration {
 
-    private Expression Expression;
-
-    public PrintDeclarationNoNumConst (Expression Expression) {
-        this.Expression=Expression;
-        if(Expression!=null) Expression.setParent(this);
-    }
-
-    public Expression getExpression() {
-        return Expression;
-    }
-
-    public void setExpression(Expression Expression) {
-        this.Expression=Expression;
+    public PrintDeclarationNoNumConst () {
     }
 
     public void accept(Visitor visitor) {
@@ -27,16 +15,13 @@ public class PrintDeclarationNoNumConst extends PrintDeclaration {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(Expression!=null) Expression.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(Expression!=null) Expression.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(Expression!=null) Expression.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -44,12 +29,6 @@ public class PrintDeclarationNoNumConst extends PrintDeclaration {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
         buffer.append("PrintDeclarationNoNumConst(\n");
-
-        if(Expression!=null)
-            buffer.append(Expression.toString("  "+tab));
-        else
-            buffer.append(tab+"  null");
-        buffer.append("\n");
 
         buffer.append(tab);
         buffer.append(") [PrintDeclarationNoNumConst]");

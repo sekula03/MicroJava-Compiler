@@ -1,25 +1,13 @@
 // generated with ast extension for cup
 // version 0.8
-// 5/1/2026 20:34:6
+// 6/1/2026 23:19:47
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class ForDeclarationNoInitNoCondNoAct extends ForDeclaration {
 
-    private Statement Statement;
-
-    public ForDeclarationNoInitNoCondNoAct (Statement Statement) {
-        this.Statement=Statement;
-        if(Statement!=null) Statement.setParent(this);
-    }
-
-    public Statement getStatement() {
-        return Statement;
-    }
-
-    public void setStatement(Statement Statement) {
-        this.Statement=Statement;
+    public ForDeclarationNoInitNoCondNoAct () {
     }
 
     public void accept(Visitor visitor) {
@@ -27,16 +15,13 @@ public class ForDeclarationNoInitNoCondNoAct extends ForDeclaration {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(Statement!=null) Statement.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(Statement!=null) Statement.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(Statement!=null) Statement.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -44,12 +29,6 @@ public class ForDeclarationNoInitNoCondNoAct extends ForDeclaration {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
         buffer.append("ForDeclarationNoInitNoCondNoAct(\n");
-
-        if(Statement!=null)
-            buffer.append(Statement.toString("  "+tab));
-        else
-            buffer.append(tab+"  null");
-        buffer.append("\n");
 
         buffer.append(tab);
         buffer.append(") [ForDeclarationNoInitNoCondNoAct]");

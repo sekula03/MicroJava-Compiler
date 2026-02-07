@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 5/1/2026 20:34:6
+// 6/1/2026 23:19:47
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -9,15 +9,12 @@ public class ForDeclarationNoCond extends ForDeclaration {
 
     private DesignatorStatement DesignatorStatement;
     private DesignatorStatement DesignatorStatement1;
-    private Statement Statement;
 
-    public ForDeclarationNoCond (DesignatorStatement DesignatorStatement, DesignatorStatement DesignatorStatement1, Statement Statement) {
+    public ForDeclarationNoCond (DesignatorStatement DesignatorStatement, DesignatorStatement DesignatorStatement1) {
         this.DesignatorStatement=DesignatorStatement;
         if(DesignatorStatement!=null) DesignatorStatement.setParent(this);
         this.DesignatorStatement1=DesignatorStatement1;
         if(DesignatorStatement1!=null) DesignatorStatement1.setParent(this);
-        this.Statement=Statement;
-        if(Statement!=null) Statement.setParent(this);
     }
 
     public DesignatorStatement getDesignatorStatement() {
@@ -36,14 +33,6 @@ public class ForDeclarationNoCond extends ForDeclaration {
         this.DesignatorStatement1=DesignatorStatement1;
     }
 
-    public Statement getStatement() {
-        return Statement;
-    }
-
-    public void setStatement(Statement Statement) {
-        this.Statement=Statement;
-    }
-
     public void accept(Visitor visitor) {
         visitor.visit(this);
     }
@@ -51,20 +40,17 @@ public class ForDeclarationNoCond extends ForDeclaration {
     public void childrenAccept(Visitor visitor) {
         if(DesignatorStatement!=null) DesignatorStatement.accept(visitor);
         if(DesignatorStatement1!=null) DesignatorStatement1.accept(visitor);
-        if(Statement!=null) Statement.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
         if(DesignatorStatement!=null) DesignatorStatement.traverseTopDown(visitor);
         if(DesignatorStatement1!=null) DesignatorStatement1.traverseTopDown(visitor);
-        if(Statement!=null) Statement.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
         if(DesignatorStatement!=null) DesignatorStatement.traverseBottomUp(visitor);
         if(DesignatorStatement1!=null) DesignatorStatement1.traverseBottomUp(visitor);
-        if(Statement!=null) Statement.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -81,12 +67,6 @@ public class ForDeclarationNoCond extends ForDeclaration {
 
         if(DesignatorStatement1!=null)
             buffer.append(DesignatorStatement1.toString("  "+tab));
-        else
-            buffer.append(tab+"  null");
-        buffer.append("\n");
-
-        if(Statement!=null)
-            buffer.append(Statement.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");

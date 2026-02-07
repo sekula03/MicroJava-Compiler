@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 5/1/2026 20:34:6
+// 6/1/2026 23:19:47
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -8,13 +8,10 @@ package rs.ac.bg.etf.pp1.ast;
 public class ForDeclarationNoCondNoAct extends ForDeclaration {
 
     private DesignatorStatement DesignatorStatement;
-    private Statement Statement;
 
-    public ForDeclarationNoCondNoAct (DesignatorStatement DesignatorStatement, Statement Statement) {
+    public ForDeclarationNoCondNoAct (DesignatorStatement DesignatorStatement) {
         this.DesignatorStatement=DesignatorStatement;
         if(DesignatorStatement!=null) DesignatorStatement.setParent(this);
-        this.Statement=Statement;
-        if(Statement!=null) Statement.setParent(this);
     }
 
     public DesignatorStatement getDesignatorStatement() {
@@ -25,32 +22,21 @@ public class ForDeclarationNoCondNoAct extends ForDeclaration {
         this.DesignatorStatement=DesignatorStatement;
     }
 
-    public Statement getStatement() {
-        return Statement;
-    }
-
-    public void setStatement(Statement Statement) {
-        this.Statement=Statement;
-    }
-
     public void accept(Visitor visitor) {
         visitor.visit(this);
     }
 
     public void childrenAccept(Visitor visitor) {
         if(DesignatorStatement!=null) DesignatorStatement.accept(visitor);
-        if(Statement!=null) Statement.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
         if(DesignatorStatement!=null) DesignatorStatement.traverseTopDown(visitor);
-        if(Statement!=null) Statement.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
         if(DesignatorStatement!=null) DesignatorStatement.traverseBottomUp(visitor);
-        if(Statement!=null) Statement.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -61,12 +47,6 @@ public class ForDeclarationNoCondNoAct extends ForDeclaration {
 
         if(DesignatorStatement!=null)
             buffer.append(DesignatorStatement.toString("  "+tab));
-        else
-            buffer.append(tab+"  null");
-        buffer.append("\n");
-
-        if(Statement!=null)
-            buffer.append(Statement.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");

@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 5/1/2026 20:34:6
+// 6/1/2026 23:19:47
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -8,13 +8,13 @@ package rs.ac.bg.etf.pp1.ast;
 public class ConditionTermMultiple extends ConditionTerm {
 
     private ConditionTerm ConditionTerm;
-    private ConditionFact ConditionFact;
+    private ConditionFactor ConditionFactor;
 
-    public ConditionTermMultiple (ConditionTerm ConditionTerm, ConditionFact ConditionFact) {
+    public ConditionTermMultiple (ConditionTerm ConditionTerm, ConditionFactor ConditionFactor) {
         this.ConditionTerm=ConditionTerm;
         if(ConditionTerm!=null) ConditionTerm.setParent(this);
-        this.ConditionFact=ConditionFact;
-        if(ConditionFact!=null) ConditionFact.setParent(this);
+        this.ConditionFactor=ConditionFactor;
+        if(ConditionFactor!=null) ConditionFactor.setParent(this);
     }
 
     public ConditionTerm getConditionTerm() {
@@ -25,12 +25,12 @@ public class ConditionTermMultiple extends ConditionTerm {
         this.ConditionTerm=ConditionTerm;
     }
 
-    public ConditionFact getConditionFact() {
-        return ConditionFact;
+    public ConditionFactor getConditionFactor() {
+        return ConditionFactor;
     }
 
-    public void setConditionFact(ConditionFact ConditionFact) {
-        this.ConditionFact=ConditionFact;
+    public void setConditionFactor(ConditionFactor ConditionFactor) {
+        this.ConditionFactor=ConditionFactor;
     }
 
     public void accept(Visitor visitor) {
@@ -39,18 +39,18 @@ public class ConditionTermMultiple extends ConditionTerm {
 
     public void childrenAccept(Visitor visitor) {
         if(ConditionTerm!=null) ConditionTerm.accept(visitor);
-        if(ConditionFact!=null) ConditionFact.accept(visitor);
+        if(ConditionFactor!=null) ConditionFactor.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
         if(ConditionTerm!=null) ConditionTerm.traverseTopDown(visitor);
-        if(ConditionFact!=null) ConditionFact.traverseTopDown(visitor);
+        if(ConditionFactor!=null) ConditionFactor.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
         if(ConditionTerm!=null) ConditionTerm.traverseBottomUp(visitor);
-        if(ConditionFact!=null) ConditionFact.traverseBottomUp(visitor);
+        if(ConditionFactor!=null) ConditionFactor.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -65,8 +65,8 @@ public class ConditionTermMultiple extends ConditionTerm {
             buffer.append(tab+"  null");
         buffer.append("\n");
 
-        if(ConditionFact!=null)
-            buffer.append(ConditionFact.toString("  "+tab));
+        if(ConditionFactor!=null)
+            buffer.append(ConditionFactor.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");

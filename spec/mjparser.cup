@@ -57,9 +57,9 @@ nonterminal MethodDeclarationList, AbstractClassMethodDeclarationList, VarDeclar
 nonterminal MethodDeclaration, AbstractMethodDeclaration, MethodHeader, FormalParamsList, FormalParam;
 nonterminal StatementList, Statement, DesignatorStatement, CaseList, Case;
 nonterminal IfDeclaration, ReturnDeclaration, PrintDeclaration, ForDeclaration;
-nonterminal Condition, ActualParamsList, ConditionFact, ConditionTerm, Sign;
+nonterminal Condition, ActualParamsList, ConditionFactor, ConditionTerm, Sign;
 nonterminal ProgramName, EnumName, ClassName, AbstractClassName, RelOp, AddOp, MulOp;
-nonterminal FieldDeclarationList, FieldDeclaration, FieldList, Field;
+nonterminal FieldDeclarationList, FieldDeclaration, FieldList, Field, ForStart, CaseStart, SwitchStart;
 nonterminal rs.etf.pp1.symboltable.concepts.Struct Term, TermList, Factor, FactorList, ArithmeticExpression, Expression;
 nonterminal rs.etf.pp1.symboltable.concepts.Obj Designator;
 
@@ -200,57 +200,60 @@ StatementList ::= (StatementListMore) StatementList Statement
                   ;
 Statement ::= (StatementDesignator) DesignatorStatement SEMI
               |
-              (StatementIf) IfDeclaration
+              (StatementIf) IF LPAREN Condition RPAREN Statement IfDeclaration
               |
               (StatementBreak) BREAK SEMI
               |
               (StatementContinue) CONTINUE SEMI
               |
-              (StatementReturn) ReturnDeclaration
+              (StatementReturn) RETURN ReturnDeclaration SEMI
               |
               (StatementRead) READ LPAREN Designator RPAREN SEMI
               |
-              (StatementPrint) PrintDeclaration
+              (StatementPrint) PRINT LPAREN Expression PrintDeclaration RPAREN SEMI
               |
-              (StatementSwitch) SWITCH LPAREN Expression RPAREN LBRACE CaseList RBRACE
+              (StatementSwitch) SwitchStart LPAREN Expression RPAREN LBRACE CaseList RBRACE
               |
-              (StatementFor) ForDeclaration
+              (StatementFor) ForStart LPAREN ForDeclaration RPAREN Statement
               |
               (StatementBlock) LBRACE StatementList RBRACE
               ;
-IfDeclaration ::= (IfDeclarationElse) IF LPAREN Condition RPAREN Statement ELSE Statement
+IfDeclaration ::= (IfDeclarationElse) ELSE Statement
                   |
-                  (IfDeclarationNoElse) IF LPAREN Condition RPAREN Statement
+                  (IfDeclarationNoElse) /* epsilon */
                   ;
-ReturnDeclaration ::= (ReturnDeclarationExpression) RETURN Expression SEMI
+ReturnDeclaration ::= (ReturnDeclarationExpression) Expression
                       |
-                      (ReturnDeclarationNoExpression) RETURN SEMI
+                      (ReturnDeclarationNoExpression) /* epsilon */
                       ;
-PrintDeclaration ::= (PrintDeclarationNumConst) PRINT LPAREN Expression COMMA NUM_CONST RPAREN SEMI
+PrintDeclaration ::= (PrintDeclarationNumConst) COMMA NUM_CONST
                      |
-                     (PrintDeclarationNoNumConst) PRINT LPAREN Expression RPAREN SEMI
+                     (PrintDeclarationNoNumConst) /* epsilon */
                      ;
-ForDeclaration ::= (ForDeclarationFull) FOR LPAREN DesignatorStatement SEMI Condition SEMI DesignatorStatement RPAREN Statement
+ForStart ::= (ForStart) FOR;
+ForDeclaration ::= (ForDeclarationFull) DesignatorStatement SEMI Condition SEMI DesignatorStatement
                    |
-                   (ForDeclarationNoInit) FOR LPAREN SEMI Condition SEMI DesignatorStatement RPAREN Statement
+                   (ForDeclarationNoInit) SEMI Condition SEMI DesignatorStatement
                    |
-                   (ForDeclarationNoCond) FOR LPAREN DesignatorStatement SEMI SEMI DesignatorStatement RPAREN Statement
+                   (ForDeclarationNoCond) DesignatorStatement SEMI SEMI DesignatorStatement
                    |
-                   (ForDeclarationNoAct) FOR LPAREN DesignatorStatement SEMI Condition SEMI RPAREN Statement
+                   (ForDeclarationNoAct) DesignatorStatement SEMI Condition SEMI
                    |
-                   (ForDeclarationNoInitNoCond) FOR LPAREN SEMI SEMI DesignatorStatement RPAREN Statement
+                   (ForDeclarationNoInitNoCond) SEMI SEMI DesignatorStatement
                    |
-                   (ForDeclarationNoInitNoAct) FOR LPAREN SEMI Condition SEMI RPAREN Statement
+                   (ForDeclarationNoInitNoAct) SEMI Condition SEMI
                    |
-                   (ForDeclarationNoCondNoAct) FOR LPAREN DesignatorStatement SEMI SEMI RPAREN Statement
+                   (ForDeclarationNoCondNoAct) DesignatorStatement SEMI SEMI
                    |
-                   (ForDeclarationNoInitNoCondNoAct) FOR LPAREN SEMI SEMI RPAREN Statement
+                   (ForDeclarationNoInitNoCondNoAct) SEMI SEMI
                    ;
+SwitchStart ::= (SwitchStart) SWITCH;
 CaseList ::= (CaseListMore) CaseList Case
              |
              (CaseListEmpty) /* epsilon */
              ;
-Case ::= (Case) CASE NUM_CONST COLON StatementList;
+CaseStart ::= (CaseStart) CASE;
+Case ::= (Case) CaseStart NUM_CONST COLON StatementList;
 DesignatorStatement ::= (DesignatorStatementAssign) Designator ASSIGN Expression
                         |
                         (DesignatorStatementFunctionCallParams) Designator LPAREN ActualParamsList RPAREN
@@ -315,14 +318,14 @@ Condition ::= (ConditionMultiple) Condition OR ConditionTerm
               |
               (ConditionSingle) ConditionTerm
               ;
-ConditionTerm ::= (ConditionTermMultiple) ConditionTerm AND ConditionFact
+ConditionTerm ::= (ConditionTermMultiple) ConditionTerm AND ConditionFactor
                   |
-                  (ConditionTermSingle) ConditionFact
+                  (ConditionTermSingle) ConditionFactor
                   ;
-ConditionFact ::= (ConditionFactNoRelOp) ArithmeticExpression
-                  |
-                  (ConditionFactRelOp) ArithmeticExpression RelOp ArithmeticExpression
-                  ;
+ConditionFactor ::= (ConditionFactorNoRelOp) ArithmeticExpression
+                    |
+                    (ConditionFactorRelOp) ArithmeticExpression RelOp ArithmeticExpression
+                    ;
 RelOp ::= (RelOpEqual) EQUAL
           |
           (RelOpNotEqual) NOT_EQUAL

@@ -1,35 +1,24 @@
 // generated with ast extension for cup
 // version 0.8
-// 5/1/2026 20:34:6
+// 6/1/2026 23:19:47
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class PrintDeclarationNumConst extends PrintDeclaration {
 
-    private Expression Expression;
-    private Integer N2;
+    private Integer N1;
 
-    public PrintDeclarationNumConst (Expression Expression, Integer N2) {
-        this.Expression=Expression;
-        if(Expression!=null) Expression.setParent(this);
-        this.N2=N2;
+    public PrintDeclarationNumConst (Integer N1) {
+        this.N1=N1;
     }
 
-    public Expression getExpression() {
-        return Expression;
+    public Integer getN1() {
+        return N1;
     }
 
-    public void setExpression(Expression Expression) {
-        this.Expression=Expression;
-    }
-
-    public Integer getN2() {
-        return N2;
-    }
-
-    public void setN2(Integer N2) {
-        this.N2=N2;
+    public void setN1(Integer N1) {
+        this.N1=N1;
     }
 
     public void accept(Visitor visitor) {
@@ -37,16 +26,13 @@ public class PrintDeclarationNumConst extends PrintDeclaration {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(Expression!=null) Expression.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(Expression!=null) Expression.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(Expression!=null) Expression.traverseBottomUp(visitor);
         accept(visitor);
     }
 
@@ -55,13 +41,7 @@ public class PrintDeclarationNumConst extends PrintDeclaration {
         buffer.append(tab);
         buffer.append("PrintDeclarationNumConst(\n");
 
-        if(Expression!=null)
-            buffer.append(Expression.toString("  "+tab));
-        else
-            buffer.append(tab+"  null");
-        buffer.append("\n");
-
-        buffer.append(" "+tab+N2);
+        buffer.append(" "+tab+N1);
         buffer.append("\n");
 
         buffer.append(tab);
