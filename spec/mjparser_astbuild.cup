@@ -56,7 +56,6 @@ nonterminal GlobalVarList GlobalVarList;
 nonterminal GlobalVar GlobalVar;
 nonterminal GlobalMethodDeclarationList GlobalMethodDeclarationList;
 nonterminal GlobalMethodDeclaration GlobalMethodDeclaration;
-nonterminal GlobalMethodHeader GlobalMethodHeader;
 nonterminal ConstDeclaration ConstDeclaration;
 nonterminal VarDeclaration VarDeclaration;
 nonterminal ClassDeclaration ClassDeclaration;
@@ -74,7 +73,6 @@ nonterminal AbstractClassMethodDeclarationList AbstractClassMethodDeclarationLis
 nonterminal VarDeclarationList VarDeclarationList;
 nonterminal MethodDeclaration MethodDeclaration;
 nonterminal AbstractMethodDeclaration AbstractMethodDeclaration;
-nonterminal MethodHeader MethodHeader;
 nonterminal FormalParamsList FormalParamsList;
 nonterminal FormalParam FormalParam;
 nonterminal StatementList StatementList;
@@ -106,7 +104,7 @@ nonterminal ForStart ForStart;
 nonterminal CaseStart CaseStart;
 nonterminal SwitchStart SwitchStart;
 nonterminal rs.etf.pp1.symboltable.concepts.Struct Term, TermList, Factor, FactorList, ArithmeticExpression, Expression;
-nonterminal rs.etf.pp1.symboltable.concepts.Obj Designator;
+nonterminal rs.etf.pp1.symboltable.concepts.Obj Designator, MethodHeader, GlobalMethodHeader;
 
 precedence left ELSE;
 

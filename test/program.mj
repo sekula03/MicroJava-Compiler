@@ -1,12 +1,8 @@
 program Test
-enum A { NULA }
-//abstract class B { int b; { abstract B metoda(int x); } }
-//class C extends B { { C metoda(int y) { return new C; } } }
+int z;
+const int a = 3;
 {
-    int f(int a, A en, char c) { return 0; }
-
     void main() {
-        f(f(0,A.NULA,eol), A.NULA, chr(A.NULA));
-    }
 
+    }
 }

@@ -38,12 +38,29 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     private Obj obj_program, obj_method;
     private Struct struct_type, struct_class;
-    private final Struct boolType = Tab.find("bool").getType();
+    private final Struct boolType;
     private boolean main = false, return_statement;
+    private int globalVariables;
 
+    public SemanticAnalyzer() {
+        Tab.init();
+        boolType = new Struct(Struct.Bool);
+        Obj bool = Tab.insert(Obj.Type, "bool", boolType);
+        bool.setAdr(-1);
+        bool.setLevel(-1);
+        for (Obj obj: Tab.chrObj.getLocalSymbols())
+            obj.setFpPos(1);
+        for (Obj obj: Tab.ordObj.getLocalSymbols())
+            obj.setFpPos(1);
+        for (Obj obj: Tab.lenObj.getLocalSymbols())
+            obj.setFpPos(1);
+    }
+
+    public int getGlobalVariables() { return globalVariables; }
 
     @Override
     public void visit(Program program) {
+        globalVariables = Tab.currentScope().getnVars();
         Tab.chainLocalSymbols(obj_program);
         Tab.closeScope();
         if (!main)
@@ -118,11 +135,11 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     // global methods
 
-    private void common_globalMethodHeader(SyntaxNode sn, String name, Struct type) {
+    private void common_globalMethodHeader(GlobalMethodHeader sn, String name, Struct type) {
         Obj meth = Tab.find(name);
         if (meth != Tab.noObj)
             report_error("Visestruka definicija metode: " + name, sn);
-        obj_method = Tab.insert(Obj.Meth, name, type);
+        sn.obj = obj_method = Tab.insert(Obj.Meth, name, type);
         return_statement = false;
         Tab.openScope();
     }
@@ -188,8 +205,8 @@ public class SemanticAnalyzer extends VisitorAdaptor {
             report_error("Visestruka definicija formalnog parametra: " + name, sn);
         else {
             fp = Tab.insert(Obj.Var, name, type);
-            fp.setFpPos(obj_method.getLevel());
             obj_method.setLevel(obj_method.getLevel() + 1);
+            fp.setFpPos(obj_method.getLevel());
         }
     }
 
@@ -256,6 +273,8 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     private boolean assignableTo(Struct src, Struct dst) {
         if (src == null || dst == null || (src == Tab.noType ^ dst == Tab.noType)) return false;
         if (src.compatibleWith(dst) || (src.getKind() == Struct.Enum && dst == Tab.intType)) return true;
+        if (src.getKind() == Struct.Array && dst.getKind() == Struct.Array &&
+                src.getElemType() != Tab.noType && dst.getElemType() == Tab.noType) return true;
         if ((src.getKind() != Struct.Class && src.getKind() != Struct.Interface)
                 || (dst.getKind() != Struct.Class && dst.getKind() != Struct.Interface)) return false;
         while (src.getElemType() != Tab.noType) {
@@ -380,16 +399,16 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     // class methods
 
-    private void common_methodHeader(SyntaxNode sn, String name, Struct type) {
+    private void common_methodHeader(MethodHeader sn, String name, Struct type) {
         Obj meth = Tab.currentScope().findSymbol(name);
         if (meth != null)
             report_error("Visestruka definicija metode: " + name, sn);
-        obj_method = Tab.insert(Obj.Meth, name, type);
+        sn.obj = obj_method = Tab.insert(Obj.Meth, name, type);
         return_statement = false;
         Tab.openScope();
         Obj fp = Tab.insert(Obj.Var, "this", struct_class);
         obj_method.setLevel(1);
-        fp.setFpPos(0);
+        fp.setFpPos(1);
     }
 
     @Override
@@ -429,7 +448,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
                     report_error("Pogresna redefinicija metode: " + obj_method.getName(), sn);
                     return;
                 }
-                for (int i = 1; i < obj_method.getLevel(); i++) {
+                for (int i = 2; i < obj_method.getLevel(); i++) {
                     Obj currentP = findParamByPos(obj_method, i);
                     Obj superP = findParamByPos(super_method, i);
                     if (!assignableTo(superP.getType(), currentP.getType())) {
@@ -474,19 +493,51 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         }
     }
 
+    private void common_VarFldElemCon(SyntaxNode sn, Obj d) {
+        if (d.getKind() == Obj.Var) {
+            if (d.getLevel() == 0)
+                report_info("Pristup globalnoj promenljivoj: " + d.getName(), sn);
+            else if (d.getFpPos() == 0)
+                report_info("Pristup lokalnoj promenjivoj: "  + d.getName(), sn);
+            else
+                report_info("Pristup formalnom parametru: "  + d.getName(), sn);
+        }
+        else if (d.getKind() == Obj.Fld)
+            report_info("Pristup klasnom polju: " + d.getName(), sn);
+        else if (d.getKind() == Obj.Con && d.getType().getKind() == Struct.Enum)
+            report_info("Pristup simbolickoj konstanti: " + d.getName(), sn);
+        else if (d.getKind() == Obj.Elem)
+            report_info("Pristup elementu niza: " + d.getName(), sn);
+    }
+
     @Override
     public void visit(FactorVariable factorVariable) {
         Obj d = factorVariable.getDesignator().obj;
         if (d.getKind() != Obj.Var && d.getKind() != Obj.Fld && d.getKind() != Obj.Con && d.getKind() != Obj.Elem) {
             report_error("Nepostojeca promenljiva/konstanta " + d.getName(), factorVariable);
             factorVariable.struct = Tab.noType;
+            return;
         }
-        else
-            common_factorVarFunctionCall(
-                    factorVariable,
-                    factorVariable.getSign(),
-                    factorVariable.getDesignator().obj.getType()
-            );
+        common_VarFldElemCon(factorVariable, d);
+        common_factorVarFunctionCall(
+                factorVariable,
+                factorVariable.getSign(),
+                factorVariable.getDesignator().obj.getType()
+        );
+    }
+
+    private int common_functionCall(SyntaxNode sn, Designator designator) {
+        Obj d = designator.obj;
+        int diff;
+        if (designator instanceof DesignatorEndVar && struct_class == null) {
+            diff = 1;
+            report_info("Poziv globalne funkcije " + d.getName(), sn);
+        }
+        else {
+            diff = 2;
+            report_info("Poziv klasne metode " + d.getName(), sn);
+        }
+        return diff;
     }
 
     private void common_factorFunctionCall(Factor f, Designator designator, Sign sign) {
@@ -496,11 +547,15 @@ public class SemanticAnalyzer extends VisitorAdaptor {
             f.struct = Tab.noType;
             return;
         }
-        int diff = (designator instanceof DesignatorEndVar && struct_class == null) ? 0 : 1;
+        int diff = common_functionCall(f, designator);
         ArrayList<Struct> curr = actual_param_types.pop();
+        if (curr.size() != d.getLevel() - (diff - 1)) {
+            report_error("Nepoklapanje broja argumenata poziva metode " + d.getName(), f);
+            return;
+        }
         for (int i = 0; i < curr.size(); i++) {
             if (!assignableTo(curr.get(i), findParamByPos(d, i+diff).getType())) {
-                report_error("Nepoklapanje broja ili tipova argumenata poziva metode " + d.getName(), f);
+                report_error("Nepoklapanje tipova argumenata poziva metode " + d.getName(), f);
                 f.struct = Tab.noType;
                 return;
             }
@@ -553,8 +608,10 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     @Override
     public void visit(FactorNewVar factorNewVar) {
-        if (struct_type.getKind() == Struct.Class)
+        if (struct_type.getKind() == Struct.Class) {
+            report_info("Kreiranje objekta klase", factorNewVar);
             factorNewVar.struct = struct_type;
+        }
         else  {
             report_error("Koriscen ne-klasni tip pri pozivu new", factorNewVar);
             factorNewVar.struct = Tab.noType;
@@ -753,6 +810,8 @@ public class SemanticAnalyzer extends VisitorAdaptor {
             report_error("Nevalidan identifikator sa leve strane", designatorStatementAssign);
         else if (!assignableTo(designatorStatementAssign.getExpression().struct, d.getType()))
             report_error("Nekompatibilni tipovi za dodelu vrednosti", designatorStatementAssign);
+        else
+            common_VarFldElemCon(designatorStatementAssign, d);
     }
 
     private void common_designatorStatementFunctionCall(SyntaxNode sn, Designator designator) {
@@ -760,11 +819,15 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         if (d.getKind() != Obj.Meth)
             report_error("Nepostojeca metoda " + d.getName(), sn);
         else {
-            int diff = (designator instanceof DesignatorEndVar && struct_class == null) ? 0 : 1;
+            int diff = common_functionCall(sn, designator);
             ArrayList<Struct> curr = actual_param_types.pop();
+            if (curr.size() != d.getLevel() - (diff - 1)) {
+                report_error("Nepoklapanje broja argumenata poziva metode " + d.getName(), sn);
+                return;
+            }
             for (int i = 0; i < curr.size(); i++) {
                 if (!assignableTo(curr.get(i), findParamByPos(d, i+diff).getType()))
-                    report_error("Nepoklapanje broja ili tipova argumenata poziva metode " + d.getName(), sn);
+                    report_error("Nepoklapanje tipova argumenata poziva metode " + d.getName(), sn);
             }
         }
     }
@@ -789,9 +852,10 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     private void common_designatorStatementIncDec(SyntaxNode sn, Obj d, String op) {
         if (d.getKind() != Obj.Var && d.getKind() != Obj.Elem && d.getKind() != Obj.Fld)
             report_error("Nevalidan identifikator sa leve strane", sn);
-        else if (d.getType() != Tab.intType) {
+        else if (d.getType() != Tab.intType)
             report_error(op + " ne-int tipa", sn);
-        }
+        else
+            common_VarFldElemCon(sn, d);
     }
 
     @Override
@@ -819,9 +883,10 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         Obj d = statementRead.getDesignator().obj;
         if (d.getKind() != Obj.Var && d.getKind() != Obj.Elem && d.getKind() != Obj.Fld)
             report_error("Nevalidan identifikator za read", statementRead);
-        else if (d.getType() != Tab.intType && d.getType() != Tab.charType && d.getType() != boolType) {
+        else if (d.getType() != Tab.intType && d.getType() != Tab.charType && d.getType() != boolType)
             report_error("Argument read-a mora biti int, char ili bool", statementRead);
-        }
+        else
+            common_VarFldElemCon(statementRead, d);
     }
 
     @Override
