@@ -56,7 +56,9 @@ public class SemanticAnalyzer extends VisitorAdaptor {
             obj.setFpPos(1);
     }
 
-    public int getGlobalVariables() { return globalVariables; }
+    public int getGlobalVariables() {
+        return globalVariables;
+    }
 
     @Override
     public void visit(Program program) {
@@ -78,10 +80,10 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         Obj definedType = Tab.find(type.getI1());
         if (definedType == Tab.noObj || definedType.getKind() != Obj.Type) {
             report_error("Nepostojeci tip: " + type.getI1(), type);
-            struct_type = Tab.noType;
+            type.struct = struct_type = Tab.noType;
         }
         else
-            struct_type = definedType.getType();
+            type.struct = struct_type = definedType.getType();
     }
 
     // global consts
@@ -529,7 +531,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     private int common_functionCall(SyntaxNode sn, Designator designator) {
         Obj d = designator.obj;
         int diff;
-        if (designator instanceof DesignatorEndVar && struct_class == null) {
+        if (designator instanceof DesignatorEndVar && struct_class == null || d == Tab.chrObj || d == Tab.ordObj || d == Tab.lenObj) {
             diff = 1;
             report_info("Poziv globalne funkcije " + d.getName(), sn);
         }
@@ -732,18 +734,27 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     @Override
     public void visit(DesignatorFieldArray designatorFieldArray) {
-        Obj field = common_designatorField(designatorFieldArray.getI2(), designatorFieldArray.getDesignator().obj);
-        if (field != null && field.getKind() == Obj.Fld && field.getType().getKind() == Struct.Array) {
-            if (designatorFieldArray.getExpression().struct != Tab.intType) {
+        Obj obj = designatorFieldArray.getFieldArrayName().obj;
+        if (obj != Tab.noObj) {
+            if (!assignableTo(designatorFieldArray.getExpression().struct, Tab.intType)) {
                 report_error("Indeksiranje ne-int tipom", designatorFieldArray);
                 designatorFieldArray.obj = Tab.noObj;
             }
             else
-                designatorFieldArray.obj = new Obj(Obj.Elem, field.getName() + "[]", field.getType().getElemType());
+                designatorFieldArray.obj = new Obj(Obj.Elem, obj.getName() + "[]", obj.getType().getElemType());
         }
-        else {
-            report_error("Nepostojece polje nizovskog tipa: " + designatorFieldArray.getI2(), designatorFieldArray);
+        else
             designatorFieldArray.obj = Tab.noObj;
+    }
+
+    @Override
+    public void visit(FieldArrayName fieldArrayName) {
+        Obj field = common_designatorField(fieldArrayName.getI2(), fieldArrayName.getDesignator().obj);
+        if (field != null && field.getType().getKind() == Struct.Array)
+            fieldArrayName.obj = field;
+        else {
+            report_error("Nepostojece polje nizovskog tipa: " + fieldArrayName.getI2(), fieldArrayName);
+            fieldArrayName.obj = Tab.noObj;
         }
     }
 
@@ -788,17 +799,22 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     @Override
     public void visit(DesignatorEndArray designatorEndArray) {
-        Obj obj = Tab.find(designatorEndArray.getI1());
-        if (obj == Tab.noObj || obj.getKind() != Obj.Var || obj.getType().getKind() != Struct.Array) {
-            report_error("Nepostojeci niz " + designatorEndArray.getI1(), designatorEndArray);
+        Obj obj = designatorEndArray.getEndArrayName().obj;
+        if (obj == Tab.noObj)
             designatorEndArray.obj = Tab.noObj;
-        }
         else if (!assignableTo(designatorEndArray.getExpression().struct, Tab.intType)) {
             report_error("Indeksiranje ne-int tipom", designatorEndArray);
             designatorEndArray.obj = Tab.noObj;
         }
         else
             designatorEndArray.obj = new Obj(Obj.Elem, obj.getName() + "[]", obj.getType().getElemType());
+    }
+
+    @Override
+    public void visit(EndArrayName endArrayName) {
+        endArrayName.obj = Tab.find(endArrayName.getI1());
+        if (endArrayName.obj == Tab.noObj || endArrayName.obj.getType().getKind() != Struct.Array)
+            report_error("Nepostojeci niz: " + endArrayName.getI1(), endArrayName);
     }
 
     // designator statements
@@ -890,10 +906,17 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     }
 
     @Override
-    public void visit(StatementPrint statementPrint) {
-        Struct s = statementPrint.getExpression().struct;
+    public void visit(StatementPrintNoNumConst statementPrintNoNumConst) {
+        Struct s = statementPrintNoNumConst.getExpression().struct;
         if (!assignableTo(s, Tab.intType) && s != Tab.charType && s != boolType)
-            report_error("Argument print-a mora biti int, char ili bool", statementPrint);
+            report_error("Argument print-a mora biti int, char ili bool", statementPrintNoNumConst);
+    }
+
+    @Override
+    public void visit(StatementPrintNumConst statementPrintNumConst) {
+        Struct s = statementPrintNumConst.getExpression().struct;
+        if (!assignableTo(s, Tab.intType) && s != Tab.charType && s != boolType)
+            report_error("Argument print-a mora biti int, char ili bool", statementPrintNumConst);
     }
 
     private int for_count = 0;
@@ -959,17 +982,17 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     }
 
     @Override
-    public void visit(ReturnDeclarationExpression returnDeclarationExpression) {
+    public void visit(StatementReturnExpression statementReturnExpression) {
         common_returnDeclaration(
-                returnDeclarationExpression,
-                returnDeclarationExpression.getExpression().struct
+                statementReturnExpression,
+                statementReturnExpression.getExpression().struct
         );
     }
 
     @Override
-    public void visit(ReturnDeclarationNoExpression returnDeclarationNoExpression) {
+    public void visit(StatementReturnNoExpression statementReturnNoExpression) {
         common_returnDeclaration(
-                returnDeclarationNoExpression,
+                statementReturnNoExpression,
                 Tab.noType
         );
     }

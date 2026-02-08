@@ -71,7 +71,6 @@ public class MJTest {
 		finally {
 			if (br != null) try { br.close(); } catch (IOException e1) { log.error(e1.getMessage(), e1); }
 		}
-
 	}
 
 	private static final HashMap<Struct, String> typeNames = new HashMap<>();
@@ -101,7 +100,10 @@ public class MJTest {
 		dumpObj(universe.findSymbol("eol"), 1);
 		dumpObj(universe.findSymbol("null"), 1);
 		for (Obj obj: program.getLocalSymbols()) {
-			if (obj.getKind() == Obj.Con || obj.getKind() == Obj.Var) dumpObj(obj, 1);
+			if (obj.getKind() == Obj.Con) dumpObj(obj, 1);
+		}
+		for (Obj obj: program.getLocalSymbols()) {
+			if (obj.getKind() == Obj.Var) dumpObj(obj, 1);
 		}
 		dumpObj(Tab.chrObj, 1);
 		dumpObj(Tab.ordObj, 1);

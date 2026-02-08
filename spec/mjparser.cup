@@ -52,16 +52,15 @@ terminal Boolean BOOL_CONST;
 nonterminal Program, DeclarationList, GlobalVarDeclaration, GlobalVarList, GlobalVar;
 nonterminal GlobalMethodDeclarationList, GlobalMethodDeclaration;
 nonterminal ConstDeclaration, VarDeclaration, ClassDeclaration, EnumDeclaration, AbstractClassDeclaration;
-nonterminal Type, ConstList, Const, VarList, Var, EnumConstList, EnumConst;
+nonterminal ConstList, Const, VarList, Var, EnumConstList, EnumConst;
 nonterminal MethodDeclarationList, AbstractClassMethodDeclarationList, VarDeclarationList;
 nonterminal MethodDeclaration, AbstractMethodDeclaration, FormalParamsList, FormalParam;
-nonterminal StatementList, Statement, DesignatorStatement, CaseList, Case;
-nonterminal IfDeclaration, ReturnDeclaration, PrintDeclaration, ForDeclaration;
+nonterminal StatementList, Statement, DesignatorStatement, CaseList, Case, ForHeader;
 nonterminal Condition, ActualParamsList, ConditionFactor, ConditionTerm, Sign;
 nonterminal ProgramName, EnumName, ClassName, AbstractClassName, RelOp, AddOp, MulOp;
 nonterminal FieldDeclarationList, FieldDeclaration, FieldList, Field, ForStart, CaseStart, SwitchStart;
-nonterminal rs.etf.pp1.symboltable.concepts.Struct Term, TermList, Factor, FactorList, ArithmeticExpression, Expression;
-nonterminal rs.etf.pp1.symboltable.concepts.Obj Designator, MethodHeader, GlobalMethodHeader;
+nonterminal rs.etf.pp1.symboltable.concepts.Struct Term, TermList, Factor, FactorList, ArithmeticExpression, Expression, Type;
+nonterminal rs.etf.pp1.symboltable.concepts.Obj Designator, MethodHeader, GlobalMethodHeader, FieldArrayName, EndArrayName;
 
 precedence left ELSE;
 
@@ -200,53 +199,47 @@ StatementList ::= (StatementListMore) StatementList Statement
                   ;
 Statement ::= (StatementDesignator) DesignatorStatement SEMI
               |
-              (StatementIf) IF LPAREN Condition RPAREN Statement IfDeclaration
+              (StatementIfNoElse) IF LPAREN Condition RPAREN Statement
+              |
+              (StatementIfElse) IF LPAREN Condition RPAREN Statement ELSE Statement
               |
               (StatementBreak) BREAK SEMI
               |
               (StatementContinue) CONTINUE SEMI
               |
-              (StatementReturn) RETURN ReturnDeclaration SEMI
+              (StatementReturnNoExpression) RETURN SEMI
+              |
+              (StatementReturnExpression) RETURN Expression SEMI
               |
               (StatementRead) READ LPAREN Designator RPAREN SEMI
               |
-              (StatementPrint) PRINT LPAREN Expression PrintDeclaration RPAREN SEMI
+              (StatementPrintNoNumConst) PRINT LPAREN Expression RPAREN SEMI
+              |
+              (StatementPrintNumConst) PRINT LPAREN Expression COMMA NUM_CONST RPAREN SEMI
               |
               (StatementSwitch) SwitchStart LPAREN Expression RPAREN LBRACE CaseList RBRACE
               |
-              (StatementFor) ForStart LPAREN ForDeclaration RPAREN Statement
+              (StatementFor) ForStart LPAREN ForHeader RPAREN Statement
               |
               (StatementBlock) LBRACE StatementList RBRACE
               ;
-IfDeclaration ::= (IfDeclarationElse) ELSE Statement
-                  |
-                  (IfDeclarationNoElse) /* epsilon */
-                  ;
-ReturnDeclaration ::= (ReturnDeclarationExpression) Expression
-                      |
-                      (ReturnDeclarationNoExpression) /* epsilon */
-                      ;
-PrintDeclaration ::= (PrintDeclarationNumConst) COMMA NUM_CONST
-                     |
-                     (PrintDeclarationNoNumConst) /* epsilon */
-                     ;
 ForStart ::= (ForStart) FOR;
-ForDeclaration ::= (ForDeclarationFull) DesignatorStatement SEMI Condition SEMI DesignatorStatement
-                   |
-                   (ForDeclarationNoInit) SEMI Condition SEMI DesignatorStatement
-                   |
-                   (ForDeclarationNoCond) DesignatorStatement SEMI SEMI DesignatorStatement
-                   |
-                   (ForDeclarationNoAct) DesignatorStatement SEMI Condition SEMI
-                   |
-                   (ForDeclarationNoInitNoCond) SEMI SEMI DesignatorStatement
-                   |
-                   (ForDeclarationNoInitNoAct) SEMI Condition SEMI
-                   |
-                   (ForDeclarationNoCondNoAct) DesignatorStatement SEMI SEMI
-                   |
-                   (ForDeclarationNoInitNoCondNoAct) SEMI SEMI
-                   ;
+ForHeader ::= (ForHeaderFull) DesignatorStatement SEMI Condition SEMI DesignatorStatement
+              |
+              (ForHeaderNoInit) SEMI Condition SEMI DesignatorStatement
+              |
+              (ForHeaderNoCond) DesignatorStatement SEMI SEMI DesignatorStatement
+              |
+              (ForHeaderNoAct) DesignatorStatement SEMI Condition SEMI
+              |
+              (ForHeaderNoInitNoCond) SEMI SEMI DesignatorStatement
+              |
+              (ForHeaderNoInitNoAct) SEMI Condition SEMI
+              |
+              (ForHeaderNoCondNoAct) DesignatorStatement SEMI SEMI
+              |
+              (ForHeaderNoInitNoCondNoAct) SEMI SEMI
+              ;
 SwitchStart ::= (SwitchStart) SWITCH;
 CaseList ::= (CaseListMore) CaseList Case
              |
@@ -270,14 +263,16 @@ ActualParamsList ::= (ActualParamsListMultiple) ActualParamsList COMMA Expressio
                      ;
 Designator ::= (DesignatorFieldVar) Designator DOT IDENT
                |
-               (DesignatorFieldArray) Designator DOT IDENT LBRACKET Expression RBRACKET
+               (DesignatorFieldArray) FieldArrayName LBRACKET Expression RBRACKET
                |
                (DesignatorLength) Designator DOT LENGTH
                |
                (DesignatorEndVar) IDENT
                |
-               (DesignatorEndArray) IDENT LBRACKET Expression RBRACKET
+               (DesignatorEndArray) EndArrayName LBRACKET Expression RBRACKET
                ;
+EndArrayName ::= (EndArrayName) IDENT;
+FieldArrayName ::= (FieldArrayName) Designator DOT IDENT;
 Expression ::= (ExpressionArithmetic) ArithmeticExpression
                |
                (ExpressionTernary) Condition QUESTION Expression COLON Expression

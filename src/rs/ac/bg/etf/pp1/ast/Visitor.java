@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 8/1/2026 2:18:47
+// 8/1/2026 15:44:10
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -8,8 +8,6 @@ package rs.ac.bg.etf.pp1.ast;
 public interface Visitor { 
 
     public void visit(DeclarationList DeclarationList);
-    public void visit(IfDeclaration IfDeclaration);
-    public void visit(ReturnDeclaration ReturnDeclaration);
     public void visit(AbstractClassName AbstractClassName);
     public void visit(TermList TermList);
     public void visit(Sign Sign);
@@ -17,7 +15,6 @@ public interface Visitor {
     public void visit(MethodDeclaration MethodDeclaration);
     public void visit(GlobalMethodDeclaration GlobalMethodDeclaration);
     public void visit(Var Var);
-    public void visit(ForDeclaration ForDeclaration);
     public void visit(ActualParamsList ActualParamsList);
     public void visit(StatementList StatementList);
     public void visit(MethodDeclarationList MethodDeclarationList);
@@ -29,6 +26,7 @@ public interface Visitor {
     public void visit(FormalParamsList FormalParamsList);
     public void visit(Factor Factor);
     public void visit(VarList VarList);
+    public void visit(ForHeader ForHeader);
     public void visit(ConstList ConstList);
     public void visit(Designator Designator);
     public void visit(Condition Condition);
@@ -41,7 +39,6 @@ public interface Visitor {
     public void visit(FormalParam FormalParam);
     public void visit(VarDeclarationList VarDeclarationList);
     public void visit(ClassDeclaration ClassDeclaration);
-    public void visit(PrintDeclaration PrintDeclaration);
     public void visit(AddOp AddOp);
     public void visit(DesignatorStatement DesignatorStatement);
     public void visit(Const Const);
@@ -91,6 +88,8 @@ public interface Visitor {
     public void visit(ArithmeticExpression ArithmeticExpression);
     public void visit(ExpressionTernary ExpressionTernary);
     public void visit(ExpressionArithmetic ExpressionArithmetic);
+    public void visit(FieldArrayName FieldArrayName);
+    public void visit(EndArrayName EndArrayName);
     public void visit(DesignatorEndArray DesignatorEndArray);
     public void visit(DesignatorEndVar DesignatorEndVar);
     public void visit(DesignatorLength DesignatorLength);
@@ -108,30 +107,27 @@ public interface Visitor {
     public void visit(CaseListEmpty CaseListEmpty);
     public void visit(CaseListMore CaseListMore);
     public void visit(SwitchStart SwitchStart);
-    public void visit(ForDeclarationNoInitNoCondNoAct ForDeclarationNoInitNoCondNoAct);
-    public void visit(ForDeclarationNoCondNoAct ForDeclarationNoCondNoAct);
-    public void visit(ForDeclarationNoInitNoAct ForDeclarationNoInitNoAct);
-    public void visit(ForDeclarationNoInitNoCond ForDeclarationNoInitNoCond);
-    public void visit(ForDeclarationNoAct ForDeclarationNoAct);
-    public void visit(ForDeclarationNoCond ForDeclarationNoCond);
-    public void visit(ForDeclarationNoInit ForDeclarationNoInit);
-    public void visit(ForDeclarationFull ForDeclarationFull);
+    public void visit(ForHeaderNoInitNoCondNoAct ForHeaderNoInitNoCondNoAct);
+    public void visit(ForHeaderNoCondNoAct ForHeaderNoCondNoAct);
+    public void visit(ForHeaderNoInitNoAct ForHeaderNoInitNoAct);
+    public void visit(ForHeaderNoInitNoCond ForHeaderNoInitNoCond);
+    public void visit(ForHeaderNoAct ForHeaderNoAct);
+    public void visit(ForHeaderNoCond ForHeaderNoCond);
+    public void visit(ForHeaderNoInit ForHeaderNoInit);
+    public void visit(ForHeaderFull ForHeaderFull);
     public void visit(ForStart ForStart);
-    public void visit(PrintDeclarationNoNumConst PrintDeclarationNoNumConst);
-    public void visit(PrintDeclarationNumConst PrintDeclarationNumConst);
-    public void visit(ReturnDeclarationNoExpression ReturnDeclarationNoExpression);
-    public void visit(ReturnDeclarationExpression ReturnDeclarationExpression);
-    public void visit(IfDeclarationNoElse IfDeclarationNoElse);
-    public void visit(IfDeclarationElse IfDeclarationElse);
     public void visit(StatementBlock StatementBlock);
     public void visit(StatementFor StatementFor);
     public void visit(StatementSwitch StatementSwitch);
-    public void visit(StatementPrint StatementPrint);
+    public void visit(StatementPrintNumConst StatementPrintNumConst);
+    public void visit(StatementPrintNoNumConst StatementPrintNoNumConst);
     public void visit(StatementRead StatementRead);
-    public void visit(StatementReturn StatementReturn);
+    public void visit(StatementReturnExpression StatementReturnExpression);
+    public void visit(StatementReturnNoExpression StatementReturnNoExpression);
     public void visit(StatementContinue StatementContinue);
     public void visit(StatementBreak StatementBreak);
-    public void visit(StatementIf StatementIf);
+    public void visit(StatementIfElse StatementIfElse);
+    public void visit(StatementIfNoElse StatementIfNoElse);
     public void visit(StatementDesignator StatementDesignator);
     public void visit(StatementListEmpty StatementListEmpty);
     public void visit(StatementListMore StatementListMore);

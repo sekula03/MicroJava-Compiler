@@ -1,27 +1,28 @@
 // generated with ast extension for cup
 // version 0.8
-// 8/1/2026 2:18:47
+// 8/1/2026 15:44:10
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class DesignatorEndArray extends Designator {
 
-    private String I1;
+    private EndArrayName EndArrayName;
     private Expression Expression;
 
-    public DesignatorEndArray (String I1, Expression Expression) {
-        this.I1=I1;
+    public DesignatorEndArray (EndArrayName EndArrayName, Expression Expression) {
+        this.EndArrayName=EndArrayName;
+        if(EndArrayName!=null) EndArrayName.setParent(this);
         this.Expression=Expression;
         if(Expression!=null) Expression.setParent(this);
     }
 
-    public String getI1() {
-        return I1;
+    public EndArrayName getEndArrayName() {
+        return EndArrayName;
     }
 
-    public void setI1(String I1) {
-        this.I1=I1;
+    public void setEndArrayName(EndArrayName EndArrayName) {
+        this.EndArrayName=EndArrayName;
     }
 
     public Expression getExpression() {
@@ -37,15 +38,18 @@ public class DesignatorEndArray extends Designator {
     }
 
     public void childrenAccept(Visitor visitor) {
+        if(EndArrayName!=null) EndArrayName.accept(visitor);
         if(Expression!=null) Expression.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
+        if(EndArrayName!=null) EndArrayName.traverseTopDown(visitor);
         if(Expression!=null) Expression.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
+        if(EndArrayName!=null) EndArrayName.traverseBottomUp(visitor);
         if(Expression!=null) Expression.traverseBottomUp(visitor);
         accept(visitor);
     }
@@ -55,7 +59,10 @@ public class DesignatorEndArray extends Designator {
         buffer.append(tab);
         buffer.append("DesignatorEndArray(\n");
 
-        buffer.append(" "+tab+I1);
+        if(EndArrayName!=null)
+            buffer.append(EndArrayName.toString("  "+tab));
+        else
+            buffer.append(tab+"  null");
         buffer.append("\n");
 
         if(Expression!=null)

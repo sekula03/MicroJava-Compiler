@@ -1,8 +1,14 @@
 program Test
-int z;
 const int a = 3;
 {
-    void main() {
+    int z() {
+        return 1;
+    }
 
+    void main() int niz[]; {
+        niz = new int[a];
+        niz[0] = z();
+        niz[1] = ord(eol) + 2;
+        niz[2] = niz.length;
     }
 }

@@ -1,38 +1,28 @@
 // generated with ast extension for cup
 // version 0.8
-// 8/1/2026 2:18:47
+// 8/1/2026 15:44:10
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public class DesignatorFieldArray extends Designator {
 
-    private Designator Designator;
-    private String I2;
+    private FieldArrayName FieldArrayName;
     private Expression Expression;
 
-    public DesignatorFieldArray (Designator Designator, String I2, Expression Expression) {
-        this.Designator=Designator;
-        if(Designator!=null) Designator.setParent(this);
-        this.I2=I2;
+    public DesignatorFieldArray (FieldArrayName FieldArrayName, Expression Expression) {
+        this.FieldArrayName=FieldArrayName;
+        if(FieldArrayName!=null) FieldArrayName.setParent(this);
         this.Expression=Expression;
         if(Expression!=null) Expression.setParent(this);
     }
 
-    public Designator getDesignator() {
-        return Designator;
+    public FieldArrayName getFieldArrayName() {
+        return FieldArrayName;
     }
 
-    public void setDesignator(Designator Designator) {
-        this.Designator=Designator;
-    }
-
-    public String getI2() {
-        return I2;
-    }
-
-    public void setI2(String I2) {
-        this.I2=I2;
+    public void setFieldArrayName(FieldArrayName FieldArrayName) {
+        this.FieldArrayName=FieldArrayName;
     }
 
     public Expression getExpression() {
@@ -48,18 +38,18 @@ public class DesignatorFieldArray extends Designator {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(Designator!=null) Designator.accept(visitor);
+        if(FieldArrayName!=null) FieldArrayName.accept(visitor);
         if(Expression!=null) Expression.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(Designator!=null) Designator.traverseTopDown(visitor);
+        if(FieldArrayName!=null) FieldArrayName.traverseTopDown(visitor);
         if(Expression!=null) Expression.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(Designator!=null) Designator.traverseBottomUp(visitor);
+        if(FieldArrayName!=null) FieldArrayName.traverseBottomUp(visitor);
         if(Expression!=null) Expression.traverseBottomUp(visitor);
         accept(visitor);
     }
@@ -69,13 +59,10 @@ public class DesignatorFieldArray extends Designator {
         buffer.append(tab);
         buffer.append("DesignatorFieldArray(\n");
 
-        if(Designator!=null)
-            buffer.append(Designator.toString("  "+tab));
+        if(FieldArrayName!=null)
+            buffer.append(FieldArrayName.toString("  "+tab));
         else
             buffer.append(tab+"  null");
-        buffer.append("\n");
-
-        buffer.append(" "+tab+I2);
         buffer.append("\n");
 
         if(Expression!=null)

@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 8/1/2026 2:18:47
+// 8/1/2026 15:44:10
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -8,8 +8,6 @@ package rs.ac.bg.etf.pp1.ast;
 public abstract class VisitorAdaptor implements Visitor { 
 
     public void visit(DeclarationList DeclarationList) { }
-    public void visit(IfDeclaration IfDeclaration) { }
-    public void visit(ReturnDeclaration ReturnDeclaration) { }
     public void visit(AbstractClassName AbstractClassName) { }
     public void visit(TermList TermList) { }
     public void visit(Sign Sign) { }
@@ -17,7 +15,6 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(MethodDeclaration MethodDeclaration) { }
     public void visit(GlobalMethodDeclaration GlobalMethodDeclaration) { }
     public void visit(Var Var) { }
-    public void visit(ForDeclaration ForDeclaration) { }
     public void visit(ActualParamsList ActualParamsList) { }
     public void visit(StatementList StatementList) { }
     public void visit(MethodDeclarationList MethodDeclarationList) { }
@@ -29,6 +26,7 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(FormalParamsList FormalParamsList) { }
     public void visit(Factor Factor) { }
     public void visit(VarList VarList) { }
+    public void visit(ForHeader ForHeader) { }
     public void visit(ConstList ConstList) { }
     public void visit(Designator Designator) { }
     public void visit(Condition Condition) { }
@@ -41,7 +39,6 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(FormalParam FormalParam) { }
     public void visit(VarDeclarationList VarDeclarationList) { }
     public void visit(ClassDeclaration ClassDeclaration) { }
-    public void visit(PrintDeclaration PrintDeclaration) { }
     public void visit(AddOp AddOp) { }
     public void visit(DesignatorStatement DesignatorStatement) { }
     public void visit(Const Const) { }
@@ -91,6 +88,8 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(ArithmeticExpression ArithmeticExpression) { visit(); }
     public void visit(ExpressionTernary ExpressionTernary) { visit(); }
     public void visit(ExpressionArithmetic ExpressionArithmetic) { visit(); }
+    public void visit(FieldArrayName FieldArrayName) { visit(); }
+    public void visit(EndArrayName EndArrayName) { visit(); }
     public void visit(DesignatorEndArray DesignatorEndArray) { visit(); }
     public void visit(DesignatorEndVar DesignatorEndVar) { visit(); }
     public void visit(DesignatorLength DesignatorLength) { visit(); }
@@ -108,30 +107,27 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(CaseListEmpty CaseListEmpty) { visit(); }
     public void visit(CaseListMore CaseListMore) { visit(); }
     public void visit(SwitchStart SwitchStart) { visit(); }
-    public void visit(ForDeclarationNoInitNoCondNoAct ForDeclarationNoInitNoCondNoAct) { visit(); }
-    public void visit(ForDeclarationNoCondNoAct ForDeclarationNoCondNoAct) { visit(); }
-    public void visit(ForDeclarationNoInitNoAct ForDeclarationNoInitNoAct) { visit(); }
-    public void visit(ForDeclarationNoInitNoCond ForDeclarationNoInitNoCond) { visit(); }
-    public void visit(ForDeclarationNoAct ForDeclarationNoAct) { visit(); }
-    public void visit(ForDeclarationNoCond ForDeclarationNoCond) { visit(); }
-    public void visit(ForDeclarationNoInit ForDeclarationNoInit) { visit(); }
-    public void visit(ForDeclarationFull ForDeclarationFull) { visit(); }
+    public void visit(ForHeaderNoInitNoCondNoAct ForHeaderNoInitNoCondNoAct) { visit(); }
+    public void visit(ForHeaderNoCondNoAct ForHeaderNoCondNoAct) { visit(); }
+    public void visit(ForHeaderNoInitNoAct ForHeaderNoInitNoAct) { visit(); }
+    public void visit(ForHeaderNoInitNoCond ForHeaderNoInitNoCond) { visit(); }
+    public void visit(ForHeaderNoAct ForHeaderNoAct) { visit(); }
+    public void visit(ForHeaderNoCond ForHeaderNoCond) { visit(); }
+    public void visit(ForHeaderNoInit ForHeaderNoInit) { visit(); }
+    public void visit(ForHeaderFull ForHeaderFull) { visit(); }
     public void visit(ForStart ForStart) { visit(); }
-    public void visit(PrintDeclarationNoNumConst PrintDeclarationNoNumConst) { visit(); }
-    public void visit(PrintDeclarationNumConst PrintDeclarationNumConst) { visit(); }
-    public void visit(ReturnDeclarationNoExpression ReturnDeclarationNoExpression) { visit(); }
-    public void visit(ReturnDeclarationExpression ReturnDeclarationExpression) { visit(); }
-    public void visit(IfDeclarationNoElse IfDeclarationNoElse) { visit(); }
-    public void visit(IfDeclarationElse IfDeclarationElse) { visit(); }
     public void visit(StatementBlock StatementBlock) { visit(); }
     public void visit(StatementFor StatementFor) { visit(); }
     public void visit(StatementSwitch StatementSwitch) { visit(); }
-    public void visit(StatementPrint StatementPrint) { visit(); }
+    public void visit(StatementPrintNumConst StatementPrintNumConst) { visit(); }
+    public void visit(StatementPrintNoNumConst StatementPrintNoNumConst) { visit(); }
     public void visit(StatementRead StatementRead) { visit(); }
-    public void visit(StatementReturn StatementReturn) { visit(); }
+    public void visit(StatementReturnExpression StatementReturnExpression) { visit(); }
+    public void visit(StatementReturnNoExpression StatementReturnNoExpression) { visit(); }
     public void visit(StatementContinue StatementContinue) { visit(); }
     public void visit(StatementBreak StatementBreak) { visit(); }
-    public void visit(StatementIf StatementIf) { visit(); }
+    public void visit(StatementIfElse StatementIfElse) { visit(); }
+    public void visit(StatementIfNoElse StatementIfNoElse) { visit(); }
     public void visit(StatementDesignator StatementDesignator) { visit(); }
     public void visit(StatementListEmpty StatementListEmpty) { visit(); }
     public void visit(StatementListMore StatementListMore) { visit(); }
