@@ -1,12 +1,13 @@
 // generated with ast extension for cup
 // version 0.8
-// 8/1/2026 15:44:10
+// 10/1/2026 0:52:31
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public interface Visitor { 
 
+    public void visit(ForInit ForInit);
     public void visit(DeclarationList DeclarationList);
     public void visit(AbstractClassName AbstractClassName);
     public void visit(TermList TermList);
@@ -15,6 +16,7 @@ public interface Visitor {
     public void visit(MethodDeclaration MethodDeclaration);
     public void visit(GlobalMethodDeclaration GlobalMethodDeclaration);
     public void visit(Var Var);
+    public void visit(Else Else);
     public void visit(ActualParamsList ActualParamsList);
     public void visit(StatementList StatementList);
     public void visit(MethodDeclarationList MethodDeclarationList);
@@ -26,10 +28,10 @@ public interface Visitor {
     public void visit(FormalParamsList FormalParamsList);
     public void visit(Factor Factor);
     public void visit(VarList VarList);
-    public void visit(ForHeader ForHeader);
     public void visit(ConstList ConstList);
     public void visit(Designator Designator);
     public void visit(Condition Condition);
+    public void visit(ForAct ForAct);
     public void visit(MulOp MulOp);
     public void visit(CaseList CaseList);
     public void visit(AbstractClassDeclaration AbstractClassDeclaration);
@@ -52,6 +54,7 @@ public interface Visitor {
     public void visit(AbstractMethodDeclaration AbstractMethodDeclaration);
     public void visit(Field Field);
     public void visit(FieldList FieldList);
+    public void visit(ForCond ForCond);
     public void visit(MulOpMod MulOpMod);
     public void visit(MulOpDiv MulOpDiv);
     public void visit(MulOpTimes MulOpTimes);
@@ -107,15 +110,18 @@ public interface Visitor {
     public void visit(CaseListEmpty CaseListEmpty);
     public void visit(CaseListMore CaseListMore);
     public void visit(SwitchStart SwitchStart);
-    public void visit(ForHeaderNoInitNoCondNoAct ForHeaderNoInitNoCondNoAct);
-    public void visit(ForHeaderNoCondNoAct ForHeaderNoCondNoAct);
-    public void visit(ForHeaderNoInitNoAct ForHeaderNoInitNoAct);
-    public void visit(ForHeaderNoInitNoCond ForHeaderNoInitNoCond);
-    public void visit(ForHeaderNoAct ForHeaderNoAct);
-    public void visit(ForHeaderNoCond ForHeaderNoCond);
-    public void visit(ForHeaderNoInit ForHeaderNoInit);
-    public void visit(ForHeaderFull ForHeaderFull);
+    public void visit(ForActEmpty ForActEmpty);
+    public void visit(ForActNotEmpty ForActNotEmpty);
+    public void visit(ForCondEmpty ForCondEmpty);
+    public void visit(ForCondNotEmpty ForCondNotEmpty);
+    public void visit(ForInitEmpty ForInitEmpty);
+    public void visit(ForInitNotEmpty ForInitNotEmpty);
     public void visit(ForStart ForStart);
+    public void visit(SkipTernary SkipTernary);
+    public void visit(SkipElse SkipElse);
+    public void visit(ElseEmpty ElseEmpty);
+    public void visit(ElseNotEmpty ElseNotEmpty);
+    public void visit(Return Return);
     public void visit(StatementBlock StatementBlock);
     public void visit(StatementFor StatementFor);
     public void visit(StatementSwitch StatementSwitch);
@@ -126,8 +132,7 @@ public interface Visitor {
     public void visit(StatementReturnNoExpression StatementReturnNoExpression);
     public void visit(StatementContinue StatementContinue);
     public void visit(StatementBreak StatementBreak);
-    public void visit(StatementIfElse StatementIfElse);
-    public void visit(StatementIfNoElse StatementIfNoElse);
+    public void visit(StatementIf StatementIf);
     public void visit(StatementDesignator StatementDesignator);
     public void visit(StatementListEmpty StatementListEmpty);
     public void visit(StatementListMore StatementListMore);

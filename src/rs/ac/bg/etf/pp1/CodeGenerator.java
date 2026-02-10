@@ -5,6 +5,9 @@ import rs.etf.pp1.mj.runtime.Code;
 import rs.etf.pp1.symboltable.Tab;
 import rs.etf.pp1.symboltable.concepts.Obj;
 
+import java.util.HashMap;
+import java.util.Stack;
+
 public class CodeGenerator extends VisitorAdaptor {
 
     private int mainPC;
@@ -17,6 +20,7 @@ public class CodeGenerator extends VisitorAdaptor {
         common(Tab.chrObj, false);
         common(Tab.ordObj, false);
         common(Tab.lenObj, true);
+        switchesInARow.push(0);
     }
 
     private void common(Obj method, boolean length) {
@@ -25,6 +29,8 @@ public class CodeGenerator extends VisitorAdaptor {
         if (length) Code.put(Code.arraylength);
         common_methodDeclarationReturn();
     }
+
+    private final HashMap<String, Integer> VFTPs = new HashMap<>();
 
     // method headers
 
@@ -37,12 +43,16 @@ public class CodeGenerator extends VisitorAdaptor {
 
     @Override
     public void visit(MethodHeaderVoid methodHeaderVoid) {
-        common_methodHeader(methodHeaderVoid.obj);
+        if (methodHeaderVoid.obj.getAdr() != -1) {
+
+            common_methodHeader(methodHeaderVoid.obj);
+        }
     }
 
     @Override
     public void visit(MethodHeaderType methodHeaderType) {
-        common_methodHeader(methodHeaderType.obj);
+        if (methodHeaderType.obj.getAdr() != -1)
+            common_methodHeader(methodHeaderType.obj);
     }
 
     @Override
@@ -105,13 +115,131 @@ public class CodeGenerator extends VisitorAdaptor {
     }
 
     @Override
-    public void visit(StatementReturnNoExpression statementReturnNoExpression) {
+    public void visit(Return _return) {
+        for (int i = 0; i < switchStack.size(); i++) Code.put(Code.pop);
+    }
+
+    @Override
+    public void visit(StatementReturnNoExpression statementReturn) {
         common_methodDeclarationReturn();
     }
 
     @Override
     public void visit(StatementReturnExpression statementReturnExpression) {
         common_methodDeclarationReturn();
+    }
+
+    @Override
+    public void visit(StatementIf statementIf) {
+        Code.fixup(conds.pop());
+    }
+
+    private final Stack<int[]> forStack = new Stack<>();
+
+    @Override
+    public void visit(StatementFor statementFor) {
+        while (!continueStack.peek().isEmpty()) Code.fixup(continueStack.peek().pop());
+        continueStack.pop();
+        Code.putJump(forStack.pop()[1]);
+        if (!conds.isEmpty()) Code.fixup(conds.pop());
+        while (!breakStack.peek().isEmpty()) Code.fixup(breakStack.peek().pop());
+        breakStack.pop();
+        switchesInARow.pop();
+    }
+
+    @Override
+    public void visit(ForStart forStart) {
+        forStack.push(new int[2]);
+        breakStack.push(new Stack<>());
+        continueStack.push(new Stack<>());
+        switchesInARow.push(0);
+    }
+
+    @Override
+    public void visit(ForInitNotEmpty forInitNotEmpty) {
+        forStack.peek()[0] = Code.pc;
+    }
+
+    @Override
+    public void visit(ForInitEmpty forInitEmpty) {
+        forStack.peek()[0] = Code.pc;
+    }
+
+    @Override
+    public void visit(ForCondNotEmpty forCondNotEmpty) {
+        Code.putJump(0);
+        forStack.peek()[1] = Code.pc;
+    }
+
+    @Override
+    public void visit(ForCondEmpty forCondEmpty) {
+        Code.putJump(0);
+        forStack.peek()[1] = Code.pc;
+    }
+
+    @Override
+    public void visit(ForActNotEmpty forActNotEmpty) {
+        Code.putJump(forStack.peek()[0]);
+        Code.fixup(forStack.peek()[1] - 2);
+    }
+
+    @Override
+    public void visit(ForActEmpty forActEmpty) {
+        Code.putJump(forStack.peek()[0]);
+        Code.fixup(forStack.peek()[1] - 2);
+    }
+
+    private final Stack<Stack<Integer>> switchStack = new Stack<>();
+
+    @Override
+    public void visit(StatementSwitch statementSwitch) {
+        while(!switchStack.peek().isEmpty()) Code.fixup(switchStack.peek().pop());
+        switchStack.pop();
+        while (!breakStack.peek().isEmpty()) Code.fixup(breakStack.peek().pop());
+        breakStack.pop();
+        Code.put(Code.pop);
+        switchesInARow.push(switchesInARow.pop() - 1);
+    }
+
+    @Override
+    public void visit(SwitchStart switchStart) {
+        switchStack.push(new Stack<>());
+        breakStack.push(new Stack<>());
+        switchesInARow.push(switchesInARow.pop() + 1);
+    }
+
+    @Override
+    public void visit(CaseStart caseStart) {
+        Code.put(Code.dup);
+        Code.loadConst(caseStart.getN1());
+        Code.putFalseJump(Code.eq, 0);
+        if (!switchStack.peek().isEmpty()) Code.fixup(switchStack.peek().pop());
+        switchStack.peek().push(Code.pc - 2);
+    }
+
+    @Override
+    public void visit(Case _case) {
+        Code.putJump(0);
+        Code.fixup(switchStack.peek().pop());
+        switchStack.peek().push(Code.pc - 2);
+    }
+
+    private final Stack<Stack<Integer>> breakStack = new Stack<>();
+
+    @Override
+    public void visit(StatementBreak statementBreak) {
+        Code.putJump(0);
+        breakStack.peek().push(Code.pc - 2);
+    }
+
+    private final Stack<Stack<Integer>> continueStack = new Stack<>();
+    private final Stack<Integer> switchesInARow = new Stack<>();
+
+    @Override
+    public void visit(StatementContinue statementContinue) {
+        for (int i = 0; i < switchesInARow.peek(); i++) Code.put(Code.pop);
+        Code.putJump(0);
+        continueStack.peek().push(Code.pc - 2);
     }
 
     // factors
@@ -135,9 +263,14 @@ public class CodeGenerator extends VisitorAdaptor {
 
     @Override
     public void visit(FactorVariable factorVariable) {
-        if (factorVariable.getDesignator().obj.getName().contains(".length"))
+        Obj obj = factorVariable.getDesignator().obj;
+        if (obj.getName().contains(".length"))
             Code.put(Code.arraylength);
-        else Code.load(factorVariable.getDesignator().obj);
+        else {
+            if (obj.getKind() == Obj.Fld && factorVariable.getDesignator() instanceof DesignatorEndVar)
+                Code.put(Code.load_n);
+            Code.load(obj);
+        }
         if (factorVariable.getSign() instanceof SignMinus)
             Code.put(Code.neg);
     }
@@ -200,7 +333,8 @@ public class CodeGenerator extends VisitorAdaptor {
 
     @Override
     public void visit(DesignatorFieldVar designatorFieldVar) {
-        Code.load(designatorFieldVar.getDesignator().obj);
+        Obj obj = designatorFieldVar.getDesignator().obj;
+        if (obj.getKind() != Obj.Type) Code.load(obj);
     }
 
     @Override
@@ -216,7 +350,13 @@ public class CodeGenerator extends VisitorAdaptor {
 
     @Override
     public void visit(EndArrayName endArrayName) {
+        if (endArrayName.obj.getKind() == Obj.Fld) Code.put(Code.load_n);
         Code.load(endArrayName.obj);
+    }
+
+    @Override
+    public void visit(DesignatorEndVar designatorEndVar) {
+        if (designatorEndVar.obj.getKind() == Obj.Fld) Code.put(Code.load_n);
     }
 
     // designator statements
@@ -263,6 +403,88 @@ public class CodeGenerator extends VisitorAdaptor {
     @Override
     public void visit(DesignatorStatementDecrement designatorStatementDecrement) {
         common_designatorStatementIncDec(designatorStatementDecrement.getDesignator().obj, Code.sub);
+    }
+
+    // condition facts
+
+    private final Stack<Integer> condFacts = new Stack<>(), condTerms = new Stack<>(), conds = new Stack<>();
+
+    @Override
+    public void visit(ConditionFactorNoRelOp conditionFactorNoRelOp) {
+        Code.loadConst(0);
+        Code.putFalseJump(Code.ne, 0);
+        condFacts.push(Code.pc - 2);
+    }
+
+    @Override
+    public void visit(ConditionFactorRelOp conditionFactorRelOp) {
+        RelOp relOp = conditionFactorRelOp.getRelOp();
+        if (relOp instanceof RelOpEqual) Code.putFalseJump(Code.eq, 0);
+        else if (relOp instanceof RelOpNotEqual) Code.putFalseJump(Code.ne, 0);
+        else if (relOp instanceof RelOpLess) Code.putFalseJump(Code.lt, 0);
+        else if (relOp instanceof RelOpLessEqual) Code.putFalseJump(Code.le, 0);
+        else if (relOp instanceof RelOpGreater) Code.putFalseJump(Code.gt, 0);
+        else Code.putFalseJump(Code.ge, 0);
+        condFacts.push(Code.pc - 2);
+    }
+
+    // condition term & condition
+
+    @Override
+    public void visit(ConditionTermMultiple conditionTermMultiple) {
+        if (!(conditionTermMultiple.getParent() instanceof ConditionTermMultiple)) {
+            Code.putJump(0);
+            condTerms.push(Code.pc - 2);
+            while (!condFacts.isEmpty()) Code.fixup(condFacts.pop());
+        }
+    }
+
+    @Override
+    public void visit(ConditionTermSingle conditionTermSingle) {
+        if (!(conditionTermSingle.getParent() instanceof ConditionTermMultiple)) {
+            Code.putJump(0);
+            condTerms.push(Code.pc - 2);
+            while (!condFacts.isEmpty()) Code.fixup(condFacts.pop());
+        }
+    }
+
+    @Override
+    public void visit(ConditionMultiple conditionMultiple) {
+        if (!(conditionMultiple.getParent() instanceof ConditionMultiple)) {
+            Code.putJump(0);
+            conds.push(Code.pc - 2);
+            while (!condTerms.isEmpty()) Code.fixup(condTerms.pop());
+        }
+    }
+
+    @Override
+    public void visit(ConditionSingle conditionSingle) {
+        if (!(conditionSingle.getParent() instanceof ConditionMultiple)) {
+            Code.putJump(0);
+            conds.push(Code.pc - 2);
+            while (!condTerms.isEmpty()) Code.fixup(condTerms.pop());
+        }
+    }
+
+    // skips
+
+    @Override
+    public void visit(SkipElse skipElse) {
+        Code.putJump(0);
+        Code.fixup(conds.pop());
+        conds.push(Code.pc - 2);
+    }
+
+    @Override
+    public void visit(SkipTernary skipTernary) {
+        Code.putJump(0);
+        Code.fixup(conds.pop());
+        conds.push(Code.pc - 2);
+    }
+
+    @Override
+    public void visit(ExpressionTernary expressionTernary) {
+        Code.fixup(conds.pop());
     }
 
 }

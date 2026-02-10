@@ -1,14 +1,16 @@
 program Test
-const int a = 3;
-{
-    int z() {
-        return 1;
+class A {
+    int x;
+    {
+        void z() { print(x); }
     }
-
-    void main() int niz[]; {
-        niz = new int[a];
-        niz[0] = z();
-        niz[1] = ord(eol) + 2;
-        niz[2] = niz.length;
+}
+class B { A a; {} }
+{
+    void main() B b; {
+        b = new B;
+        b.a = new A;
+        b.a.x = 16;
+        b.a.z();
     }
 }

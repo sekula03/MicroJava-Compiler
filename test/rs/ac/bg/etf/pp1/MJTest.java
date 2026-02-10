@@ -37,8 +37,8 @@ public class MJTest {
 			Yylex lexer = new Yylex(br);
 
 			// parsiranje
-			MJParser p = new MJParser(lexer);
-			Symbol s = p.parse();
+			MJParser parser = new MJParser(lexer);
+			Symbol s = parser.parse();
 			Program prog = (Program)(s.value);
 
 			// ispis sintaksnog stabla
@@ -52,15 +52,15 @@ public class MJTest {
 			// ispis tabele simbola
 			tsdump();
 
-			if (!p.errorDetected && analyzer.passed()) {
+			if (!parser.errorDetected && analyzer.passed()) {
 
 				// generisanje koda
 				File objFile = new File("test/program.obj");
 				if (objFile.exists()) objFile.delete();
 
 				CodeGenerator codeGenerator = new CodeGenerator();
-				prog.traverseBottomUp(codeGenerator);
 				Code.dataSize = analyzer.getGlobalVariables();
+				prog.traverseBottomUp(codeGenerator);
 				Code.mainPc = codeGenerator.getMainPC();
 				Code.write(Files.newOutputStream(objFile.toPath()));
 

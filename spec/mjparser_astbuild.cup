@@ -79,12 +79,18 @@ nonterminal Statement Statement;
 nonterminal DesignatorStatement DesignatorStatement;
 nonterminal CaseList CaseList;
 nonterminal Case Case;
-nonterminal ForHeader ForHeader;
+nonterminal ForInit ForInit;
+nonterminal ForCond ForCond;
+nonterminal ForAct ForAct;
+nonterminal Else Else;
+nonterminal Return Return;
 nonterminal Condition Condition;
 nonterminal ActualParamsList ActualParamsList;
 nonterminal ConditionFactor ConditionFactor;
 nonterminal ConditionTerm ConditionTerm;
 nonterminal Sign Sign;
+nonterminal SkipElse SkipElse;
+nonterminal SkipTernary SkipTernary;
 nonterminal ProgramName ProgramName;
 nonterminal EnumName EnumName;
 nonterminal ClassName ClassName;
@@ -239,17 +245,15 @@ StatementList ::= (StatementListMore) StatementList:S1 Statement:S2 {: RESULT=ne
                   ;
 Statement ::= (StatementDesignator) DesignatorStatement:D1 SEMI {: RESULT=new StatementDesignator(D1); RESULT.setLine(D1left); :}
               |
-              (StatementIfNoElse) IF LPAREN Condition:C1 RPAREN Statement:S2 {: RESULT=new StatementIfNoElse(C1, S2); RESULT.setLine(C1left); :}
-              |
-              (StatementIfElse) IF LPAREN Condition:C1 RPAREN Statement:S2 ELSE Statement:S3 {: RESULT=new StatementIfElse(C1, S2, S3); RESULT.setLine(C1left); :}
+              (StatementIf) IF LPAREN Condition:C1 RPAREN Statement:S2 Else:E3 {: RESULT=new StatementIf(C1, S2, E3); RESULT.setLine(C1left); :}
               |
               (StatementBreak) BREAK SEMI {: RESULT=new StatementBreak(); :}
               |
               (StatementContinue) CONTINUE SEMI {: RESULT=new StatementContinue(); :}
               |
-              (StatementReturnNoExpression) RETURN SEMI {: RESULT=new StatementReturnNoExpression(); :}
+              (StatementReturnNoExpression) Return:R1 SEMI {: RESULT=new StatementReturnNoExpression(R1); RESULT.setLine(R1left); :}
               |
-              (StatementReturnExpression) RETURN Expression:E1 SEMI {: RESULT=new StatementReturnExpression(E1); RESULT.setLine(E1left); :}
+              (StatementReturnExpression) Return:R1 Expression:E2 SEMI {: RESULT=new StatementReturnExpression(R1, E2); RESULT.setLine(R1left); :}
               |
               (StatementRead) READ LPAREN Designator:D1 RPAREN SEMI {: RESULT=new StatementRead(D1); RESULT.setLine(D1left); :}
               |
@@ -259,34 +263,37 @@ Statement ::= (StatementDesignator) DesignatorStatement:D1 SEMI {: RESULT=new St
               |
               (StatementSwitch) SwitchStart:S1 LPAREN Expression:E2 RPAREN LBRACE CaseList:C3 RBRACE {: RESULT=new StatementSwitch(S1, E2, C3); RESULT.setLine(S1left); :}
               |
-              (StatementFor) ForStart:F1 LPAREN ForHeader:F2 RPAREN Statement:S3 {: RESULT=new StatementFor(F1, F2, S3); RESULT.setLine(F1left); :}
+              (StatementFor) ForStart:F1 LPAREN ForInit:F2 SEMI ForCond:F3 SEMI ForAct:F4 RPAREN Statement:S5 {: RESULT=new StatementFor(F1, F2, F3, F4, S5); RESULT.setLine(F1left); :}
               |
               (StatementBlock) LBRACE StatementList:S1 RBRACE {: RESULT=new StatementBlock(S1); RESULT.setLine(S1left); :}
               ;
+Return ::= (Return) RETURN {: RESULT=new Return(); :};
+Else ::= (ElseNotEmpty) SkipElse:S1 Statement:S2 {: RESULT=new ElseNotEmpty(S1, S2); RESULT.setLine(S1left); :}
+         |
+         (ElseEmpty) {: RESULT=new ElseEmpty(); :} /* epsilon */
+         ;
+SkipElse ::= (SkipElse) ELSE {: RESULT=new SkipElse(); :};
+SkipTernary ::= (SkipTernary) COLON {: RESULT=new SkipTernary(); :};
 ForStart ::= (ForStart) FOR {: RESULT=new ForStart(); :};
-ForHeader ::= (ForHeaderFull) DesignatorStatement:D1 SEMI Condition:C2 SEMI DesignatorStatement:D3 {: RESULT=new ForHeaderFull(D1, C2, D3); RESULT.setLine(D1left); :}
-              |
-              (ForHeaderNoInit) SEMI Condition:C1 SEMI DesignatorStatement:D2 {: RESULT=new ForHeaderNoInit(C1, D2); RESULT.setLine(C1left); :}
-              |
-              (ForHeaderNoCond) DesignatorStatement:D1 SEMI SEMI DesignatorStatement:D2 {: RESULT=new ForHeaderNoCond(D1, D2); RESULT.setLine(D1left); :}
-              |
-              (ForHeaderNoAct) DesignatorStatement:D1 SEMI Condition:C2 SEMI {: RESULT=new ForHeaderNoAct(D1, C2); RESULT.setLine(D1left); :}
-              |
-              (ForHeaderNoInitNoCond) SEMI SEMI DesignatorStatement:D1 {: RESULT=new ForHeaderNoInitNoCond(D1); RESULT.setLine(D1left); :}
-              |
-              (ForHeaderNoInitNoAct) SEMI Condition:C1 SEMI {: RESULT=new ForHeaderNoInitNoAct(C1); RESULT.setLine(C1left); :}
-              |
-              (ForHeaderNoCondNoAct) DesignatorStatement:D1 SEMI SEMI {: RESULT=new ForHeaderNoCondNoAct(D1); RESULT.setLine(D1left); :}
-              |
-              (ForHeaderNoInitNoCondNoAct) SEMI SEMI {: RESULT=new ForHeaderNoInitNoCondNoAct(); :}
-              ;
+ForInit ::= (ForInitNotEmpty) DesignatorStatement:D1 {: RESULT=new ForInitNotEmpty(D1); RESULT.setLine(D1left); :}
+            |
+            (ForInitEmpty) {: RESULT=new ForInitEmpty(); :} /* epsilon */
+            ;
+ForCond ::= (ForCondNotEmpty) Condition:C1 {: RESULT=new ForCondNotEmpty(C1); RESULT.setLine(C1left); :}
+            |
+            (ForCondEmpty) {: RESULT=new ForCondEmpty(); :} /* epsilon */
+            ;
+ForAct ::= (ForActNotEmpty) DesignatorStatement:D1 {: RESULT=new ForActNotEmpty(D1); RESULT.setLine(D1left); :}
+           |
+           (ForActEmpty) {: RESULT=new ForActEmpty(); :} /* epsilon */
+           ;
 SwitchStart ::= (SwitchStart) SWITCH {: RESULT=new SwitchStart(); :};
 CaseList ::= (CaseListMore) CaseList:C1 Case:C2 {: RESULT=new CaseListMore(C1, C2); RESULT.setLine(C1left); :}
              |
              (CaseListEmpty) {: RESULT=new CaseListEmpty(); :} /* epsilon */
              ;
-CaseStart ::= (CaseStart) CASE {: RESULT=new CaseStart(); :};
-Case ::= (Case) CaseStart:C1 NUM_CONST:N2 COLON StatementList:S3 {: RESULT=new Case(C1, N2, S3); RESULT.setLine(C1left); :};
+CaseStart ::= (CaseStart) CASE NUM_CONST:N1 {: RESULT=new CaseStart(N1); RESULT.setLine(N1left); :};
+Case ::= (Case) CaseStart:C1 COLON StatementList:S2 {: RESULT=new Case(C1, S2); RESULT.setLine(C1left); :};
 DesignatorStatement ::= (DesignatorStatementAssign) Designator:D1 ASSIGN Expression:E2 {: RESULT=new DesignatorStatementAssign(D1, E2); RESULT.setLine(D1left); :}
                         |
                         (DesignatorStatementFunctionCallParams) Designator:D1 LPAREN ActualParamsList:A2 RPAREN {: RESULT=new DesignatorStatementFunctionCallParams(D1, A2); RESULT.setLine(D1left); :}
@@ -315,7 +322,7 @@ EndArrayName ::= (EndArrayName) IDENT:I1 {: RESULT=new EndArrayName(I1); RESULT.
 FieldArrayName ::= (FieldArrayName) Designator:D1 DOT IDENT:I2 {: RESULT=new FieldArrayName(D1, I2); RESULT.setLine(D1left); :};
 Expression ::= (ExpressionArithmetic) ArithmeticExpression:A1 {: RESULT=new ExpressionArithmetic(A1); RESULT.setLine(A1left); :}
                |
-               (ExpressionTernary) Condition:C1 QUESTION Expression:E2 COLON Expression:E3 {: RESULT=new ExpressionTernary(C1, E2, E3); RESULT.setLine(C1left); :}
+               (ExpressionTernary) Condition:C1 QUESTION Expression:E2 SkipTernary:S3 Expression:E4 {: RESULT=new ExpressionTernary(C1, E2, S3, E4); RESULT.setLine(C1left); :}
                ;
 ArithmeticExpression ::= (ArithmeticExpression) TermList:T1 {: RESULT=new ArithmeticExpression(T1); RESULT.setLine(T1left); :};
 TermList ::= (TermListAddOp) TermList:T1 AddOp:A2 Term:T3 {: RESULT=new TermListAddOp(T1, A2, T3); RESULT.setLine(T1left); :}

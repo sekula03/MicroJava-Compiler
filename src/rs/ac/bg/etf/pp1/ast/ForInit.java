@@ -1,11 +1,11 @@
 // generated with ast extension for cup
 // version 0.8
-// 8/1/2026 15:44:10
+// 10/1/2026 0:52:31
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public abstract class ForHeader implements SyntaxNode {
+public abstract class ForInit implements SyntaxNode {
 
     private SyntaxNode parent;
 

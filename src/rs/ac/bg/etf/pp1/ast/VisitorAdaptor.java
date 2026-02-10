@@ -1,12 +1,13 @@
 // generated with ast extension for cup
 // version 0.8
-// 8/1/2026 15:44:10
+// 10/1/2026 0:52:31
 
 
 package rs.ac.bg.etf.pp1.ast;
 
 public abstract class VisitorAdaptor implements Visitor { 
 
+    public void visit(ForInit ForInit) { }
     public void visit(DeclarationList DeclarationList) { }
     public void visit(AbstractClassName AbstractClassName) { }
     public void visit(TermList TermList) { }
@@ -15,6 +16,7 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(MethodDeclaration MethodDeclaration) { }
     public void visit(GlobalMethodDeclaration GlobalMethodDeclaration) { }
     public void visit(Var Var) { }
+    public void visit(Else Else) { }
     public void visit(ActualParamsList ActualParamsList) { }
     public void visit(StatementList StatementList) { }
     public void visit(MethodDeclarationList MethodDeclarationList) { }
@@ -26,10 +28,10 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(FormalParamsList FormalParamsList) { }
     public void visit(Factor Factor) { }
     public void visit(VarList VarList) { }
-    public void visit(ForHeader ForHeader) { }
     public void visit(ConstList ConstList) { }
     public void visit(Designator Designator) { }
     public void visit(Condition Condition) { }
+    public void visit(ForAct ForAct) { }
     public void visit(MulOp MulOp) { }
     public void visit(CaseList CaseList) { }
     public void visit(AbstractClassDeclaration AbstractClassDeclaration) { }
@@ -52,6 +54,7 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(AbstractMethodDeclaration AbstractMethodDeclaration) { }
     public void visit(Field Field) { }
     public void visit(FieldList FieldList) { }
+    public void visit(ForCond ForCond) { }
     public void visit(MulOpMod MulOpMod) { visit(); }
     public void visit(MulOpDiv MulOpDiv) { visit(); }
     public void visit(MulOpTimes MulOpTimes) { visit(); }
@@ -107,15 +110,18 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(CaseListEmpty CaseListEmpty) { visit(); }
     public void visit(CaseListMore CaseListMore) { visit(); }
     public void visit(SwitchStart SwitchStart) { visit(); }
-    public void visit(ForHeaderNoInitNoCondNoAct ForHeaderNoInitNoCondNoAct) { visit(); }
-    public void visit(ForHeaderNoCondNoAct ForHeaderNoCondNoAct) { visit(); }
-    public void visit(ForHeaderNoInitNoAct ForHeaderNoInitNoAct) { visit(); }
-    public void visit(ForHeaderNoInitNoCond ForHeaderNoInitNoCond) { visit(); }
-    public void visit(ForHeaderNoAct ForHeaderNoAct) { visit(); }
-    public void visit(ForHeaderNoCond ForHeaderNoCond) { visit(); }
-    public void visit(ForHeaderNoInit ForHeaderNoInit) { visit(); }
-    public void visit(ForHeaderFull ForHeaderFull) { visit(); }
+    public void visit(ForActEmpty ForActEmpty) { visit(); }
+    public void visit(ForActNotEmpty ForActNotEmpty) { visit(); }
+    public void visit(ForCondEmpty ForCondEmpty) { visit(); }
+    public void visit(ForCondNotEmpty ForCondNotEmpty) { visit(); }
+    public void visit(ForInitEmpty ForInitEmpty) { visit(); }
+    public void visit(ForInitNotEmpty ForInitNotEmpty) { visit(); }
     public void visit(ForStart ForStart) { visit(); }
+    public void visit(SkipTernary SkipTernary) { visit(); }
+    public void visit(SkipElse SkipElse) { visit(); }
+    public void visit(ElseEmpty ElseEmpty) { visit(); }
+    public void visit(ElseNotEmpty ElseNotEmpty) { visit(); }
+    public void visit(Return Return) { visit(); }
     public void visit(StatementBlock StatementBlock) { visit(); }
     public void visit(StatementFor StatementFor) { visit(); }
     public void visit(StatementSwitch StatementSwitch) { visit(); }
@@ -126,8 +132,7 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(StatementReturnNoExpression StatementReturnNoExpression) { visit(); }
     public void visit(StatementContinue StatementContinue) { visit(); }
     public void visit(StatementBreak StatementBreak) { visit(); }
-    public void visit(StatementIfElse StatementIfElse) { visit(); }
-    public void visit(StatementIfNoElse StatementIfNoElse) { visit(); }
+    public void visit(StatementIf StatementIf) { visit(); }
     public void visit(StatementDesignator StatementDesignator) { visit(); }
     public void visit(StatementListEmpty StatementListEmpty) { visit(); }
     public void visit(StatementListMore StatementListMore) { visit(); }

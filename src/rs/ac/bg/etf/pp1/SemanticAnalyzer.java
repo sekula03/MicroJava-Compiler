@@ -299,6 +299,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     @Override
     public void visit(ClassNameNoExtends classNameNoExtends) {
         common_className(classNameNoExtends, classNameNoExtends.getI1(), Tab.noType, Struct.Class);
+        Tab.insert(Obj.Fld, "#VFTP", Tab.intType);
     }
 
     @Override
@@ -315,6 +316,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     @Override
     public void visit(AbstractClassNameNoExtends abstractClassNameNoExtends) {
         common_className(abstractClassNameNoExtends, abstractClassNameNoExtends.getI1(), Tab.noType, Struct.Interface);
+        Tab.insert(Obj.Fld, "#VFTP", Tab.intType);
     }
 
     @Override
@@ -949,16 +951,16 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     @Override
     public void visit(CaseStart caseStart) {
+        int n = caseStart.getN1();
+        if (case_values.peek().contains(n))
+            report_error("Ponovljena vrednost konstante u case-u: " + n, caseStart);
+        else
+            case_values.peek().add(n);
         case_count++;
     }
 
     @Override
     public void visit(Case _case) {
-        int n = _case.getN2();
-        if (case_values.peek().contains(n))
-            report_error("Ponovljena vrednost konstante u case-u: " + n, _case);
-        else
-            case_values.peek().add(n);
         case_count--;
     }
 

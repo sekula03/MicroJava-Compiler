@@ -1,15 +1,15 @@
 // generated with ast extension for cup
 // version 0.8
-// 8/1/2026 15:44:10
+// 10/1/2026 0:52:31
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class ForHeaderNoCondNoAct extends ForHeader {
+public class ForActNotEmpty extends ForAct {
 
     private DesignatorStatement DesignatorStatement;
 
-    public ForHeaderNoCondNoAct (DesignatorStatement DesignatorStatement) {
+    public ForActNotEmpty (DesignatorStatement DesignatorStatement) {
         this.DesignatorStatement=DesignatorStatement;
         if(DesignatorStatement!=null) DesignatorStatement.setParent(this);
     }
@@ -43,7 +43,7 @@ public class ForHeaderNoCondNoAct extends ForHeader {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("ForHeaderNoCondNoAct(\n");
+        buffer.append("ForActNotEmpty(\n");
 
         if(DesignatorStatement!=null)
             buffer.append(DesignatorStatement.toString("  "+tab));
@@ -52,7 +52,7 @@ public class ForHeaderNoCondNoAct extends ForHeader {
         buffer.append("\n");
 
         buffer.append(tab);
-        buffer.append(") [ForHeaderNoCondNoAct]");
+        buffer.append(") [ForActNotEmpty]");
         return buffer.toString();
     }
 }

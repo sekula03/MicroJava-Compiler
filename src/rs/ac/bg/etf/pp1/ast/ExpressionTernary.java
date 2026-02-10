@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 8/1/2026 15:44:10
+// 10/1/2026 0:52:31
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -9,13 +9,16 @@ public class ExpressionTernary extends Expression {
 
     private Condition Condition;
     private Expression Expression;
+    private SkipTernary SkipTernary;
     private Expression Expression1;
 
-    public ExpressionTernary (Condition Condition, Expression Expression, Expression Expression1) {
+    public ExpressionTernary (Condition Condition, Expression Expression, SkipTernary SkipTernary, Expression Expression1) {
         this.Condition=Condition;
         if(Condition!=null) Condition.setParent(this);
         this.Expression=Expression;
         if(Expression!=null) Expression.setParent(this);
+        this.SkipTernary=SkipTernary;
+        if(SkipTernary!=null) SkipTernary.setParent(this);
         this.Expression1=Expression1;
         if(Expression1!=null) Expression1.setParent(this);
     }
@@ -36,6 +39,14 @@ public class ExpressionTernary extends Expression {
         this.Expression=Expression;
     }
 
+    public SkipTernary getSkipTernary() {
+        return SkipTernary;
+    }
+
+    public void setSkipTernary(SkipTernary SkipTernary) {
+        this.SkipTernary=SkipTernary;
+    }
+
     public Expression getExpression1() {
         return Expression1;
     }
@@ -51,6 +62,7 @@ public class ExpressionTernary extends Expression {
     public void childrenAccept(Visitor visitor) {
         if(Condition!=null) Condition.accept(visitor);
         if(Expression!=null) Expression.accept(visitor);
+        if(SkipTernary!=null) SkipTernary.accept(visitor);
         if(Expression1!=null) Expression1.accept(visitor);
     }
 
@@ -58,12 +70,14 @@ public class ExpressionTernary extends Expression {
         accept(visitor);
         if(Condition!=null) Condition.traverseTopDown(visitor);
         if(Expression!=null) Expression.traverseTopDown(visitor);
+        if(SkipTernary!=null) SkipTernary.traverseTopDown(visitor);
         if(Expression1!=null) Expression1.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
         if(Condition!=null) Condition.traverseBottomUp(visitor);
         if(Expression!=null) Expression.traverseBottomUp(visitor);
+        if(SkipTernary!=null) SkipTernary.traverseBottomUp(visitor);
         if(Expression1!=null) Expression1.traverseBottomUp(visitor);
         accept(visitor);
     }
@@ -81,6 +95,12 @@ public class ExpressionTernary extends Expression {
 
         if(Expression!=null)
             buffer.append(Expression.toString("  "+tab));
+        else
+            buffer.append(tab+"  null");
+        buffer.append("\n");
+
+        if(SkipTernary!=null)
+            buffer.append(SkipTernary.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");

@@ -1,23 +1,23 @@
 // generated with ast extension for cup
 // version 0.8
-// 8/1/2026 15:44:10
+// 10/1/2026 0:52:31
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class StatementIfElse extends Statement {
+public class StatementIf extends Statement {
 
     private Condition Condition;
     private Statement Statement;
-    private Statement Statement1;
+    private Else Else;
 
-    public StatementIfElse (Condition Condition, Statement Statement, Statement Statement1) {
+    public StatementIf (Condition Condition, Statement Statement, Else Else) {
         this.Condition=Condition;
         if(Condition!=null) Condition.setParent(this);
         this.Statement=Statement;
         if(Statement!=null) Statement.setParent(this);
-        this.Statement1=Statement1;
-        if(Statement1!=null) Statement1.setParent(this);
+        this.Else=Else;
+        if(Else!=null) Else.setParent(this);
     }
 
     public Condition getCondition() {
@@ -36,12 +36,12 @@ public class StatementIfElse extends Statement {
         this.Statement=Statement;
     }
 
-    public Statement getStatement1() {
-        return Statement1;
+    public Else getElse() {
+        return Else;
     }
 
-    public void setStatement1(Statement Statement1) {
-        this.Statement1=Statement1;
+    public void setElse(Else Else) {
+        this.Else=Else;
     }
 
     public void accept(Visitor visitor) {
@@ -51,27 +51,27 @@ public class StatementIfElse extends Statement {
     public void childrenAccept(Visitor visitor) {
         if(Condition!=null) Condition.accept(visitor);
         if(Statement!=null) Statement.accept(visitor);
-        if(Statement1!=null) Statement1.accept(visitor);
+        if(Else!=null) Else.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
         if(Condition!=null) Condition.traverseTopDown(visitor);
         if(Statement!=null) Statement.traverseTopDown(visitor);
-        if(Statement1!=null) Statement1.traverseTopDown(visitor);
+        if(Else!=null) Else.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
         if(Condition!=null) Condition.traverseBottomUp(visitor);
         if(Statement!=null) Statement.traverseBottomUp(visitor);
-        if(Statement1!=null) Statement1.traverseBottomUp(visitor);
+        if(Else!=null) Else.traverseBottomUp(visitor);
         accept(visitor);
     }
 
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("StatementIfElse(\n");
+        buffer.append("StatementIf(\n");
 
         if(Condition!=null)
             buffer.append(Condition.toString("  "+tab));
@@ -85,14 +85,14 @@ public class StatementIfElse extends Statement {
             buffer.append(tab+"  null");
         buffer.append("\n");
 
-        if(Statement1!=null)
-            buffer.append(Statement1.toString("  "+tab));
+        if(Else!=null)
+            buffer.append(Else.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");
 
         buffer.append(tab);
-        buffer.append(") [StatementIfElse]");
+        buffer.append(") [StatementIf]");
         return buffer.toString();
     }
 }

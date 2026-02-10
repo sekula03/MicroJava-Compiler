@@ -1,13 +1,13 @@
 // generated with ast extension for cup
 // version 0.8
-// 8/1/2026 15:44:10
+// 10/1/2026 0:52:31
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class ForHeaderNoInitNoCondNoAct extends ForHeader {
+public class ForCondEmpty extends ForCond {
 
-    public ForHeaderNoInitNoCondNoAct () {
+    public ForCondEmpty () {
     }
 
     public void accept(Visitor visitor) {
@@ -28,10 +28,10 @@ public class ForHeaderNoInitNoCondNoAct extends ForHeader {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("ForHeaderNoInitNoCondNoAct(\n");
+        buffer.append("ForCondEmpty(\n");
 
         buffer.append(tab);
-        buffer.append(") [ForHeaderNoInitNoCondNoAct]");
+        buffer.append(") [ForCondEmpty]");
         return buffer.toString();
     }
 }

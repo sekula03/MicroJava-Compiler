@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 8/1/2026 15:44:10
+// 10/1/2026 0:52:31
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -9,7 +9,18 @@ public class CaseStart implements SyntaxNode {
 
     private SyntaxNode parent;
     private int line;
-    public CaseStart () {
+    private Integer N1;
+
+    public CaseStart (Integer N1) {
+        this.N1=N1;
+    }
+
+    public Integer getN1() {
+        return N1;
+    }
+
+    public void setN1(Integer N1) {
+        this.N1=N1;
     }
 
     public SyntaxNode getParent() {
@@ -47,6 +58,9 @@ public class CaseStart implements SyntaxNode {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
         buffer.append("CaseStart(\n");
+
+        buffer.append(" "+tab+N1);
+        buffer.append("\n");
 
         buffer.append(tab);
         buffer.append(") [CaseStart]");

@@ -55,8 +55,8 @@ nonterminal ConstDeclaration, VarDeclaration, ClassDeclaration, EnumDeclaration,
 nonterminal ConstList, Const, VarList, Var, EnumConstList, EnumConst;
 nonterminal MethodDeclarationList, AbstractClassMethodDeclarationList, VarDeclarationList;
 nonterminal MethodDeclaration, AbstractMethodDeclaration, FormalParamsList, FormalParam;
-nonterminal StatementList, Statement, DesignatorStatement, CaseList, Case, ForHeader;
-nonterminal Condition, ActualParamsList, ConditionFactor, ConditionTerm, Sign;
+nonterminal StatementList, Statement, DesignatorStatement, CaseList, Case, ForInit, ForCond, ForAct, Else, Return;
+nonterminal Condition, ActualParamsList, ConditionFactor, ConditionTerm, Sign, SkipElse, SkipTernary;
 nonterminal ProgramName, EnumName, ClassName, AbstractClassName, RelOp, AddOp, MulOp;
 nonterminal FieldDeclarationList, FieldDeclaration, FieldList, Field, ForStart, CaseStart, SwitchStart;
 nonterminal rs.etf.pp1.symboltable.concepts.Struct Term, TermList, Factor, FactorList, ArithmeticExpression, Expression, Type;
@@ -199,17 +199,15 @@ StatementList ::= (StatementListMore) StatementList Statement
                   ;
 Statement ::= (StatementDesignator) DesignatorStatement SEMI
               |
-              (StatementIfNoElse) IF LPAREN Condition RPAREN Statement
-              |
-              (StatementIfElse) IF LPAREN Condition RPAREN Statement ELSE Statement
+              (StatementIf) IF LPAREN Condition RPAREN Statement Else
               |
               (StatementBreak) BREAK SEMI
               |
               (StatementContinue) CONTINUE SEMI
               |
-              (StatementReturnNoExpression) RETURN SEMI
+              (StatementReturnNoExpression) Return SEMI
               |
-              (StatementReturnExpression) RETURN Expression SEMI
+              (StatementReturnExpression) Return Expression SEMI
               |
               (StatementRead) READ LPAREN Designator RPAREN SEMI
               |
@@ -219,34 +217,37 @@ Statement ::= (StatementDesignator) DesignatorStatement SEMI
               |
               (StatementSwitch) SwitchStart LPAREN Expression RPAREN LBRACE CaseList RBRACE
               |
-              (StatementFor) ForStart LPAREN ForHeader RPAREN Statement
+              (StatementFor) ForStart LPAREN ForInit SEMI ForCond SEMI ForAct RPAREN Statement
               |
               (StatementBlock) LBRACE StatementList RBRACE
               ;
+Return ::= (Return) RETURN;
+Else ::= (ElseNotEmpty) SkipElse Statement
+         |
+         (ElseEmpty) /* epsilon */
+         ;
+SkipElse ::= (SkipElse) ELSE;
+SkipTernary ::= (SkipTernary) COLON;
 ForStart ::= (ForStart) FOR;
-ForHeader ::= (ForHeaderFull) DesignatorStatement SEMI Condition SEMI DesignatorStatement
-              |
-              (ForHeaderNoInit) SEMI Condition SEMI DesignatorStatement
-              |
-              (ForHeaderNoCond) DesignatorStatement SEMI SEMI DesignatorStatement
-              |
-              (ForHeaderNoAct) DesignatorStatement SEMI Condition SEMI
-              |
-              (ForHeaderNoInitNoCond) SEMI SEMI DesignatorStatement
-              |
-              (ForHeaderNoInitNoAct) SEMI Condition SEMI
-              |
-              (ForHeaderNoCondNoAct) DesignatorStatement SEMI SEMI
-              |
-              (ForHeaderNoInitNoCondNoAct) SEMI SEMI
-              ;
+ForInit ::= (ForInitNotEmpty) DesignatorStatement
+            |
+            (ForInitEmpty) /* epsilon */
+            ;
+ForCond ::= (ForCondNotEmpty) Condition
+            |
+            (ForCondEmpty) /* epsilon */
+            ;
+ForAct ::= (ForActNotEmpty) DesignatorStatement
+           |
+           (ForActEmpty) /* epsilon */
+           ;
 SwitchStart ::= (SwitchStart) SWITCH;
 CaseList ::= (CaseListMore) CaseList Case
              |
              (CaseListEmpty) /* epsilon */
              ;
-CaseStart ::= (CaseStart) CASE;
-Case ::= (Case) CaseStart NUM_CONST COLON StatementList;
+CaseStart ::= (CaseStart) CASE NUM_CONST;
+Case ::= (Case) CaseStart COLON StatementList;
 DesignatorStatement ::= (DesignatorStatementAssign) Designator ASSIGN Expression
                         |
                         (DesignatorStatementFunctionCallParams) Designator LPAREN ActualParamsList RPAREN
@@ -275,7 +276,7 @@ EndArrayName ::= (EndArrayName) IDENT;
 FieldArrayName ::= (FieldArrayName) Designator DOT IDENT;
 Expression ::= (ExpressionArithmetic) ArithmeticExpression
                |
-               (ExpressionTernary) Condition QUESTION Expression COLON Expression
+               (ExpressionTernary) Condition QUESTION Expression SkipTernary Expression
                ;
 ArithmeticExpression ::= (ArithmeticExpression) TermList;
 TermList ::= (TermListAddOp) TermList AddOp Term

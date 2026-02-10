@@ -1,15 +1,15 @@
 // generated with ast extension for cup
 // version 0.8
-// 8/1/2026 15:44:10
+// 10/1/2026 0:52:31
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class ForHeaderNoInitNoAct extends ForHeader {
+public class ForCondNotEmpty extends ForCond {
 
     private Condition Condition;
 
-    public ForHeaderNoInitNoAct (Condition Condition) {
+    public ForCondNotEmpty (Condition Condition) {
         this.Condition=Condition;
         if(Condition!=null) Condition.setParent(this);
     }
@@ -43,7 +43,7 @@ public class ForHeaderNoInitNoAct extends ForHeader {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("ForHeaderNoInitNoAct(\n");
+        buffer.append("ForCondNotEmpty(\n");
 
         if(Condition!=null)
             buffer.append(Condition.toString("  "+tab));
@@ -52,7 +52,7 @@ public class ForHeaderNoInitNoAct extends ForHeader {
         buffer.append("\n");
 
         buffer.append(tab);
-        buffer.append(") [ForHeaderNoInitNoAct]");
+        buffer.append(") [ForCondNotEmpty]");
         return buffer.toString();
     }
 }

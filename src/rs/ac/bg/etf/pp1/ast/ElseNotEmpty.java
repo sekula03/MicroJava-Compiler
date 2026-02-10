@@ -1,28 +1,28 @@
 // generated with ast extension for cup
 // version 0.8
-// 8/1/2026 15:44:10
+// 10/1/2026 0:52:31
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class StatementIfNoElse extends Statement {
+public class ElseNotEmpty extends Else {
 
-    private Condition Condition;
+    private SkipElse SkipElse;
     private Statement Statement;
 
-    public StatementIfNoElse (Condition Condition, Statement Statement) {
-        this.Condition=Condition;
-        if(Condition!=null) Condition.setParent(this);
+    public ElseNotEmpty (SkipElse SkipElse, Statement Statement) {
+        this.SkipElse=SkipElse;
+        if(SkipElse!=null) SkipElse.setParent(this);
         this.Statement=Statement;
         if(Statement!=null) Statement.setParent(this);
     }
 
-    public Condition getCondition() {
-        return Condition;
+    public SkipElse getSkipElse() {
+        return SkipElse;
     }
 
-    public void setCondition(Condition Condition) {
-        this.Condition=Condition;
+    public void setSkipElse(SkipElse SkipElse) {
+        this.SkipElse=SkipElse;
     }
 
     public Statement getStatement() {
@@ -38,18 +38,18 @@ public class StatementIfNoElse extends Statement {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(Condition!=null) Condition.accept(visitor);
+        if(SkipElse!=null) SkipElse.accept(visitor);
         if(Statement!=null) Statement.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(Condition!=null) Condition.traverseTopDown(visitor);
+        if(SkipElse!=null) SkipElse.traverseTopDown(visitor);
         if(Statement!=null) Statement.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(Condition!=null) Condition.traverseBottomUp(visitor);
+        if(SkipElse!=null) SkipElse.traverseBottomUp(visitor);
         if(Statement!=null) Statement.traverseBottomUp(visitor);
         accept(visitor);
     }
@@ -57,10 +57,10 @@ public class StatementIfNoElse extends Statement {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("StatementIfNoElse(\n");
+        buffer.append("ElseNotEmpty(\n");
 
-        if(Condition!=null)
-            buffer.append(Condition.toString("  "+tab));
+        if(SkipElse!=null)
+            buffer.append(SkipElse.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");
@@ -72,7 +72,7 @@ public class StatementIfNoElse extends Statement {
         buffer.append("\n");
 
         buffer.append(tab);
-        buffer.append(") [StatementIfNoElse]");
+        buffer.append(") [ElseNotEmpty]");
         return buffer.toString();
     }
 }
