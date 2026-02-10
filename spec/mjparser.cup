@@ -51,15 +51,16 @@ terminal Boolean BOOL_CONST;
 
 nonterminal Program, DeclarationList, GlobalVarDeclaration, GlobalVarList, GlobalVar;
 nonterminal GlobalMethodDeclarationList, GlobalMethodDeclaration;
-nonterminal ConstDeclaration, VarDeclaration, ClassDeclaration, EnumDeclaration, AbstractClassDeclaration;
+nonterminal ConstDeclaration, VarDeclaration, EnumDeclaration, ClassDeclaration, AbstractClassDeclaration;
 nonterminal ConstList, Const, VarList, Var, EnumConstList, EnumConst;
 nonterminal MethodDeclarationList, AbstractClassMethodDeclarationList, VarDeclarationList;
 nonterminal MethodDeclaration, AbstractMethodDeclaration, FormalParamsList, FormalParam;
 nonterminal StatementList, Statement, DesignatorStatement, CaseList, Case, ForInit, ForCond, ForAct, Else, Return;
 nonterminal Condition, ActualParamsList, ConditionFactor, ConditionTerm, Sign, SkipElse, SkipTernary;
-nonterminal ProgramName, EnumName, ClassName, AbstractClassName, RelOp, AddOp, MulOp;
+nonterminal ProgramName, EnumName, RelOp, AddOp, MulOp;
 nonterminal FieldDeclarationList, FieldDeclaration, FieldList, Field, ForStart, CaseStart, SwitchStart;
-nonterminal rs.etf.pp1.symboltable.concepts.Struct Term, TermList, Factor, FactorList, ArithmeticExpression, Expression, Type;
+nonterminal rs.etf.pp1.symboltable.concepts.Struct Term, TermList, Factor, FactorList, ArithmeticExpression, Expression;
+nonterminal rs.etf.pp1.symboltable.concepts.Struct Type, ClassName, AbstractClassName;
 nonterminal rs.etf.pp1.symboltable.concepts.Obj Designator, MethodHeader, GlobalMethodHeader, FieldArrayName, EndArrayName;
 
 precedence left ELSE;

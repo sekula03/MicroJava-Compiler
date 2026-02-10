@@ -2,15 +2,15 @@ program Test
 class A {
     int x;
     {
-        void z() { print(x); }
+        void z(int r) { print(x + r); }
     }
 }
-class B { A a; {} }
+class B { A a; { int r() {return 7;} } }
 {
     void main() B b; {
         b = new B;
         b.a = new A;
         b.a.x = 16;
-        b.a.z();
+        b.a.z(b.r());
     }
 }

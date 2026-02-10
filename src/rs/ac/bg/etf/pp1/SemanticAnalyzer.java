@@ -299,6 +299,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     @Override
     public void visit(ClassNameNoExtends classNameNoExtends) {
         common_className(classNameNoExtends, classNameNoExtends.getI1(), Tab.noType, Struct.Class);
+        classNameNoExtends.struct = struct_class;
         Tab.insert(Obj.Fld, "#VFTP", Tab.intType);
     }
 
@@ -307,6 +308,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         if (struct_type.getKind() != Struct.Class && struct_type.getKind() != Struct.Interface)
             report_error("Nepostojeca natklasa: " + struct_type, classNameExtends);
         common_className(classNameExtends, classNameExtends.getI1(), struct_type, Struct.Class);
+        classNameExtends.struct = struct_class;
         for (Obj o: struct_class.getElemType().getMembers()) {
             if (o.getKind() == Obj.Fld)
                 Tab.insert(Obj.Fld, o.getName(), o.getType());
@@ -316,6 +318,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     @Override
     public void visit(AbstractClassNameNoExtends abstractClassNameNoExtends) {
         common_className(abstractClassNameNoExtends, abstractClassNameNoExtends.getI1(), Tab.noType, Struct.Interface);
+        abstractClassNameNoExtends.struct = struct_class;
         Tab.insert(Obj.Fld, "#VFTP", Tab.intType);
     }
 
@@ -324,6 +327,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         if (struct_type.getKind() != Struct.Class && struct_type.getKind() != Struct.Interface)
             report_error("Nepostojeca natklasa: " + struct_type, abstractClassNameExtends);
         common_className(abstractClassNameExtends, abstractClassNameExtends.getI1(), struct_type, Struct.Interface);
+        abstractClassNameExtends.struct = struct_class;
         for (Obj o: struct_class.getElemType().getMembers()) {
             if (o.getKind() == Obj.Fld)
                 Tab.insert(Obj.Fld, o.getName(), o.getType());
