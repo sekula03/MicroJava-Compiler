@@ -1,16 +1,22 @@
-program Test
-class A {
-    int x;
-    {
-        void z(int r) { print(x + r); }
-    }
-}
-class B { A a; { int r() {return 7;} } }
+//Test 303
+
+program test_303
+
+class Predmet
 {
-    void main() B b; {
-        b = new B;
-        b.a = new A;
-        b.a.x = 16;
-        b.a.z(b.r());
-    }
+	{
+		 int z() { return 0;}
+	}
 }
+
+int zapreminaK, zapreminaS;
+int tezinaK, tezinaS;
+{
+
+	void main() Predmet s1;
+	{
+		s1 = new Predmet;
+		print(s1.z());
+	}
+}
+

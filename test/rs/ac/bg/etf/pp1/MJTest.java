@@ -30,7 +30,7 @@ public class MJTest {
 
 		Reader br = null;
 		try {
-			File sourceCode = new File("test/program.mj");
+			File sourceCode = new File("test/test303.mj");
 			log.info("Compiling source file: " + sourceCode.getAbsolutePath());
 
 			br = new BufferedReader(new FileReader(sourceCode));
@@ -58,8 +58,8 @@ public class MJTest {
 				File objFile = new File("test/program.obj");
 				if (objFile.exists()) objFile.delete();
 
-				CodeGenerator codeGenerator = new CodeGenerator();
 				Code.dataSize = analyzer.getGlobalVariables();
+				CodeGenerator codeGenerator = new CodeGenerator();
 				prog.traverseBottomUp(codeGenerator);
 				Code.mainPc = codeGenerator.getMainPC();
 				Code.write(Files.newOutputStream(objFile.toPath()));

@@ -39,7 +39,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     private Obj obj_program, obj_method;
     private Struct struct_type, struct_class;
     private final Struct boolType;
-    private boolean main = false, return_statement;
+    private boolean main = false;
     private int globalVariables;
 
     public SemanticAnalyzer() {
@@ -142,7 +142,6 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         if (meth != Tab.noObj)
             report_error("Visestruka definicija metode: " + name, sn);
         sn.obj = obj_method = Tab.insert(Obj.Meth, name, type);
-        return_statement = false;
         Tab.openScope();
     }
 
@@ -158,25 +157,20 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         common_globalMethodHeader(globalMethodHeaderVoid, globalMethodHeaderVoid.getI1(), Tab.noType);
     }
 
-    private void common_globalMethodDeclaration(SyntaxNode sn) {
-        if (!return_statement && obj_method.getType() != Tab.noType)
-            report_error("Nedostaje return iskaz", sn);
-        Tab.chainLocalSymbols(obj_method);
-        Tab.closeScope();
-    }
-
     @Override
     public void visit(GlobalMethodDeclarationParams globalMethodDeclarationParams) {
         if (obj_method.getName().equals("main"))
             report_error("Nevalidan potpis medote main", globalMethodDeclarationParams);
-        common_globalMethodDeclaration(globalMethodDeclarationParams);
+        Tab.chainLocalSymbols(obj_method);
+        Tab.closeScope();
     }
 
     @Override
     public void visit(GlobalMethodDeclarationNoParams globalMethodDeclarationNoParams) {
         if (obj_method.getName().equals("main"))
             main = true;
-        common_globalMethodDeclaration(globalMethodDeclarationNoParams);
+        Tab.chainLocalSymbols(obj_method);
+        Tab.closeScope();
     }
 
     // local vars
@@ -412,7 +406,6 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         if (meth != null)
             report_error("Visestruka definicija metode: " + name, sn);
         sn.obj = obj_method = Tab.insert(Obj.Meth, name, type);
-        return_statement = false;
         Tab.openScope();
         Obj fp = Tab.insert(Obj.Var, "this", struct_class);
         obj_method.setLevel(1);
@@ -441,28 +434,24 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     private void common_methodDeclaration(SyntaxNode sn) {
         Tab.chainLocalSymbols(obj_method);
         Tab.closeScope();
-        if (obj_method.getAdr() != Obj.NO_VALUE && !return_statement && obj_method.getType() != Tab.noType)
-            report_error("Nedostaje return iskaz", sn);
-        else {
-            Obj super_method = null;
-            for (Obj meth : struct_class.getElemType().getMembers()) {
-                if (meth.getKind() == Obj.Meth && meth.getName().equals(obj_method.getName())) {
-                    super_method = meth;
-                    break;
-                }
+        Obj super_method = null;
+        for (Obj meth : struct_class.getElemType().getMembers()) {
+            if (meth.getKind() == Obj.Meth && meth.getName().equals(obj_method.getName())) {
+                super_method = meth;
+                break;
             }
-            if (super_method != null) {
-                if (!assignableTo(obj_method.getType(), super_method.getType()) && super_method.getLevel() == obj_method.getLevel()) {
+        }
+        if (super_method != null) {
+            if (!assignableTo(obj_method.getType(), super_method.getType()) || super_method.getLevel() != obj_method.getLevel()) {
+                report_error("Pogresna redefinicija metode: " + obj_method.getName(), sn);
+                return;
+            }
+            for (int i = 2; i < obj_method.getLevel(); i++) {
+                Obj currentP = findParamByPos(obj_method, i);
+                Obj superP = findParamByPos(super_method, i);
+                if (!currentP.getType().equals(superP.getType())) {
                     report_error("Pogresna redefinicija metode: " + obj_method.getName(), sn);
-                    return;
-                }
-                for (int i = 2; i < obj_method.getLevel(); i++) {
-                    Obj currentP = findParamByPos(obj_method, i);
-                    Obj superP = findParamByPos(super_method, i);
-                    if (!assignableTo(superP.getType(), currentP.getType())) {
-                        report_error("Pogresna redefinicija metode: " + obj_method.getName(), sn);
-                        break;
-                    }
+                    break;
                 }
             }
         }
@@ -980,27 +969,16 @@ public class SemanticAnalyzer extends VisitorAdaptor {
             report_error("Continue bez okruzujuceg for-a", statementContinue);
     }
 
-    private void common_returnDeclaration(SyntaxNode sn, Struct expression) {
-        if (assignableTo(expression, obj_method.getType()))
-            return_statement = true;
-        else
-            report_error("Nekompatibilan tip return iskaza", sn);
-    }
-
     @Override
     public void visit(StatementReturnExpression statementReturnExpression) {
-        common_returnDeclaration(
-                statementReturnExpression,
-                statementReturnExpression.getExpression().struct
-        );
+        if (!assignableTo(statementReturnExpression.getExpression().struct, obj_method.getType()))
+            report_error("Nekompatibilan tip return iskaza", statementReturnExpression);
     }
 
     @Override
     public void visit(StatementReturnNoExpression statementReturnNoExpression) {
-        common_returnDeclaration(
-                statementReturnNoExpression,
-                Tab.noType
-        );
+        if (!assignableTo(Tab.noType, obj_method.getType()))
+            report_error("Nekompatibilan tip return iskaza", statementReturnNoExpression);
     }
 
     // condition factor
