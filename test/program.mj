@@ -1,22 +1,36 @@
-//Test 303
-
-program test_303
-
-class Predmet
+program test
 {
-	{
-		 int z() { return 0;}
-	}
-}
+void x(int a, int b) {
+        switch (a) {
+            case 0: break;
+            case 1: print('a');
+            case 2: {
+                switch(b) {
+                    case 5: return;
+                }
+            }
+        }
+    }
 
-int zapreminaK, zapreminaS;
-int tezinaK, tezinaS;
-{
-
-	void main() Predmet s1;
+	void main() int i;
 	{
-		s1 = new Predmet;
-		print(s1.z());
+	    for (i = 0; i < 4; i++) {
+	        switch(i) {
+	            case 0: print(i); break;
+	            case 1: continue;
+	            case 2: {
+	                switch (i) {
+	                    case 0: break;
+	                    case 2: print(i);
+	                    case 3: continue;
+	                }
+	            }
+	            case 3: {
+	                for (;;) break;
+	            }
+	        }
+	    }
+	    x(1, 5);
 	}
 }
 

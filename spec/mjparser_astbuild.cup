@@ -91,7 +91,6 @@ nonterminal ConditionTerm ConditionTerm;
 nonterminal Sign Sign;
 nonterminal SkipElse SkipElse;
 nonterminal SkipTernary SkipTernary;
-nonterminal ProgramName ProgramName;
 nonterminal EnumName EnumName;
 nonterminal RelOp RelOp;
 nonterminal AddOp AddOp;
@@ -105,7 +104,8 @@ nonterminal CaseStart CaseStart;
 nonterminal SwitchStart SwitchStart;
 nonterminal rs.etf.pp1.symboltable.concepts.Struct Term, TermList, Factor, FactorList, ArithmeticExpression, Expression;
 nonterminal rs.etf.pp1.symboltable.concepts.Struct Type, ClassName, AbstractClassName;
-nonterminal rs.etf.pp1.symboltable.concepts.Obj Designator, MethodHeader, GlobalMethodHeader, FieldArrayName, EndArrayName;
+nonterminal rs.etf.pp1.symboltable.concepts.Obj Designator, FieldArrayName, EndArrayName;
+nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgramName, MethodHeader, GlobalMethodHeader;
 
 precedence left ELSE;
 

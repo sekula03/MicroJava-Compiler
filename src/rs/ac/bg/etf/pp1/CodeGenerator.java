@@ -18,6 +18,14 @@ public class CodeGenerator extends VisitorAdaptor {
         return mainPC;
     }
 
+    private final HashMap<Struct, Integer> VFTPs = new HashMap<>();
+
+    private final ArrayList<Obj> classMethods = new ArrayList<>();
+
+    private int staticDataOffset = Code.dataSize;
+
+    private Struct current_class = null;
+
     public CodeGenerator() {
         common(Tab.chrObj, false);
         common(Tab.ordObj, false);
@@ -31,13 +39,28 @@ public class CodeGenerator extends VisitorAdaptor {
         common_methodDeclaration(Tab.noType);
     }
 
-    private final HashMap<Struct, Integer> VFTPs = new HashMap<>();
+    @Override
+    public void visit(Program program) {
+        Code.dataSize += maxStackSize;
+    }
 
-    private final ArrayList<Obj> classMethods = new ArrayList<>();
-
-    private int staticDataOffset = Code.dataSize;
-
-    private Struct current_class = null;
+    @Override
+    public void visit(ProgramName programName) {
+        for (Obj obj: programName.obj.getLocalSymbols()) {
+            if (obj.getKind() == Obj.Type && obj.getType().getKind() == Struct.Class) {
+                Struct type = obj.getType();
+                VFTPs.put(type, staticDataOffset);
+                for (Obj meth: type.getMembers()) {
+                    if (meth.getKind() == Obj.Meth) {
+                        staticDataOffset += meth.getName().length() + 2;
+                        classMethods.add(meth);
+                    }
+                }
+                staticDataOffset++;
+                classMethods.add(null);
+            }
+        }
+    }
 
     // method headers
 
@@ -98,13 +121,16 @@ public class CodeGenerator extends VisitorAdaptor {
 
     private void common_methodDeclaration(Struct retType) {
         if (retType == Tab.noType) {
-            clearSwitches();
             Code.put(Code.exit);
             Code.put(Code.return_);
         }
         else {
             Code.put(Code.trap);
             Code.put(1);
+        }
+        while (!nestedSwitchesStack.isEmpty()) {
+            int cnt = nestedSwitchesStack.pop();
+            for (int i = 0; i < cnt; i++) Code.put(Code.pop);
         }
     }
 
@@ -132,13 +158,11 @@ public class CodeGenerator extends VisitorAdaptor {
 
     @Override
     public void visit(ClassNameNoExtends classNameNoExtends) {
-        VFTPs.put(classNameNoExtends.struct, staticDataOffset);
         current_class = classNameNoExtends.struct;
     }
 
     @Override
     public void visit(ClassNameExtends classNameExtends) {
-        VFTPs.put(classNameExtends.struct, staticDataOffset);
         current_class = classNameExtends.struct;
     }
 
@@ -154,30 +178,24 @@ public class CodeGenerator extends VisitorAdaptor {
 
     // class declarations
 
-    private void common_classDeclaration(Struct s) {
-        for (Obj method: s.getMembers()) {
-            if (method.getKind() == Obj.Meth) {
-                staticDataOffset += method.getName().length() + 2;
-                classMethods.add(method);
-                if (method.getAdr() == 0) {
-                    Obj superMethod = s.getElemType().getMembersTable().searchKey(method.getName());
-                    method.setAdr(superMethod.getAdr());
-                }
+    private void common_classDeclaration() {
+        for (Obj method: current_class.getMembers()) {
+            if (method.getKind() == Obj.Meth && method.getAdr() == 0) {
+                Obj superMethod = current_class.getElemType().getMembersTable().searchKey(method.getName());
+                method.setAdr(superMethod.getAdr());
             }
         }
-        staticDataOffset++;
-        classMethods.add(null);
         current_class = null;
     }
 
     @Override
     public void visit(ClassDeclarationNoMethodList classDeclarationNoMethodList) {
-        common_classDeclaration(classDeclarationNoMethodList.getClassName().struct);
+        common_classDeclaration();
     }
 
     @Override
     public void visit(ClassDeclarationMethodList classDeclarationMethodList) {
-        common_classDeclaration(classDeclarationMethodList.getClassName().struct);
+        common_classDeclaration();
     }
 
     @Override
@@ -208,12 +226,16 @@ public class CodeGenerator extends VisitorAdaptor {
     public void visit(StatementRead statementRead) {
         Code.put(statementRead.getDesignator().obj.getType() == Tab.charType ? Code.bread : Code.read);
         Code.store(statementRead.getDesignator().obj);
-        designators.pop();
     }
 
     @Override
     public void visit(Return _return) {
-        clearSwitches();
+        Stack<Integer> tmp = new Stack<>();
+        while (!nestedSwitchesStack.isEmpty()) {
+            tmp.push(nestedSwitchesStack.pop());
+            for (int i = 0; i < tmp.peek(); i++) Code.put(Code.pop);
+        }
+        while (!tmp.isEmpty()) nestedSwitchesStack.push(tmp.pop());
     }
 
     @Override
@@ -240,7 +262,8 @@ public class CodeGenerator extends VisitorAdaptor {
         while (!continueStack.peek().isEmpty()) Code.fixup(continueStack.peek().pop());
         continueStack.pop();
         Code.putJump(forStack.pop()[1]);
-        if (!conds.isEmpty()) Code.fixup(conds.pop());
+        int condAdr = conds.pop();
+        if (condAdr != -1) Code.fixup(condAdr);
         while (!breakStack.peek().isEmpty()) Code.fixup(breakStack.peek().pop());
         breakStack.pop();
         nestedSwitchesStack.pop();
@@ -274,6 +297,7 @@ public class CodeGenerator extends VisitorAdaptor {
     public void visit(ForCondEmpty forCondEmpty) {
         Code.putJump(0);
         forStack.peek()[1] = Code.pc;
+        conds.push(-1);
     }
 
     @Override
@@ -291,12 +315,6 @@ public class CodeGenerator extends VisitorAdaptor {
     private final Stack<Stack<Integer>> switchStack = new Stack<>();
 
     private final Stack<Integer> nestedSwitchesStack = new Stack<>();
-
-    private void clearSwitches() {
-        while (!nestedSwitchesStack.isEmpty()) {
-            for (int i = 0; i < nestedSwitchesStack.pop(); i++) Code.put(Code.pop);
-        }
-    }
 
     @Override
     public void visit(StatementSwitch statementSwitch) {
@@ -376,7 +394,6 @@ public class CodeGenerator extends VisitorAdaptor {
             Code.load(obj);
         if (factorVariable.getSign() instanceof SignMinus)
             Code.put(Code.neg);
-        designators.pop();
     }
 
     @Override
@@ -439,21 +456,30 @@ public class CodeGenerator extends VisitorAdaptor {
 
     // designators
 
-    private final Stack<ArrayList<Obj>> designators = new Stack<>();
+    private int maxStackSize = 0;
+    private final Stack<Boolean> virtualCallStack = new Stack<>();
+
+    private void loadVFTP() {
+        Code.put(Code.dup);
+        Code.put(Code.getfield);
+        Code.put2(0);
+        Code.put(Code.putstatic);
+        Code.put2(staticDataOffset++);
+        if (staticDataOffset > maxStackSize) maxStackSize = staticDataOffset;
+        virtualCallStack.push(true);
+    }
 
     @Override
     public void visit(DesignatorFieldVar designatorFieldVar) {
         Obj obj = designatorFieldVar.getDesignator().obj;
         if (obj.getKind() != Obj.Type) Code.load(obj);
-        designators.peek().add(obj);
+        if (designatorFieldVar.obj.getKind() == Obj.Meth) loadVFTP();
     }
 
     @Override
     public void visit(FieldArrayName fieldArrayName) {
         Code.load(fieldArrayName.getDesignator().obj);
         Code.load(fieldArrayName.obj);
-        designators.peek().add(fieldArrayName.getDesignator().obj);
-        designators.peek().add(fieldArrayName.obj);
     }
 
     @Override
@@ -461,28 +487,23 @@ public class CodeGenerator extends VisitorAdaptor {
         Code.load(designatorLength.getDesignator().obj);
     }
 
-    private void common_designatorEnd(Obj obj) {
-        designators.push(new ArrayList<>());
-        if (obj.getKind() == Obj.Fld ||
-                (obj.getKind() == Obj.Meth && current_class != null && obj != Tab.chrObj && obj != Tab.ordObj && obj != Tab.lenObj)) {
-            Code.put(Code.load_n);
-            Obj this_var = new Obj(Obj.Var, "this", Tab.noType);
-            this_var.setLevel(1);
-            this_var.setAdr(0);
-            designators.peek().add(this_var);
-        }
-    }
-
     @Override
     public void visit(EndArrayName endArrayName) {
-        common_designatorEnd(endArrayName.obj);
+        if (endArrayName.obj.getKind() == Obj.Fld) Code.put(Code.load_n);
         Code.load(endArrayName.obj);
-        designators.peek().add(endArrayName.obj);
     }
 
     @Override
     public void visit(DesignatorEndVar designatorEndVar) {
-        common_designatorEnd(designatorEndVar.obj);
+        Obj obj = designatorEndVar.obj;
+        if (obj.getKind() == Obj.Fld) Code.put(Code.load_n);
+        else if (obj.getKind() == Obj.Meth) {
+            if (current_class != null && obj != Tab.chrObj && obj != Tab.ordObj && obj != Tab.lenObj) {
+                Code.put(Code.load_n);
+                loadVFTP();
+            }
+            else virtualCallStack.push(false);
+        }
     }
 
     // designator statements
@@ -490,24 +511,21 @@ public class CodeGenerator extends VisitorAdaptor {
     @Override
     public void visit(DesignatorStatementAssign designatorStatementAssign) {
         Code.store(designatorStatementAssign.getDesignator().obj);
-        designators.pop();
     }
 
     private void common_FunctionCall(Obj obj) {
-        ArrayList<Obj> d = designators.pop();
-        if (d.isEmpty()) {
-            int offset = obj.getAdr() - Code.pc;
-            Code.put(Code.call);
-            Code.put2(offset);
-        }
-        else {
-            for (Obj value : d) Code.load(value);
-            Code.put(Code.getfield);
-            Code.put2(0);
+        if (virtualCallStack.pop()) {
+            Code.put(Code.getstatic);
+            Code.put2(--staticDataOffset);
             Code.put(Code.invokevirtual);
             for (int i = 0; i < obj.getName().length(); i++)
                 Code.put4(obj.getName().charAt(i));
             Code.put4(-1);
+        }
+        else {
+            int offset = obj.getAdr() - Code.pc;
+            Code.put(Code.call);
+            Code.put2(offset);
         }
     }
 
@@ -532,7 +550,6 @@ public class CodeGenerator extends VisitorAdaptor {
         Code.loadConst(1);
         Code.put(op);
         Code.store(obj);
-        designators.pop();
     }
 
     @Override

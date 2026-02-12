@@ -57,11 +57,12 @@ nonterminal MethodDeclarationList, AbstractClassMethodDeclarationList, VarDeclar
 nonterminal MethodDeclaration, AbstractMethodDeclaration, FormalParamsList, FormalParam;
 nonterminal StatementList, Statement, DesignatorStatement, CaseList, Case, ForInit, ForCond, ForAct, Else, Return;
 nonterminal Condition, ActualParamsList, ConditionFactor, ConditionTerm, Sign, SkipElse, SkipTernary;
-nonterminal ProgramName, EnumName, RelOp, AddOp, MulOp;
+nonterminal EnumName, RelOp, AddOp, MulOp;
 nonterminal FieldDeclarationList, FieldDeclaration, FieldList, Field, ForStart, CaseStart, SwitchStart;
 nonterminal rs.etf.pp1.symboltable.concepts.Struct Term, TermList, Factor, FactorList, ArithmeticExpression, Expression;
 nonterminal rs.etf.pp1.symboltable.concepts.Struct Type, ClassName, AbstractClassName;
-nonterminal rs.etf.pp1.symboltable.concepts.Obj Designator, MethodHeader, GlobalMethodHeader, FieldArrayName, EndArrayName;
+nonterminal rs.etf.pp1.symboltable.concepts.Obj Designator, FieldArrayName, EndArrayName;
+nonterminal rs.etf.pp1.symboltable.concepts.Obj ProgramName, MethodHeader, GlobalMethodHeader;
 
 precedence left ELSE;
 

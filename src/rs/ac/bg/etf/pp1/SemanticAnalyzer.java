@@ -71,7 +71,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     @Override
     public void visit(ProgramName programName) {
-        obj_program = Tab.insert(Obj.Prog, programName.getI1(), Tab.noType);
+        programName.obj = obj_program = Tab.insert(Obj.Prog, programName.getI1(), Tab.noType);
         Tab.openScope();
     }
 
