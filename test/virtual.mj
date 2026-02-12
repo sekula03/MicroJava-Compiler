@@ -1,0 +1,19 @@
+program virtual
+class A {
+    int a;
+    {
+        int f(int a) { return this.a * a; }
+        void g(int a, int b, int c) {
+            print(f(a) * b - c);
+        }
+    }
+}
+A aniz[];
+{
+    void main() {
+        aniz = new A[1];
+        aniz[0] = new A;
+        aniz[0].a = 10;
+        aniz[0].g(5, aniz[0].f(2), aniz[0].f(aniz[0].f(1)));
+    }
+}

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="MJCompiler" default="compile" basedir=".">
+<project name="MJCompiler" basedir=".">
 
     <target name="delete">
         <delete>
             <fileset dir="src/rs/ac/bg/etf/pp1">
-                <exclude name="MJTest.java"/>
+                <exclude name="Compiler.java"/>
                 <exclude name="util/Log4JUtils.java"/>
                 <exclude name="SemanticAnalyzer.java"/>
                 <exclude name="CodeGenerator.java"/>
