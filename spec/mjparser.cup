@@ -40,8 +40,8 @@ scan with {:
 :}
 
 terminal PROGRAM, ENUM, CLASS, ABSTRACT, CONST, VOID, EXTENDS;
-terminal BREAK, ELSE, IF, NEW, PRINT, READ, RETURN, CONTINUE, FOR, LENGTH, SWITCH, CASE;
-terminal PLUS, MINUS, MUL, DIV, MOD, AND, OR, ASSIGN, INC, DEC;
+terminal BREAK, ELSE, IF, NEW, PRINT, READ, RETURN, CONTINUE, FOR, LENGTH, SWITCH, CASE, DEFAULT;
+terminal PLUS, MINUS, MUL, DIV, MOD, AND, OR, ASSIGN, INC, DEC, CARET;
 terminal EQUAL, NOT_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL;
 terminal SEMI, COLON, COMMA, DOT, LPAREN, RPAREN, LBRACKET, RBRACKET, LBRACE, RBRACE, QUESTION;
 terminal String IDENT;
@@ -55,9 +55,9 @@ nonterminal ConstDeclaration, VarDeclaration, EnumDeclaration, ClassDeclaration,
 nonterminal ConstList, Const, VarList, Var, EnumConstList, EnumConst;
 nonterminal MethodDeclarationList, AbstractClassMethodDeclarationList, VarDeclarationList;
 nonterminal MethodDeclaration, AbstractMethodDeclaration, FormalParamsList, FormalParam;
-nonterminal StatementList, Statement, DesignatorStatement, CaseList, Case, ForInit, ForCond, ForAct, Else, Return;
+nonterminal StatementList, Statement, DesignatorStatement, CaseList, Case, ForInit, ForCond, ForAct, Else;
 nonterminal Condition, ActualParamsList, ConditionFactor, ConditionTerm, Sign, SkipElse, SkipTernary;
-nonterminal EnumName, RelOp, AddOp, MulOp;
+nonterminal EnumName, RelOp, AddOp, MulOp, DefaultCaseStart, DefaultCase;
 nonterminal FieldDeclarationList, FieldDeclaration, FieldList, Field, ForStart, CaseStart, SwitchStart;
 nonterminal rs.etf.pp1.symboltable.concepts.Struct Term, TermList, Factor, FactorList, ArithmeticExpression, Expression;
 nonterminal rs.etf.pp1.symboltable.concepts.Struct Type, ClassName, AbstractClassName;
@@ -207,9 +207,9 @@ Statement ::= (StatementDesignator) DesignatorStatement SEMI
               |
               (StatementContinue) CONTINUE SEMI
               |
-              (StatementReturnNoExpression) Return SEMI
+              (StatementReturnNoExpression) RETURN SEMI
               |
-              (StatementReturnExpression) Return Expression SEMI
+              (StatementReturnExpression) RETURN Expression SEMI
               |
               (StatementRead) READ LPAREN Designator RPAREN SEMI
               |
@@ -223,7 +223,6 @@ Statement ::= (StatementDesignator) DesignatorStatement SEMI
               |
               (StatementBlock) LBRACE StatementList RBRACE
               ;
-Return ::= (Return) RETURN;
 Else ::= (ElseNotEmpty) SkipElse Statement
          |
          (ElseEmpty) /* epsilon */
@@ -246,10 +245,14 @@ ForAct ::= (ForActNotEmpty) DesignatorStatement
 SwitchStart ::= (SwitchStart) SWITCH;
 CaseList ::= (CaseListMore) CaseList Case
              |
+             (CaseListDefault) CaseList DefaultCase
+             |
              (CaseListEmpty) /* epsilon */
              ;
 CaseStart ::= (CaseStart) CASE NUM_CONST;
 Case ::= (Case) CaseStart COLON StatementList;
+DefaultCaseStart ::= (DefaultCaseStart) DEFAULT;
+DefaultCase ::= (DefaultCase) DefaultCaseStart COLON StatementList;
 DesignatorStatement ::= (DesignatorStatementAssign) Designator ASSIGN Expression
                         |
                         (DesignatorStatementFunctionCallParams) Designator LPAREN ActualParamsList RPAREN
@@ -307,6 +310,8 @@ Factor ::= (FactorVariable) Sign Designator
            (FactorNewArray) NEW Type LBRACKET Expression RBRACKET
            |
            (FactorNested) Sign LPAREN Expression RPAREN
+           |
+           (FactorMaxArray) Sign CARET Designator
            ;
 Sign ::= (SignMinus) MINUS
          |

@@ -5,16 +5,16 @@
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class CaseListMore extends CaseList {
+public class CaseListDefault extends CaseList {
 
     private CaseList CaseList;
-    private Case Case;
+    private DefaultCase DefaultCase;
 
-    public CaseListMore (CaseList CaseList, Case Case) {
+    public CaseListDefault (CaseList CaseList, DefaultCase DefaultCase) {
         this.CaseList=CaseList;
         if(CaseList!=null) CaseList.setParent(this);
-        this.Case=Case;
-        if(Case!=null) Case.setParent(this);
+        this.DefaultCase=DefaultCase;
+        if(DefaultCase!=null) DefaultCase.setParent(this);
     }
 
     public CaseList getCaseList() {
@@ -25,12 +25,12 @@ public class CaseListMore extends CaseList {
         this.CaseList=CaseList;
     }
 
-    public Case getCase() {
-        return Case;
+    public DefaultCase getDefaultCase() {
+        return DefaultCase;
     }
 
-    public void setCase(Case Case) {
-        this.Case=Case;
+    public void setDefaultCase(DefaultCase DefaultCase) {
+        this.DefaultCase=DefaultCase;
     }
 
     public void accept(Visitor visitor) {
@@ -39,25 +39,25 @@ public class CaseListMore extends CaseList {
 
     public void childrenAccept(Visitor visitor) {
         if(CaseList!=null) CaseList.accept(visitor);
-        if(Case!=null) Case.accept(visitor);
+        if(DefaultCase!=null) DefaultCase.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
         if(CaseList!=null) CaseList.traverseTopDown(visitor);
-        if(Case!=null) Case.traverseTopDown(visitor);
+        if(DefaultCase!=null) DefaultCase.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
         if(CaseList!=null) CaseList.traverseBottomUp(visitor);
-        if(Case!=null) Case.traverseBottomUp(visitor);
+        if(DefaultCase!=null) DefaultCase.traverseBottomUp(visitor);
         accept(visitor);
     }
 
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("CaseListMore(\n");
+        buffer.append("CaseListDefault(\n");
 
         if(CaseList!=null)
             buffer.append(CaseList.toString("  "+tab));
@@ -65,14 +65,14 @@ public class CaseListMore extends CaseList {
             buffer.append(tab+"  null");
         buffer.append("\n");
 
-        if(Case!=null)
-            buffer.append(Case.toString("  "+tab));
+        if(DefaultCase!=null)
+            buffer.append(DefaultCase.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");
 
         buffer.append(tab);
-        buffer.append(") [CaseListMore]");
+        buffer.append(") [CaseListDefault]");
         return buffer.toString();
     }
 }

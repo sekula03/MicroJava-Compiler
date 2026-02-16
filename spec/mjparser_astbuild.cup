@@ -40,8 +40,8 @@ scan with {:
 :}
 
 terminal PROGRAM, ENUM, CLASS, ABSTRACT, CONST, VOID, EXTENDS;
-terminal BREAK, ELSE, IF, NEW, PRINT, READ, RETURN, CONTINUE, FOR, LENGTH, SWITCH, CASE;
-terminal PLUS, MINUS, MUL, DIV, MOD, AND, OR, ASSIGN, INC, DEC;
+terminal BREAK, ELSE, IF, NEW, PRINT, READ, RETURN, CONTINUE, FOR, LENGTH, SWITCH, CASE, DEFAULT;
+terminal PLUS, MINUS, MUL, DIV, MOD, AND, OR, ASSIGN, INC, DEC, CARET;
 terminal EQUAL, NOT_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL;
 terminal SEMI, COLON, COMMA, DOT, LPAREN, RPAREN, LBRACKET, RBRACKET, LBRACE, RBRACE, QUESTION;
 terminal String IDENT;
@@ -83,7 +83,6 @@ nonterminal ForInit ForInit;
 nonterminal ForCond ForCond;
 nonterminal ForAct ForAct;
 nonterminal Else Else;
-nonterminal Return Return;
 nonterminal Condition Condition;
 nonterminal ActualParamsList ActualParamsList;
 nonterminal ConditionFactor ConditionFactor;
@@ -95,6 +94,8 @@ nonterminal EnumName EnumName;
 nonterminal RelOp RelOp;
 nonterminal AddOp AddOp;
 nonterminal MulOp MulOp;
+nonterminal DefaultCaseStart DefaultCaseStart;
+nonterminal DefaultCase DefaultCase;
 nonterminal FieldDeclarationList FieldDeclarationList;
 nonterminal FieldDeclaration FieldDeclaration;
 nonterminal FieldList FieldList;
@@ -250,9 +251,9 @@ Statement ::= (StatementDesignator) DesignatorStatement:D1 SEMI {: RESULT=new St
               |
               (StatementContinue) CONTINUE SEMI {: RESULT=new StatementContinue(); :}
               |
-              (StatementReturnNoExpression) Return:R1 SEMI {: RESULT=new StatementReturnNoExpression(R1); RESULT.setLine(R1left); :}
+              (StatementReturnNoExpression) RETURN SEMI {: RESULT=new StatementReturnNoExpression(); :}
               |
-              (StatementReturnExpression) Return:R1 Expression:E2 SEMI {: RESULT=new StatementReturnExpression(R1, E2); RESULT.setLine(R1left); :}
+              (StatementReturnExpression) RETURN Expression:E1 SEMI {: RESULT=new StatementReturnExpression(E1); RESULT.setLine(E1left); :}
               |
               (StatementRead) READ LPAREN Designator:D1 RPAREN SEMI {: RESULT=new StatementRead(D1); RESULT.setLine(D1left); :}
               |
@@ -266,7 +267,6 @@ Statement ::= (StatementDesignator) DesignatorStatement:D1 SEMI {: RESULT=new St
               |
               (StatementBlock) LBRACE StatementList:S1 RBRACE {: RESULT=new StatementBlock(S1); RESULT.setLine(S1left); :}
               ;
-Return ::= (Return) RETURN {: RESULT=new Return(); :};
 Else ::= (ElseNotEmpty) SkipElse:S1 Statement:S2 {: RESULT=new ElseNotEmpty(S1, S2); RESULT.setLine(S1left); :}
          |
          (ElseEmpty) {: RESULT=new ElseEmpty(); :} /* epsilon */
@@ -289,10 +289,14 @@ ForAct ::= (ForActNotEmpty) DesignatorStatement:D1 {: RESULT=new ForActNotEmpty(
 SwitchStart ::= (SwitchStart) SWITCH {: RESULT=new SwitchStart(); :};
 CaseList ::= (CaseListMore) CaseList:C1 Case:C2 {: RESULT=new CaseListMore(C1, C2); RESULT.setLine(C1left); :}
              |
+             (CaseListDefault) CaseList:C1 DefaultCase:D2 {: RESULT=new CaseListDefault(C1, D2); RESULT.setLine(C1left); :}
+             |
              (CaseListEmpty) {: RESULT=new CaseListEmpty(); :} /* epsilon */
              ;
 CaseStart ::= (CaseStart) CASE NUM_CONST:N1 {: RESULT=new CaseStart(N1); RESULT.setLine(N1left); :};
 Case ::= (Case) CaseStart:C1 COLON StatementList:S2 {: RESULT=new Case(C1, S2); RESULT.setLine(C1left); :};
+DefaultCaseStart ::= (DefaultCaseStart) DEFAULT {: RESULT=new DefaultCaseStart(); :};
+DefaultCase ::= (DefaultCase) DefaultCaseStart:D1 COLON StatementList:S2 {: RESULT=new DefaultCase(D1, S2); RESULT.setLine(D1left); :};
 DesignatorStatement ::= (DesignatorStatementAssign) Designator:D1 ASSIGN Expression:E2 {: RESULT=new DesignatorStatementAssign(D1, E2); RESULT.setLine(D1left); :}
                         |
                         (DesignatorStatementFunctionCallParams) Designator:D1 LPAREN ActualParamsList:A2 RPAREN {: RESULT=new DesignatorStatementFunctionCallParams(D1, A2); RESULT.setLine(D1left); :}
@@ -350,6 +354,8 @@ Factor ::= (FactorVariable) Sign:S1 Designator:D2 {: RESULT=new FactorVariable(S
            (FactorNewArray) NEW Type:T1 LBRACKET Expression:E2 RBRACKET {: RESULT=new FactorNewArray(T1, E2); RESULT.setLine(T1left); :}
            |
            (FactorNested) Sign:S1 LPAREN Expression:E2 RPAREN {: RESULT=new FactorNested(S1, E2); RESULT.setLine(S1left); :}
+           |
+           (FactorMaxArray) Sign:S1 CARET Designator:D2 {: RESULT=new FactorMaxArray(S1, D2); RESULT.setLine(S1left); :}
            ;
 Sign ::= (SignMinus) MINUS {: RESULT=new SignMinus(); :}
          |

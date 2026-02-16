@@ -53,6 +53,7 @@ import java_cup.runtime.Symbol;
 "length"    { return new_symbol(sym.LENGTH, yytext()); }
 "switch"    { return new_symbol(sym.SWITCH, yytext()); }
 "case"      { return new_symbol(sym.CASE, yytext()); }
+"default"   { return new_symbol(sym.DEFAULT, yytext()); }
 
 "+"         { return new_symbol(sym.PLUS, yytext()); }
 "-"         { return new_symbol(sym.MINUS, yytext()); }
@@ -81,6 +82,7 @@ import java_cup.runtime.Symbol;
 "{"         { return new_symbol(sym.LBRACE, yytext()); }
 "}"         { return new_symbol(sym.RBRACE, yytext()); }
 "?"         { return new_symbol(sym.QUESTION, yytext()); }
+"^"         { return new_symbol(sym.CARET, yytext()); }
 
 "//"                { yybegin(COMMENT); }
 <COMMENT> .         { yybegin(COMMENT); }

@@ -1,0 +1,139 @@
+// Test 404: Složeno nasleđivanje i polimorfizam
+// Testira: Concrete -> Abstract -> Concrete -> Concrete lanac,
+// nizove apstraktnih klasa, redefinisanje i shadowing polja.
+
+program test_404
+
+const int MNOZILAC = 2;
+
+// 1. Konkretna bazna klasa
+class Osnovna {
+    int id;
+    {
+        void postaviId(int id) { this.id = id; }
+        int dohvatiId() { return id; }
+        void ispis() { print('O'); print(':'); print(id); print(eol); }
+    }
+}
+
+// 2. Apstraktna klasa koja nasleđuje konkretnu
+abstract class Srednja extends Osnovna {
+    int faktor;
+    {
+        abstract int izracunaj(int x);
+
+        void postaviFaktor(int f) { this.faktor = f; }
+
+        void ispis() {
+            print('S'); print(':'); print(id);
+            print('|'); print(faktor); print(eol);
+        }
+    }
+}
+
+// 3. Konkretna klasa koja implementira apstraktnu
+class FinalnaA extends Srednja {
+    int dodatnaVrednost;
+    {
+        int izracunaj(int x) { return x * faktor + id; }
+
+        void postaviDodatnu(int d) { this.dodatnaVrednost = d; }
+
+        void ispis() {
+            print('A'); print(':'); print(izracunaj(dodatnaVrednost)); print(eol);
+        }
+    }
+}
+
+// 4. Druga implementacija
+class FinalnaB extends Srednja {
+    char oznaka;
+    {
+        int izracunaj(int x) { return (x + faktor) * MNOZILAC; }
+
+        void postaviOznaku(char c) { this.oznaka = c; }
+
+        void ispis() {
+            print('B'); print(':'); print(oznaka);
+            print('-'); print(izracunaj(5)); print(eol);
+        }
+    }
+}
+
+// 5. Duboko nasleđivanje
+class SuperFinalna extends FinalnaA {
+    {
+        int izracunaj(int x) {
+            // MikroJava nema super ključnu reč u osnovnoj specifikaciji,
+            // pa koristimo direktnu logiku roditelja ako je potrebno.
+            // Pretpostavićemo da redefinišemo bez super poziva radi sigurnosti.
+            return (x * faktor + id) + 100;
+        }
+
+        void ispis() {
+            print('S'); print('F'); print(':');
+            print(izracunaj(dodatnaVrednost)); print(eol);
+        }
+    }
+}
+
+Osnovna objekti[];
+Srednja apstraktniNiz[];
+int i;
+
+{
+    void pokreniIspis(Osnovna o) {
+        o.ispis();
+    }
+
+    void main()
+        FinalnaA fa;
+        FinalnaB fb;
+        SuperFinalna sf;
+    {
+        objekti = new Osnovna[3];
+        apstraktniNiz = new Srednja[3];
+
+        fa = new FinalnaA;
+        fa.postaviId(10);
+        fa.postaviFaktor(2);
+        fa.postaviDodatnu(5);
+
+        fb = new FinalnaB;
+        fb.postaviId(20);
+        fb.postaviFaktor(10);
+        fb.postaviOznaku('X');
+
+        sf = new SuperFinalna;
+        sf.postaviId(30);
+        sf.postaviFaktor(3);
+        sf.postaviDodatnu(4);
+
+        objekti[0] = fa;
+        objekti[1] = fb;
+        objekti[2] = sf;
+
+        apstraktniNiz[0] = fa;
+        apstraktniNiz[1] = fb;
+        apstraktniNiz[2] = sf;
+
+        // Sekcija 1: Osnovna
+        print('N'); print('1'); print(':'); print(eol);
+        for (i = 0; i < objekti.length; i++) {
+            pokreniIspis(objekti[i]);
+        }
+
+        // Sekcija 2: Srednja
+        print('N'); print('2'); print(':'); print(eol);
+        for (i = 0; i < apstraktniNiz.length; i++) {
+            print(apstraktniNiz[i].izracunaj(10));
+            print(eol);
+            apstraktniNiz[i].ispis();
+        }
+
+        fa = null;
+        if (fa == null) {
+            print('n'); print('u'); print('l'); print('l'); print(eol);
+        }
+    }
+}

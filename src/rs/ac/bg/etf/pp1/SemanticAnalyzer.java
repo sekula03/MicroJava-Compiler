@@ -7,6 +7,7 @@ import rs.etf.pp1.symboltable.concepts.Obj;
 import rs.etf.pp1.symboltable.concepts.Struct;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Stack;
 
@@ -423,7 +424,9 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     }
 
     private Obj findParamByPos(Obj method, int pos) {
-        for (Obj sym : method.getLocalSymbols()) {
+        Collection<Obj> locals =
+                method == obj_method ? Tab.currentScope().values() : method.getLocalSymbols();
+        for (Obj sym : locals) {
             if (sym.getFpPos() == pos) {
                 return sym;
             }
@@ -434,23 +437,25 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     private void common_methodDeclaration(SyntaxNode sn) {
         Tab.chainLocalSymbols(obj_method);
         Tab.closeScope();
+        Obj current_method = obj_method;
+        obj_method = null;
         Obj super_method = null;
         for (Obj meth : struct_class.getElemType().getMembers()) {
-            if (meth.getKind() == Obj.Meth && meth.getName().equals(obj_method.getName())) {
+            if (meth.getKind() == Obj.Meth && meth.getName().equals(current_method.getName())) {
                 super_method = meth;
                 break;
             }
         }
         if (super_method != null) {
-            if (!assignableTo(obj_method.getType(), super_method.getType()) || super_method.getLevel() != obj_method.getLevel()) {
-                report_error("Pogresna redefinicija metode: " + obj_method.getName(), sn);
+            if (!assignableTo(current_method.getType(), super_method.getType()) || super_method.getLevel() != current_method.getLevel()) {
+                report_error("Pogresna redefinicija metode: " + current_method.getName(), sn);
                 return;
             }
-            for (int i = 2; i < obj_method.getLevel(); i++) {
-                Obj currentP = findParamByPos(obj_method, i);
+            for (int i = 2; i < current_method.getLevel(); i++) {
+                Obj currentP = findParamByPos(current_method, i);
                 Obj superP = findParamByPos(super_method, i);
                 if (!currentP.getType().equals(superP.getType())) {
-                    report_error("Pogresna redefinicija metode: " + obj_method.getName(), sn);
+                    report_error("Pogresna redefinicija metode BAJO: " + current_method.getName(), sn);
                     break;
                 }
             }
@@ -622,6 +627,17 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         else {
             report_error("Indeksiranje ne-int tipom", factorNewArray);
             factorNewArray.struct = Tab.noType;
+        }
+    }
+
+    @Override
+    public void visit(FactorMaxArray factorMaxArray) {
+        Struct type = factorMaxArray.getDesignator().obj.getType();
+        if (type.getKind() == Struct.Array && type.getElemType() == Tab.intType)
+            factorMaxArray.struct = Tab.intType;
+        else {
+            report_error("Trazenje maksimuma objekta koji nije int niz", factorMaxArray);
+            factorMaxArray.struct = Tab.noType;
         }
     }
 
@@ -927,10 +943,12 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     }
 
     private final Stack<HashSet<Integer>> case_values = new Stack<>();
+    private final Stack<Boolean> hasDefault = new Stack<>();
 
     @Override
     public void visit(SwitchStart switchStart) {
         case_values.push(new HashSet<>());
+        hasDefault.push(false);
     }
 
     @Override
@@ -938,6 +956,7 @@ public class SemanticAnalyzer extends VisitorAdaptor {
         if (!assignableTo(statementSwitch.getExpression().struct, Tab.intType))
             report_error("Zaglavlje switch-a mora sadrzati int tip", statementSwitch);
         case_values.pop();
+        hasDefault.pop();
     }
 
     private int case_count = 0;
@@ -954,6 +973,20 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     @Override
     public void visit(Case _case) {
+        case_count--;
+    }
+
+    @Override
+    public void visit(DefaultCaseStart defaultCaseStart) {
+        if (hasDefault.peek())
+            report_error("Visestruki default block u istom switch-u", defaultCaseStart);
+        hasDefault.pop();
+        hasDefault.push(true);
+        case_count++;
+    }
+
+    @Override
+    public void visit(DefaultCase defaultCase) {
         case_count--;
     }
 

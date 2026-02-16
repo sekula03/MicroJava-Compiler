@@ -1,6 +1,6 @@
 // generated with ast extension for cup
 // version 0.8
-// 12/1/2026 2:52:55
+// 16/1/2026 23:10:56
 
 
 package rs.ac.bg.etf.pp1.ast;
@@ -74,6 +74,7 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(ConditionMultiple ConditionMultiple) { visit(); }
     public void visit(SignEmpty SignEmpty) { visit(); }
     public void visit(SignMinus SignMinus) { visit(); }
+    public void visit(FactorMaxArray FactorMaxArray) { visit(); }
     public void visit(FactorNested FactorNested) { visit(); }
     public void visit(FactorNewArray FactorNewArray) { visit(); }
     public void visit(FactorNewVar FactorNewVar) { visit(); }
@@ -105,9 +106,12 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(DesignatorStatementFunctionCallNoParams DesignatorStatementFunctionCallNoParams) { visit(); }
     public void visit(DesignatorStatementFunctionCallParams DesignatorStatementFunctionCallParams) { visit(); }
     public void visit(DesignatorStatementAssign DesignatorStatementAssign) { visit(); }
+    public void visit(DefaultCase DefaultCase) { visit(); }
+    public void visit(DefaultCaseStart DefaultCaseStart) { visit(); }
     public void visit(Case Case) { visit(); }
     public void visit(CaseStart CaseStart) { visit(); }
     public void visit(CaseListEmpty CaseListEmpty) { visit(); }
+    public void visit(CaseListDefault CaseListDefault) { visit(); }
     public void visit(CaseListMore CaseListMore) { visit(); }
     public void visit(SwitchStart SwitchStart) { visit(); }
     public void visit(ForActEmpty ForActEmpty) { visit(); }
@@ -121,7 +125,6 @@ public abstract class VisitorAdaptor implements Visitor {
     public void visit(SkipElse SkipElse) { visit(); }
     public void visit(ElseEmpty ElseEmpty) { visit(); }
     public void visit(ElseNotEmpty ElseNotEmpty) { visit(); }
-    public void visit(Return Return) { visit(); }
     public void visit(StatementBlock StatementBlock) { visit(); }
     public void visit(StatementFor StatementFor) { visit(); }
     public void visit(StatementSwitch StatementSwitch) { visit(); }

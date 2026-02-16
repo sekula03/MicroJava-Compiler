@@ -8,6 +8,7 @@ import rs.etf.pp1.symboltable.concepts.Struct;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Stack;
 
 public class CodeGenerator extends VisitorAdaptor {
@@ -69,7 +70,6 @@ public class CodeGenerator extends VisitorAdaptor {
         Code.put(Code.enter);
         Code.put(obj.getLevel());
         Code.put(obj.getLocalSymbols().size());
-        nestedSwitchesStack.push(0);
     }
 
     @Override
@@ -127,10 +127,6 @@ public class CodeGenerator extends VisitorAdaptor {
         else {
             Code.put(Code.trap);
             Code.put(1);
-        }
-        while (!nestedSwitchesStack.isEmpty()) {
-            int cnt = nestedSwitchesStack.pop();
-            for (int i = 0; i < cnt; i++) Code.put(Code.pop);
         }
     }
 
@@ -200,12 +196,12 @@ public class CodeGenerator extends VisitorAdaptor {
 
     @Override
     public void visit(AbstractClassDeclarationNoMethodList abstractClassDeclarationNoMethodList) {
-        current_class = null;
+        common_classDeclaration();
     }
 
     @Override
     public void visit(AbstractClassDeclarationMethodList abstractClassDeclarationMethodList) {
-        current_class = null;
+        common_classDeclaration();
     }
 
     // statements
@@ -229,16 +225,6 @@ public class CodeGenerator extends VisitorAdaptor {
     }
 
     @Override
-    public void visit(Return _return) {
-        Stack<Integer> tmp = new Stack<>();
-        while (!nestedSwitchesStack.isEmpty()) {
-            tmp.push(nestedSwitchesStack.pop());
-            for (int i = 0; i < tmp.peek(); i++) Code.put(Code.pop);
-        }
-        while (!tmp.isEmpty()) nestedSwitchesStack.push(tmp.pop());
-    }
-
-    @Override
     public void visit(StatementReturnNoExpression statementReturn) {
         Code.put(Code.exit);
         Code.put(Code.return_);
@@ -259,22 +245,18 @@ public class CodeGenerator extends VisitorAdaptor {
 
     @Override
     public void visit(StatementFor statementFor) {
-        while (!continueStack.peek().isEmpty()) Code.fixup(continueStack.peek().pop());
-        continueStack.pop();
+        for (int continueAdr: continueStack.pop()) Code.fixup(continueAdr);
         Code.putJump(forStack.pop()[1]);
         int condAdr = conds.pop();
         if (condAdr != -1) Code.fixup(condAdr);
-        while (!breakStack.peek().isEmpty()) Code.fixup(breakStack.peek().pop());
-        breakStack.pop();
-        nestedSwitchesStack.pop();
+        for (int breakAdr: breakStack.pop()) Code.fixup(breakAdr);
     }
 
     @Override
     public void visit(ForStart forStart) {
         forStack.push(new int[2]);
-        breakStack.push(new Stack<>());
-        continueStack.push(new Stack<>());
-        nestedSwitchesStack.push(0);
+        breakStack.push(new ArrayList<>());
+        continueStack.push(new ArrayList<>());
     }
 
     @Override
@@ -312,25 +294,24 @@ public class CodeGenerator extends VisitorAdaptor {
         Code.fixup(forStack.peek()[1] - 2);
     }
 
-    private final Stack<Stack<Integer>> switchStack = new Stack<>();
-
-    private final Stack<Integer> nestedSwitchesStack = new Stack<>();
-
-    @Override
-    public void visit(StatementSwitch statementSwitch) {
-        while(!switchStack.peek().isEmpty()) Code.fixup(switchStack.peek().pop());
-        switchStack.pop();
-        while (!breakStack.peek().isEmpty()) Code.fixup(breakStack.peek().pop());
-        breakStack.pop();
-        Code.put(Code.pop);
-        nestedSwitchesStack.push(nestedSwitchesStack.pop() - 1);
-    }
+    private final Stack<Integer> caseStack = new Stack<>();
+    private final Stack<Integer> defaultAddress = new Stack<>();
 
     @Override
     public void visit(SwitchStart switchStart) {
-        switchStack.push(new Stack<>());
-        breakStack.push(new Stack<>());
-        nestedSwitchesStack.push(nestedSwitchesStack.pop() + 1);
+        caseStack.push(-1);
+        breakStack.push(new ArrayList<>());
+        defaultAddress.push(-1);
+    }
+
+    @Override
+    public void visit(StatementSwitch statementSwitch) {
+        Code.put(Code.pop);
+        int defaultAddr = defaultAddress.pop();
+        if (defaultAddr != -1) Code.putJump(defaultAddr);
+        int fixAdr = caseStack.pop();
+        if (fixAdr != -1) Code.fixup(fixAdr);
+        for (int breakAdr: breakStack.pop()) Code.fixup(breakAdr);
     }
 
     @Override
@@ -338,32 +319,50 @@ public class CodeGenerator extends VisitorAdaptor {
         Code.put(Code.dup);
         Code.loadConst(caseStart.getN1());
         Code.putFalseJump(Code.eq, 0);
-        if (!switchStack.peek().isEmpty()) Code.fixup(switchStack.peek().pop());
-        switchStack.peek().push(Code.pc - 2);
+        int fixAdr = caseStack.pop();
+        caseStack.push(Code.pc - 2);
+        Code.put(Code.pop);
+        if (fixAdr != -1) Code.fixup(fixAdr);
     }
 
     @Override
     public void visit(Case _case) {
         Code.putJump(0);
-        Code.fixup(switchStack.peek().pop());
-        switchStack.peek().push(Code.pc - 2);
+        Code.fixup(caseStack.pop());
+        caseStack.push(Code.pc - 2);
     }
 
-    private final Stack<Stack<Integer>> breakStack = new Stack<>();
+    @Override
+    public void visit(DefaultCaseStart defaultCaseStart) {
+        Code.putJump(0);
+        int fixAdr = caseStack.pop();
+        if (fixAdr != -1) Code.fixup(fixAdr);
+        caseStack.push(Code.pc - 2);
+        defaultAddress.pop();
+        defaultAddress.push(Code.pc);
+    }
+
+    @Override
+    public void visit(DefaultCase defaultCase) {
+        Code.putJump(0);
+        Code.fixup(caseStack.pop());
+        caseStack.push(Code.pc - 2);
+    }
+
+    private final Stack<List<Integer>> breakStack = new Stack<>();
 
     @Override
     public void visit(StatementBreak statementBreak) {
         Code.putJump(0);
-        breakStack.peek().push(Code.pc - 2);
+        breakStack.peek().add(Code.pc - 2);
     }
 
-    private final Stack<Stack<Integer>> continueStack = new Stack<>();
+    private final Stack<List<Integer>> continueStack = new Stack<>();
 
     @Override
     public void visit(StatementContinue statementContinue) {
-        for (int i = 0; i < nestedSwitchesStack.peek(); i++) Code.put(Code.pop);
         Code.putJump(0);
-        continueStack.peek().push(Code.pc - 2);
+        continueStack.peek().add(Code.pc - 2);
     }
 
     // factors
@@ -429,6 +428,76 @@ public class CodeGenerator extends VisitorAdaptor {
     @Override
     public void visit(FactorNested factorNested) {
         if (factorNested.getSign() instanceof SignMinus)
+            Code.put(Code.neg);
+    }
+
+    @Override
+    public void visit(FactorMaxArray factorMaxArray) {
+        Code.load(factorMaxArray.getDesignator().obj);
+        Code.put(Code.dup);
+        Code.put(Code.arraylength);
+        Code.loadConst(0);
+        Code.putFalseJump(Code.eq, 0);
+        Code.put(Code.trap);
+        Code.put(2);
+        Code.fixup(Code.pc - 4);
+        Code.put(Code.dup);
+        Code.put(Code.dup);
+        Code.put(Code.arraylength);
+        Code.loadConst(1);
+        Code.put(Code.sub);
+        Code.put(Code.aload);
+        Code.put(Code.dup2);
+        Code.put(Code.pop);
+        Code.put(Code.arraylength);
+        Code.loadConst(2);
+        Code.put(Code.sub);
+        int start = Code.pc;
+        Code.put(Code.dup);
+        Code.loadConst(0);
+        Code.putFalseJump(Code.ge, 0);
+        int exit = Code.pc - 2;
+        // body
+        Code.put(Code.dup_x2);
+        Code.put(Code.pop);
+
+        Code.put(Code.dup_x2);
+        Code.put(Code.pop);
+
+        Code.put(Code.dup_x2);
+        Code.put(Code.dup_x1);
+        Code.put(Code.pop);
+
+        Code.put(Code.dup_x2);
+        Code.put(Code.aload);
+
+        Code.put(Code.dup2);
+        Code.put(Code.pop);
+        Code.put(Code.dup_x2);
+        Code.put(Code.pop);
+        Code.put(Code.dup_x1);
+
+        Code.putFalseJump(Code.lt, 0);
+
+        Code.put(Code.dup_x1);
+        Code.put(Code.pop);
+        Code.fixup(Code.pc - 4);
+
+        Code.put(Code.pop);
+        Code.put(Code.dup_x1);
+        Code.put(Code.pop);
+
+        Code.loadConst(1);
+        Code.put(Code.sub);
+        Code.putJump(start);
+        Code.fixup(exit);
+
+        Code.put(Code.pop);
+        Code.put(Code.dup_x1);
+        Code.put(Code.pop);
+        Code.put(Code.pop);
+
+        if (factorMaxArray.getSign() instanceof SignMinus)
             Code.put(Code.neg);
     }
 

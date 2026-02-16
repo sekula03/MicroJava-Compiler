@@ -1,15 +1,15 @@
 // generated with ast extension for cup
 // version 0.8
-// 12/1/2026 2:52:55
+// 16/1/2026 23:10:56
 
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class Return implements SyntaxNode {
+public class DefaultCaseStart implements SyntaxNode {
 
     private SyntaxNode parent;
     private int line;
-    public Return () {
+    public DefaultCaseStart () {
     }
 
     public SyntaxNode getParent() {
@@ -46,10 +46,10 @@ public class Return implements SyntaxNode {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("Return(\n");
+        buffer.append("DefaultCaseStart(\n");
 
         buffer.append(tab);
-        buffer.append(") [Return]");
+        buffer.append(") [DefaultCaseStart]");
         return buffer.toString();
     }
 }

@@ -5,26 +5,26 @@
 
 package rs.ac.bg.etf.pp1.ast;
 
-public class Case implements SyntaxNode {
+public class DefaultCase implements SyntaxNode {
 
     private SyntaxNode parent;
     private int line;
-    private CaseStart CaseStart;
+    private DefaultCaseStart DefaultCaseStart;
     private StatementList StatementList;
 
-    public Case (CaseStart CaseStart, StatementList StatementList) {
-        this.CaseStart=CaseStart;
-        if(CaseStart!=null) CaseStart.setParent(this);
+    public DefaultCase (DefaultCaseStart DefaultCaseStart, StatementList StatementList) {
+        this.DefaultCaseStart=DefaultCaseStart;
+        if(DefaultCaseStart!=null) DefaultCaseStart.setParent(this);
         this.StatementList=StatementList;
         if(StatementList!=null) StatementList.setParent(this);
     }
 
-    public CaseStart getCaseStart() {
-        return CaseStart;
+    public DefaultCaseStart getDefaultCaseStart() {
+        return DefaultCaseStart;
     }
 
-    public void setCaseStart(CaseStart CaseStart) {
-        this.CaseStart=CaseStart;
+    public void setDefaultCaseStart(DefaultCaseStart DefaultCaseStart) {
+        this.DefaultCaseStart=DefaultCaseStart;
     }
 
     public StatementList getStatementList() {
@@ -56,18 +56,18 @@ public class Case implements SyntaxNode {
     }
 
     public void childrenAccept(Visitor visitor) {
-        if(CaseStart!=null) CaseStart.accept(visitor);
+        if(DefaultCaseStart!=null) DefaultCaseStart.accept(visitor);
         if(StatementList!=null) StatementList.accept(visitor);
     }
 
     public void traverseTopDown(Visitor visitor) {
         accept(visitor);
-        if(CaseStart!=null) CaseStart.traverseTopDown(visitor);
+        if(DefaultCaseStart!=null) DefaultCaseStart.traverseTopDown(visitor);
         if(StatementList!=null) StatementList.traverseTopDown(visitor);
     }
 
     public void traverseBottomUp(Visitor visitor) {
-        if(CaseStart!=null) CaseStart.traverseBottomUp(visitor);
+        if(DefaultCaseStart!=null) DefaultCaseStart.traverseBottomUp(visitor);
         if(StatementList!=null) StatementList.traverseBottomUp(visitor);
         accept(visitor);
     }
@@ -75,10 +75,10 @@ public class Case implements SyntaxNode {
     public String toString(String tab) {
         StringBuffer buffer=new StringBuffer();
         buffer.append(tab);
-        buffer.append("Case(\n");
+        buffer.append("DefaultCase(\n");
 
-        if(CaseStart!=null)
-            buffer.append(CaseStart.toString("  "+tab));
+        if(DefaultCaseStart!=null)
+            buffer.append(DefaultCaseStart.toString("  "+tab));
         else
             buffer.append(tab+"  null");
         buffer.append("\n");
@@ -90,7 +90,7 @@ public class Case implements SyntaxNode {
         buffer.append("\n");
 
         buffer.append(tab);
-        buffer.append(") [Case]");
+        buffer.append(") [DefaultCase]");
         return buffer.toString();
     }
 }
