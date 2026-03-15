@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="MJCompiler" basedir=".">
 
+    <property name="src.file" value="test/program.mj"/>
+    <property name="obj.file" value="test/program.obj"/>
+    <property name="run.input.file" value="test/input.txt"/>
+
     <target name="delete">
         <delete>
             <fileset dir="src/rs/ac/bg/etf/pp1">
@@ -49,9 +53,69 @@
         </javac>
     </target>
 
+    <target name="compileDriver" depends="compile">
+        <javac srcdir="test/rs/ac/bg/etf/pp1" includeantruntime="false">
+            <include name="Compiler.java"/>
+            <classpath>
+                <pathelement path="src"/>
+                <pathelement path="test"/>
+                <pathelement path="lib/JFlex.jar"/>
+                <pathelement path="lib/cup_v10k.jar"/>
+                <pathelement path="lib/log4j-1.2.17.jar"/>
+                <pathelement path="lib/symboltable-1-1.jar"/>
+                <pathelement path="lib/mj-runtime-1.1.jar"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="compileDefault" depends="compileDriver">
+        <java classname="rs.ac.bg.etf.pp1.Compiler" fork="true">
+            <classpath>
+                <pathelement path="src"/>
+                <pathelement path="test"/>
+                <pathelement path="lib/JFlex.jar"/>
+                <pathelement path="lib/cup_v10k.jar"/>
+                <pathelement path="lib/log4j-1.2.17.jar"/>
+                <pathelement path="lib/symboltable-1-1.jar"/>
+                <pathelement path="lib/mj-runtime-1.1.jar"/>
+            </classpath>
+        </java>
+    </target>
+
+    <target name="compileInput" depends="compileDriver">
+        <java classname="rs.ac.bg.etf.pp1.Compiler" fork="true">
+            <arg value="${src.file}"/>
+            <classpath>
+                <pathelement path="src"/>
+                <pathelement path="test"/>
+                <pathelement path="lib/JFlex.jar"/>
+                <pathelement path="lib/cup_v10k.jar"/>
+                <pathelement path="lib/log4j-1.2.17.jar"/>
+                <pathelement path="lib/symboltable-1-1.jar"/>
+                <pathelement path="lib/mj-runtime-1.1.jar"/>
+            </classpath>
+        </java>
+    </target>
+
+    <target name="compileIO" depends="compileDriver">
+        <java classname="rs.ac.bg.etf.pp1.Compiler" fork="true">
+            <arg value="${src.file}"/>
+            <arg value="${obj.file}"/>
+            <classpath>
+                <pathelement path="src"/>
+                <pathelement path="test"/>
+                <pathelement path="lib/JFlex.jar"/>
+                <pathelement path="lib/cup_v10k.jar"/>
+                <pathelement path="lib/log4j-1.2.17.jar"/>
+                <pathelement path="lib/symboltable-1-1.jar"/>
+                <pathelement path="lib/mj-runtime-1.1.jar"/>
+            </classpath>
+        </java>
+    </target>
+
     <target name="disasm">
         <java classname="rs.etf.pp1.mj.runtime.disasm">
-            <arg value="test/program.obj"/>
+            <arg value="${obj.file}"/>
             <classpath>
                 <pathelement location="lib/mj-runtime-1.1.jar"/>
             </classpath>
@@ -59,8 +123,8 @@
     </target>
 
     <target name="debug" depends="disasm">
-        <java classname="rs.etf.pp1.mj.runtime.Run" input="test/input.txt">
-            <arg value="test/program.obj"/>
+        <java classname="rs.etf.pp1.mj.runtime.Run" input="${run.input.file}">
+            <arg value="${obj.file}"/>
             <arg value="-debug"/>
             <classpath>
                 <pathelement location="lib/mj-runtime-1.1.jar"/>
@@ -69,8 +133,8 @@
     </target>
 
     <target name="run" depends="debug">
-        <java classname="rs.etf.pp1.mj.runtime.Run" input="test/input.txt">
-            <arg value="test/program.obj"/>
+        <java classname="rs.etf.pp1.mj.runtime.Run" input="${run.input.file}">
+            <arg value="${obj.file}"/>
             <classpath>
                 <pathelement location="lib/mj-runtime-1.1.jar"/>
             </classpath>

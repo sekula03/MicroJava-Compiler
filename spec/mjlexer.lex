@@ -54,6 +54,7 @@ import java_cup.runtime.Symbol;
 "switch"    { return new_symbol(sym.SWITCH, yytext()); }
 "case"      { return new_symbol(sym.CASE, yytext()); }
 "default"   { return new_symbol(sym.DEFAULT, yytext()); }
+"final"     { return new_symbol(sym.FINAL, yytext()); }
 
 "+"         { return new_symbol(sym.PLUS, yytext()); }
 "-"         { return new_symbol(sym.MINUS, yytext()); }

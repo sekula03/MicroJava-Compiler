@@ -39,7 +39,7 @@ scan with {:
     return s;
 :}
 
-terminal PROGRAM, ENUM, CLASS, ABSTRACT, CONST, VOID, EXTENDS;
+terminal PROGRAM, ENUM, CLASS, ABSTRACT, CONST, VOID, EXTENDS, FINAL;
 terminal BREAK, ELSE, IF, NEW, PRINT, READ, RETURN, CONTINUE, FOR, LENGTH, SWITCH, CASE, DEFAULT;
 terminal PLUS, MINUS, MUL, DIV, MOD, AND, OR, ASSIGN, INC, DEC, CARET;
 terminal EQUAL, NOT_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL;
@@ -56,6 +56,8 @@ nonterminal GlobalVarList GlobalVarList;
 nonterminal GlobalVar GlobalVar;
 nonterminal GlobalMethodDeclarationList GlobalMethodDeclarationList;
 nonterminal GlobalMethodDeclaration GlobalMethodDeclaration;
+nonterminal Final Final;
+nonterminal Assign Assign;
 nonterminal ConstDeclaration ConstDeclaration;
 nonterminal VarDeclaration VarDeclaration;
 nonterminal EnumDeclaration EnumDeclaration;
@@ -136,7 +138,11 @@ Const ::= (ConstNum) IDENT:I1 ASSIGN NUM_CONST:N2 {: RESULT=new ConstNum(I1, N2)
           |
           (ConstBool) IDENT:I1 ASSIGN BOOL_CONST:B2 {: RESULT=new ConstBool(I1, B2); RESULT.setLine(I1left); :}
           ;
-GlobalVarDeclaration ::= (GlobalVarDeclaration) Type:T1 GlobalVarList:G2 SEMI {: RESULT=new GlobalVarDeclaration(T1, G2); RESULT.setLine(T1left); :};
+GlobalVarDeclaration ::= (GlobalVarDeclarationFinal) Final:F1 Type:T2 GlobalVarList:G3 SEMI {: RESULT=new GlobalVarDeclarationFinal(F1, T2, G3); RESULT.setLine(F1left); :}
+                         |
+                         (GlobalVarDeclarationNonFinal) Type:T1 GlobalVarList:G2 SEMI {: RESULT=new GlobalVarDeclarationNonFinal(T1, G2); RESULT.setLine(T1left); :}
+                         ;
+Final ::= (Final) FINAL {: RESULT=new Final(); :};
 GlobalVarList ::= (GlobalVarListMultiple) GlobalVarList:G1 COMMA GlobalVar:G2 {: RESULT=new GlobalVarListMultiple(G1, G2); RESULT.setLine(G1left); :}
                   |
                   (GlobalVarListSingle) GlobalVar:G1 {: RESULT=new GlobalVarListSingle(G1); RESULT.setLine(G1left); :}
@@ -187,20 +193,26 @@ FieldDeclarationList ::= (FieldDeclarationListMore) FieldDeclarationList:F1 Fiel
                          |
                          (FieldDeclarationListEmpty) {: RESULT=new FieldDeclarationListEmpty(); :} /* epsilon */
                          ;
-FieldDeclaration ::= (FieldDeclaration) Type:T1 FieldList:F2 SEMI {: RESULT=new FieldDeclaration(T1, F2); RESULT.setLine(T1left); :};
+FieldDeclaration ::= (FieldDeclarationFinal) Final:F1 Type:T2 FieldList:F3 SEMI {: RESULT=new FieldDeclarationFinal(F1, T2, F3); RESULT.setLine(F1left); :}
+                     |
+                     (FieldDeclarationNonFinal) Type:T1 FieldList:F2 SEMI {: RESULT=new FieldDeclarationNonFinal(T1, F2); RESULT.setLine(T1left); :}
+                     ;
 FieldList ::= (FieldListMultiple) FieldList:F1 COMMA Field:F2 {: RESULT=new FieldListMultiple(F1, F2); RESULT.setLine(F1left); :}
-            |
-            (FieldListSingle) Field:F1 {: RESULT=new FieldListSingle(F1); RESULT.setLine(F1left); :}
-            ;
+              |
+              (FieldListSingle) Field:F1 {: RESULT=new FieldListSingle(F1); RESULT.setLine(F1left); :}
+              ;
 Field ::= (FieldSingle) IDENT:I1 {: RESULT=new FieldSingle(I1); RESULT.setLine(I1left); :}
-        |
-        (FieldArray) IDENT:I1 LBRACKET RBRACKET {: RESULT=new FieldArray(I1); RESULT.setLine(I1left); :}
-        ;
+          |
+          (FieldArray) IDENT:I1 LBRACKET RBRACKET {: RESULT=new FieldArray(I1); RESULT.setLine(I1left); :}
+          ;
 VarDeclarationList ::= (VarDeclarationListMore) VarDeclarationList:V1 VarDeclaration:V2 {: RESULT=new VarDeclarationListMore(V1, V2); RESULT.setLine(V1left); :}
                        |
                        (VarDeclarationListEmpty) {: RESULT=new VarDeclarationListEmpty(); :} /* epsilon */
                        ;
-VarDeclaration ::= (VarDeclaration) Type:T1 VarList:V2 SEMI {: RESULT=new VarDeclaration(T1, V2); RESULT.setLine(T1left); :};
+VarDeclaration ::= (VarDeclarationFinal) Final:F1 Type:T2 VarList:V3 SEMI {: RESULT=new VarDeclarationFinal(F1, T2, V3); RESULT.setLine(F1left); :}
+                   |
+                   (VarDeclarationNonFinal) Type:T1 VarList:V2 SEMI {: RESULT=new VarDeclarationNonFinal(T1, V2); RESULT.setLine(T1left); :}
+                   ;
 VarList ::= (VarListMultiple) VarList:V1 COMMA Var:V2 {: RESULT=new VarListMultiple(V1, V2); RESULT.setLine(V1left); :}
             |
             (VarListSingle) Var:V1 {: RESULT=new VarListSingle(V1); RESULT.setLine(V1left); :}
@@ -297,7 +309,7 @@ CaseStart ::= (CaseStart) CASE NUM_CONST:N1 {: RESULT=new CaseStart(N1); RESULT.
 Case ::= (Case) CaseStart:C1 COLON StatementList:S2 {: RESULT=new Case(C1, S2); RESULT.setLine(C1left); :};
 DefaultCaseStart ::= (DefaultCaseStart) DEFAULT {: RESULT=new DefaultCaseStart(); :};
 DefaultCase ::= (DefaultCase) DefaultCaseStart:D1 COLON StatementList:S2 {: RESULT=new DefaultCase(D1, S2); RESULT.setLine(D1left); :};
-DesignatorStatement ::= (DesignatorStatementAssign) Designator:D1 ASSIGN Expression:E2 {: RESULT=new DesignatorStatementAssign(D1, E2); RESULT.setLine(D1left); :}
+DesignatorStatement ::= (DesignatorStatementAssign) Designator:D1 Assign:A2 Expression:E3 {: RESULT=new DesignatorStatementAssign(D1, A2, E3); RESULT.setLine(D1left); :}
                         |
                         (DesignatorStatementFunctionCallParams) Designator:D1 LPAREN ActualParamsList:A2 RPAREN {: RESULT=new DesignatorStatementFunctionCallParams(D1, A2); RESULT.setLine(D1left); :}
                         |
@@ -307,6 +319,7 @@ DesignatorStatement ::= (DesignatorStatementAssign) Designator:D1 ASSIGN Express
                         |
                         (DesignatorStatementDecrement) Designator:D1 DEC {: RESULT=new DesignatorStatementDecrement(D1); RESULT.setLine(D1left); :}
                         ;
+Assign ::= (Assign) ASSIGN {: RESULT=new Assign(); :};
 ActualParamsList ::= (ActualParamsListMultiple) ActualParamsList:A1 COMMA Expression:E2 {: RESULT=new ActualParamsListMultiple(A1, E2); RESULT.setLine(A1left); :}
                      |
                      (ActualParamsListSingle) Expression:E1 {: RESULT=new ActualParamsListSingle(E1); RESULT.setLine(E1left); :}

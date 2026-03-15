@@ -6,10 +6,7 @@ import rs.etf.pp1.symboltable.Tab;
 import rs.etf.pp1.symboltable.concepts.Obj;
 import rs.etf.pp1.symboltable.concepts.Struct;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 public class CodeGenerator extends VisitorAdaptor {
 
@@ -19,7 +16,7 @@ public class CodeGenerator extends VisitorAdaptor {
         return mainPC;
     }
 
-    private final HashMap<Struct, Integer> VFTPs = new HashMap<>();
+    private final Map<Struct, Integer> VFTPs = new HashMap<>();
 
     private final ArrayList<Obj> classMethods = new ArrayList<>();
 
@@ -27,7 +24,11 @@ public class CodeGenerator extends VisitorAdaptor {
 
     private Struct current_class = null;
 
-    public CodeGenerator() {
+    private final Map<Obj, Integer> finalObjFields = new HashMap<>();
+
+    public CodeGenerator(Set<Obj> finalObjs) {
+        for (Obj obj: finalObjs)
+            finalObjFields.put(obj, 0);
         common(Tab.chrObj, false);
         common(Tab.ordObj, false);
         common(Tab.lenObj, true);
@@ -412,7 +413,12 @@ public class CodeGenerator extends VisitorAdaptor {
     @Override
     public void visit(FactorNewVar factorNewVar) {
         Code.put(Code.new_);
-        Code.put2(factorNewVar.getType().struct.getNumberOfFields() << 2);
+        int size = factorNewVar.getType().struct.getNumberOfFields() << 2;
+        if (finalObj != null) {
+            size = size << 1;
+            finalObjFields.put(finalObj, factorNewVar.getType().struct.getNumberOfFields());
+        }
+        Code.put2(size);
         Code.put(Code.dup);
         Code.loadConst(VFTPs.get(factorNewVar.getType().struct));
         Code.put(Code.putfield);
@@ -579,7 +585,20 @@ public class CodeGenerator extends VisitorAdaptor {
 
     @Override
     public void visit(DesignatorStatementAssign designatorStatementAssign) {
-        Code.store(designatorStatementAssign.getDesignator().obj);
+        Obj obj = designatorStatementAssign.getDesignator().obj;
+        if (obj.getKind() == Obj.Fld) {
+
+        }
+        Code.store(obj);
+        finalObj = null;
+    }
+
+    private Obj finalObj = null;
+
+    @Override
+    public void visit(Assign assign) {
+        Obj obj = ((DesignatorStatementAssign) assign.getParent()).getDesignator().obj;
+        if (finalObjFields.containsKey(obj)) finalObj = obj;
     }
 
     private void common_FunctionCall(Obj obj) {

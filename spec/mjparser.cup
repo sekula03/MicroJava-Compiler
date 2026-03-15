@@ -39,7 +39,7 @@ scan with {:
     return s;
 :}
 
-terminal PROGRAM, ENUM, CLASS, ABSTRACT, CONST, VOID, EXTENDS;
+terminal PROGRAM, ENUM, CLASS, ABSTRACT, CONST, VOID, EXTENDS, FINAL;
 terminal BREAK, ELSE, IF, NEW, PRINT, READ, RETURN, CONTINUE, FOR, LENGTH, SWITCH, CASE, DEFAULT;
 terminal PLUS, MINUS, MUL, DIV, MOD, AND, OR, ASSIGN, INC, DEC, CARET;
 terminal EQUAL, NOT_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL;
@@ -50,7 +50,7 @@ terminal Character CHAR_CONST;
 terminal Boolean BOOL_CONST;
 
 nonterminal Program, DeclarationList, GlobalVarDeclaration, GlobalVarList, GlobalVar;
-nonterminal GlobalMethodDeclarationList, GlobalMethodDeclaration;
+nonterminal GlobalMethodDeclarationList, GlobalMethodDeclaration, Final, Assign;
 nonterminal ConstDeclaration, VarDeclaration, EnumDeclaration, ClassDeclaration, AbstractClassDeclaration;
 nonterminal ConstList, Const, VarList, Var, EnumConstList, EnumConst;
 nonterminal MethodDeclarationList, AbstractClassMethodDeclarationList, VarDeclarationList;
@@ -92,7 +92,11 @@ Const ::= (ConstNum) IDENT ASSIGN NUM_CONST
           |
           (ConstBool) IDENT ASSIGN BOOL_CONST
           ;
-GlobalVarDeclaration ::= (GlobalVarDeclaration) Type GlobalVarList SEMI;
+GlobalVarDeclaration ::= (GlobalVarDeclarationFinal) Final Type GlobalVarList SEMI
+                         |
+                         (GlobalVarDeclarationNonFinal) Type GlobalVarList SEMI
+                         ;
+Final ::= (Final) FINAL;
 GlobalVarList ::= (GlobalVarListMultiple) GlobalVarList COMMA GlobalVar
                   |
                   (GlobalVarListSingle) GlobalVar
@@ -143,20 +147,26 @@ FieldDeclarationList ::= (FieldDeclarationListMore) FieldDeclarationList FieldDe
                          |
                          (FieldDeclarationListEmpty) /* epsilon */
                          ;
-FieldDeclaration ::= (FieldDeclaration) Type FieldList SEMI;
+FieldDeclaration ::= (FieldDeclarationFinal) Final Type FieldList SEMI
+                     |
+                     (FieldDeclarationNonFinal) Type FieldList SEMI
+                     ;
 FieldList ::= (FieldListMultiple) FieldList COMMA Field
-            |
-            (FieldListSingle) Field
-            ;
+              |
+              (FieldListSingle) Field
+              ;
 Field ::= (FieldSingle) IDENT
-        |
-        (FieldArray) IDENT LBRACKET RBRACKET
-        ;
+          |
+          (FieldArray) IDENT LBRACKET RBRACKET
+          ;
 VarDeclarationList ::= (VarDeclarationListMore) VarDeclarationList VarDeclaration
                        |
                        (VarDeclarationListEmpty) /* epsilon */
                        ;
-VarDeclaration ::= (VarDeclaration) Type VarList SEMI;
+VarDeclaration ::= (VarDeclarationFinal) Final Type VarList SEMI
+                   |
+                   (VarDeclarationNonFinal) Type VarList SEMI
+                   ;
 VarList ::= (VarListMultiple) VarList COMMA Var
             |
             (VarListSingle) Var
@@ -253,7 +263,7 @@ CaseStart ::= (CaseStart) CASE NUM_CONST;
 Case ::= (Case) CaseStart COLON StatementList;
 DefaultCaseStart ::= (DefaultCaseStart) DEFAULT;
 DefaultCase ::= (DefaultCase) DefaultCaseStart COLON StatementList;
-DesignatorStatement ::= (DesignatorStatementAssign) Designator ASSIGN Expression
+DesignatorStatement ::= (DesignatorStatementAssign) Designator Assign Expression
                         |
                         (DesignatorStatementFunctionCallParams) Designator LPAREN ActualParamsList RPAREN
                         |
@@ -263,6 +273,7 @@ DesignatorStatement ::= (DesignatorStatementAssign) Designator ASSIGN Expression
                         |
                         (DesignatorStatementDecrement) Designator DEC
                         ;
+Assign ::= (Assign) ASSIGN;
 ActualParamsList ::= (ActualParamsListMultiple) ActualParamsList COMMA Expression
                      |
                      (ActualParamsListSingle) Expression

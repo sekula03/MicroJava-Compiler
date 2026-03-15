@@ -6,10 +6,7 @@ import rs.etf.pp1.symboltable.Tab;
 import rs.etf.pp1.symboltable.concepts.Obj;
 import rs.etf.pp1.symboltable.concepts.Struct;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Stack;
+import java.util.*;
 
 public class SemanticAnalyzer extends VisitorAdaptor {
 
@@ -42,6 +39,8 @@ public class SemanticAnalyzer extends VisitorAdaptor {
     private final Struct boolType;
     private boolean main = false;
     private int globalVariables;
+    private boolean isFinal = false;
+    private final Set<Obj> finalObjs = new HashSet<>();
 
     public SemanticAnalyzer() {
         Tab.init();
@@ -59,6 +58,10 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     public int getGlobalVariables() {
         return globalVariables;
+    }
+
+    public Set<Obj> getFinalObjs() {
+        return finalObjs;
     }
 
     @Override
@@ -83,8 +86,19 @@ public class SemanticAnalyzer extends VisitorAdaptor {
             report_error("Nepostojeci tip: " + type.getI1(), type);
             type.struct = struct_type = Tab.noType;
         }
+        else if (isFinal &&
+                definedType.getType().getKind() != Struct.Class &&
+                definedType.getType().getKind() != Struct.Interface) {
+            report_error("Ne-klasni tip " + type.getI1() + " oznacena kao final", type);
+            type.struct = struct_type = Tab.noType;
+        }
         else
             type.struct = struct_type = definedType.getType();
+    }
+
+    @Override
+    public void visit(Final _final) {
+        isFinal = true;
     }
 
     // global consts
@@ -118,12 +132,19 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     // global vars
 
+    @Override
+    public void visit(GlobalVarDeclarationFinal globalVarDeclarationFinal) {
+        isFinal = false;
+    }
+
     private void common_globalVar(SyntaxNode sn, String name, Struct type) {
         Obj var = Tab.find(name);
         if (var != Tab.noObj)
             report_error("Visestruka definicija promenljive: " + name, sn);
-        else
-            Tab.insert(Obj.Var, name, type);
+        else {
+            Obj _var = Tab.insert(Obj.Var, name, type);
+            if (isFinal) finalObjs.add(_var);
+        }
     }
 
     @Override
@@ -133,7 +154,10 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     @Override
     public void visit(GlobalVarArray globalVarArray) {
-        common_globalVar(globalVarArray, globalVarArray.getI1(), new Struct(Struct.Array, struct_type));
+        if (isFinal)
+            report_error("Nizovska promenljiva oznacena kao final", globalVarArray);
+        else
+            common_globalVar(globalVarArray, globalVarArray.getI1(), new Struct(Struct.Array, struct_type));
     }
 
     // global methods
@@ -176,12 +200,19 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     // local vars
 
+    @Override
+    public void visit(VarDeclarationFinal varDeclarationFinal) {
+        isFinal = false;
+    }
+
     private void common_var(SyntaxNode sn, String name, Struct type) {
         Obj var = Tab.currentScope().findSymbol(name);
         if (var != null)
             report_error("Visestruka definicija promenljive: " + name, sn);
-        else
-            Tab.insert(Obj.Var, name, type);
+        else {
+            Obj _var = Tab.insert(Obj.Var, name, type);
+            if (isFinal) finalObjs.add(_var);
+        }
     }
 
     @Override
@@ -191,7 +222,10 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     @Override
     public void visit(VarArray varArray) {
-        common_var(varArray, varArray.getI1(), new Struct(Struct.Array, struct_type));
+        if (isFinal)
+            report_error("Nizovska promenljiva oznacena kao final", varArray);
+        else
+            common_var(varArray, varArray.getI1(), new Struct(Struct.Array, struct_type));
     }
 
     // formal params
@@ -375,6 +409,11 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     // class fields
 
+    @Override
+    public void visit(FieldDeclarationFinal fieldDeclarationFinal) {
+        isFinal = false;
+    }
+
     private void common_field(SyntaxNode sn, String name, Struct type) {
         Obj fld = Tab.currentScope().findSymbol(name);
         if (fld != null) {
@@ -387,7 +426,8 @@ public class SemanticAnalyzer extends VisitorAdaptor {
                 return;
             }
         }
-        Tab.insert(Obj.Fld, name, type);
+        Obj _fld = Tab.insert(Obj.Fld, name, type);
+        if (isFinal) finalObjs.add(_fld);
     }
 
     @Override
@@ -397,7 +437,10 @@ public class SemanticAnalyzer extends VisitorAdaptor {
 
     @Override
     public void visit(FieldArray fieldArray) {
-        common_field(fieldArray, fieldArray.getI1(), new Struct(Struct.Array, struct_type));
+        if (isFinal)
+            report_error("Nizovska promenljiva ozancena kao final", fieldArray);
+        else
+            common_field(fieldArray, fieldArray.getI1(), new Struct(Struct.Array, struct_type));
     }
 
     // class methods

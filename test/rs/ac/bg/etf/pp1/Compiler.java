@@ -2,6 +2,8 @@ package rs.ac.bg.etf.pp1;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 
 import java_cup.runtime.Symbol;
@@ -19,19 +21,60 @@ import rs.etf.pp1.symboltable.concepts.Struct;
 
 public class Compiler {
 
+	private static final String DEFAULT_SOURCE_PATH = "test/program.mj";
+	private static final String DEFAULT_OBJECT_PATH = "test/program.obj";
+
 	static {
 		DOMConfigurator.configure(Log4JUtils.instance().findLoggerConfigFile());
 		Log4JUtils.instance().prepareLogFile(Logger.getRootLogger());
 	}
 
+	private static void logUsage(Logger log) {
+		log.info("Usage: java rs.ac.bg.etf.pp1.Compiler [<source-file.mj> [<output-file.obj>]]");
+		log.info("0 args: " + DEFAULT_SOURCE_PATH + " -> " + DEFAULT_OBJECT_PATH);
+		log.info("1 arg: input only, output is auto-derived (e.g. test/virtual.mj -> test/virtual.obj)");
+		log.info("2 args: explicit input and output");
+	}
+
+	private static Path deriveObjectPath(Path sourcePath) {
+		String name = sourcePath.getFileName().toString();
+		int dot = name.lastIndexOf('.');
+		String baseName = dot > 0 ? name.substring(0, dot) : name;
+		String objectName = baseName + ".obj";
+		Path parent = sourcePath.getParent();
+		return parent == null ? Paths.get(objectName) : parent.resolve(objectName);
+	}
+
 	public static void main(String[] args) throws Exception {
 
 		Logger log = Logger.getLogger(Compiler.class);
+		if (args.length > 2) {
+			log.error("Expected at most 2 arguments, but got " + args.length);
+			logUsage(log);
+			return;
+		}
+
+		Path sourcePath = Paths.get(args.length == 0 ? DEFAULT_SOURCE_PATH : args[0]).normalize();
+		Path objectPath;
+		if (args.length == 0)
+			objectPath = Paths.get(DEFAULT_OBJECT_PATH).normalize();
+		else if (args.length == 1)
+			objectPath = deriveObjectPath(sourcePath).normalize();
+		else
+			objectPath = Paths.get(args[1]).normalize();
+		File sourceCode = sourcePath.toFile();
+		File objFile = objectPath.toFile();
+
+		if (!sourceCode.isFile()) {
+			log.error("Source file does not exist: " + sourcePath.toAbsolutePath());
+			logUsage(log);
+			return;
+		}
 
 		Reader br = null;
 		try {
-			File sourceCode = new File("test/program.mj");
 			log.info("Compiling source file: " + sourceCode.getAbsolutePath());
+			log.info("Output object file: " + objFile.getAbsolutePath());
 
 			br = new BufferedReader(new FileReader(sourceCode));
 			Yylex lexer = new Yylex(br);
@@ -55,16 +98,18 @@ public class Compiler {
 			if (!parser.errorDetected && analyzer.passed()) {
 
 				// generisanje koda
-				File objFile = new File("test/program.obj");
+				Path parent = objectPath.getParent();
+				if (parent != null)
+					Files.createDirectories(parent);
 				if (objFile.exists()) objFile.delete();
 
 				Code.dataSize = analyzer.getGlobalVariables();
-				CodeGenerator codeGenerator = new CodeGenerator();
+				CodeGenerator codeGenerator = new CodeGenerator(analyzer.getFinalObjs());
 				prog.traverseBottomUp(codeGenerator);
 				Code.mainPc = codeGenerator.getMainPC();
 				Code.write(Files.newOutputStream(objFile.toPath()));
 
-				log.info("Generisanje koda uspesno");
+				log.info("Generisanje koda uspesno: " + objFile.getAbsolutePath());
 			}
 			else log.error("Parsiranje NEuspesno");
 		}
